@@ -48,14 +48,18 @@ export function AvailabilityCalendar({ onSelectPackage, selectedPackageId, initi
 
   const packagesByDate = useMemo(() => {
     const map = new Map<string, CalendarPackageEntry[]>();
-    for (const entry of data?.dates ?? []) {
-      map.set(entry.date, entry.packages);
+    const dates = Array.isArray(data?.dates) ? data.dates : [];
+    for (const entry of dates) {
+      map.set(entry.date, Array.isArray(entry.packages) ? entry.packages : []);
     }
     return map;
   }, [data]);
 
   const bookableCount = useMemo(
-    () => [...packagesByDate.values()].filter((pkgs) => pkgs.some((p) => p.is_bookable)).length,
+    () =>
+      [...packagesByDate.values()].filter(
+        (pkgs) => Array.isArray(pkgs) && pkgs.some((p) => p.is_bookable),
+      ).length,
     [packagesByDate],
   );
 

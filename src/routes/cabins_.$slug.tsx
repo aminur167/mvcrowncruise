@@ -41,12 +41,13 @@ function CabinDetail() {
   if (isLoading) return <CabinLoading />;
   if (isError || !cabin) return <CabinNotFound />;
 
-  const gallery = cabin.images.length
-    ? cabin.images.map((img) => img.image)
+  const cabinImages = Array.isArray(cabin.images) ? cabin.images : [];
+  const gallery = cabinImages.length
+    ? cabinImages.map((img) => img.image)
     : [cabinPlaceholder];
   const safeIdx = Math.min(imgIdx, gallery.length - 1);
   const mainImage = cabin.main_image?.image ?? gallery[0];
-  const otherCabins = (allCabins ?? []).filter((c) => c.slug !== cabin.slug);
+  const otherCabins = (Array.isArray(allCabins) ? allCabins : []).filter((c) => c.slug !== cabin.slug);
 
   const go = (dir: number) =>
     setImgIdx((i) => (i + dir + gallery.length) % gallery.length);

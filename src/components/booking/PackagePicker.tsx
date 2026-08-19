@@ -60,8 +60,9 @@ export function PackagePicker({ selectedPackageId, onSelectPackage }: Props) {
     );
   }
 
-  const bookable = packages.filter((p) => p.is_bookable);
-  const closed = packages.filter((p) => !p.is_bookable);
+  const pkgList = Array.isArray(packages) ? packages : [];
+  const bookable = pkgList.filter((p) => p.is_bookable);
+  const closed = pkgList.filter((p) => !p.is_bookable);
   const ordered = [...bookable, ...closed];
 
   if (ordered.length === 0) {

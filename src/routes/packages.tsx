@@ -135,6 +135,7 @@ const destinations = ["Andharmanik", "Kotka", "Jamtola Sea Beach", "Hiron Point"
 
 function PackagesPage() {
   const { data: packages, isLoading, isError } = usePackages();
+  const packageList = Array.isArray(packages) ? packages : [];
 
   return (
     <>
@@ -169,12 +170,12 @@ function PackagesPage() {
             Couldn't load voyages right now — please try again shortly.
           </div>
         )}
-        {packages && packages.length === 0 && (
+        {!isLoading && !isError && packageList.length === 0 && (
           <div className="container-luxe text-center py-20 text-muted-foreground">
             No voyages are currently open for booking. Please check back soon.
           </div>
         )}
-        {packages?.map((pkg, i) => {
+        {packageList.map((pkg, i) => {
           const tpl = templateFor(pkg);
           const title = pkg.marketing_title || `${pkg.ship.name} Voyage`;
           const dateRange = `${parseLocalDate(pkg.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} – ${parseLocalDate(pkg.end_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;

@@ -13,7 +13,8 @@ import { formatBDT } from "@/lib/money";
 export function UpcomingDepartures() {
   const { data: packages } = usePackages();
   // API is ordered by start_date, so the first bookable ones are the soonest.
-  const upcoming = (packages ?? []).filter((p) => p.is_bookable).slice(0, 3);
+  const packageList = Array.isArray(packages) ? packages : [];
+  const upcoming = packageList.filter((p) => p.is_bookable).slice(0, 3);
   if (!upcoming.length) return null;
 
   return (

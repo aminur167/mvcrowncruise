@@ -64,7 +64,7 @@ function Cabins() {
             </div>
           ) : (
             <div className="mt-16 grid md:grid-cols-3 gap-6 lg:gap-8">
-              {(cabins ?? []).map((c, i) => (
+              {(Array.isArray(cabins) ? cabins : []).map((c, i) => (
                 <motion.article
                   key={c.slug}
                   initial={{ opacity: 0, y: 30 }}
