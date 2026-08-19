@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BadgeCheck, GlassWater, Leaf, MonitorPlay, UtensilsCrossed, Users, Wifi } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
@@ -24,8 +24,8 @@ export const Route = createFileRoute("/dining")({
   component: Dining,
   head: () => ({
     meta: [
-      { title: "Dining Experience — MV Alaska Cruise" },
-      { name: "description", content: "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV Alaska." },
+      { title: "Dining Experience — MV CROWN Cruise" },
+      { name: "description", content: "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV CROWN." },
     ],
   }),
 });
@@ -82,7 +82,7 @@ function Dining() {
             description="Our chefs source fresh catch and seasonal produce daily. Every meal is a slow ritual — set against the backdrop of the world's wildest delta."
           />
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img107} alt="MV Alaska dining hall" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={img107} alt="MV CROWN dining hall" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
         </div>
       </section>
@@ -94,7 +94,7 @@ function Dining() {
             align="center"
             eyebrow="The Daily Rhythm"
             title={<>Four services. <em className="not-italic">Sunrise to starlight.</em></>}
-            description="From the first espresso of the morning to desserts under the stars — this is how a day tastes aboard MV Alaska."
+            description="From the first espresso of the morning to desserts under the stars — this is how a day tastes aboard MV CROWN."
           />
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {menus.map((m, i) => (
@@ -215,7 +215,7 @@ function Dining() {
       <section className="py-28 md:py-36 bg-secondary/30 border-y border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img106} alt="MV Alaska conference suite" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={img106} alt="MV CROWN conference suite" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
             <SectionHeader
@@ -267,14 +267,14 @@ function Dining() {
       <section className="py-24 md:py-28 bg-background border-t border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-16/10 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={chefBbq} alt="MV Alaska executive chef at the live BBQ grill" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={chefBbq} alt="MV CROWN executive chef at the live BBQ grill" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
             <div className="eyebrow text-gold mb-6 flex items-center gap-3"><span className="h-px w-8 bg-current" /> A Note From The Galley</div>
             <blockquote className="font-display text-2xl md:text-3xl font-light leading-relaxed">
               "We cook the way the delta feeds us — what the river gives in the morning is on your table by night. Nothing rushed, nothing from a packet."
             </blockquote>
-            <p className="mt-6 text-sm text-muted-foreground tracking-wide">— Executive Chef, MV Alaska</p>
+            <p className="mt-6 text-sm text-muted-foreground tracking-wide">— Executive Chef, MV CROWN</p>
           </div>
         </div>
       </section>

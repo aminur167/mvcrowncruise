@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import * as React from "react";
@@ -91,7 +91,7 @@ export const Route = createFileRoute("/booking")({
   }),
   head: () => ({
     meta: [
-      { title: "Book Your Voyage — MV Alaska Cruise" },
+      { title: "Book Your Voyage — MV CROWN Cruise" },
       {
         name: "description",
         content: "Reserve your luxury Sundarbans cruise. Choose dates, room, and payment method.",
@@ -616,7 +616,7 @@ function SummaryCard({
           <div>
             <div className="eyebrow text-gold-soft text-[9px]">Your booking</div>
             <div className="font-display text-lg text-background leading-tight mt-0.5">
-              MV Alaska Cruise
+              MV CROWN Cruise
             </div>
           </div>
           <div className="size-9 rounded-full bg-gold/15 ring-1 ring-gold/25 grid place-items-center">
@@ -710,13 +710,13 @@ function HelpCard() {
           +880 1712-823482
         </a>
         <a
-          href="mailto:mvalaskacruise@gmail.com"
+          href="mailto:mvcrowncruise@gmail.com"
           className="flex items-center gap-3 text-foreground hover:text-gold transition-colors"
         >
           <div className="size-7 rounded-full bg-ocean/10 grid place-items-center shrink-0">
             <Mail className="size-3 text-gold" />
           </div>
-          mvalaskacruise@gmail.com
+          mvcrowncruise@gmail.com
         </a>
       </div>
     </div>
@@ -1419,7 +1419,7 @@ function StepPayment({
   const payLater = Math.max(0, dueAmount - payNow);
 
   const voyageTitle =
-    selectedPackage?.marketing_title || `${selectedPackage?.ship.name ?? "MV Alaska"} Voyage`;
+    selectedPackage?.marketing_title || `${selectedPackage?.ship.name ?? "MV CROWN"} Voyage`;
 
   return (
     <form onSubmit={handleSubmit(submit)}>
@@ -1481,7 +1481,7 @@ function StepPayment({
               <div className="relative">
                 <div className="flex items-center gap-2 eyebrow text-gold-soft text-[9px]">
                   <Lock className="size-3" /> Secure checkout ·{" "}
-                  {selectedPackage?.ship.name ?? "MV Alaska"}
+                  {selectedPackage?.ship.name ?? "MV CROWN"}
                 </div>
                 <div className="mt-1.5 flex items-end justify-between gap-3">
                   <span className="font-display text-base text-background leading-tight truncate">
@@ -1878,7 +1878,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
   const latestInvoice = invoices?.[0];
 
   const waMessage = encodeURIComponent(
-    `🚢 *MV Alaska Cruise — Booking Confirmed*\n\n` +
+    `🚢 *MV CROWN Cruise — Booking Confirmed*\n\n` +
       `Ref: *${booking.booking_code}*\n` +
       `Name: ${booking.customer_name}\n` +
       `${roomsLabel}: ${roomNumbers}\n` +
@@ -1930,7 +1930,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
       </style>
       </head><body>
         <div class="header">
-          <div class="brand"><h1>M.V. ALASKA</h1><p>Cruise Ship</p></div>
+          <div class="brand"><h1>M.V. CROWN</h1><p>Cruise Ship</p></div>
           <div class="issued">Issued ${bookedOn}</div>
         </div>
         <div class="ref"><span>Booking reference</span><strong>${booking.booking_code}</strong></div>
@@ -1992,7 +1992,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
         </div>
         <div class="footer">
           <p>A confirmation email with your invoice will follow after payment.</p>
-          <p>+880 1712-823482 &nbsp;|&nbsp; mvalaskacruise@gmail.com</p>
+          <p>+880 1712-823482 &nbsp;|&nbsp; mvcrowncruise@gmail.com</p>
         </div>
       </body></html>
     `);
@@ -2170,9 +2170,9 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
           {/* Receipt header */}
           <div className="p-7 md:p-8 border-b border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="MV Alaska" className="h-14 w-auto object-contain" />
+              <img src={logo} alt="MV CROWN" className="h-14 w-auto object-contain" />
               <div>
-                <div className="font-display text-2xl tracking-widest">M.V. ALASKA</div>
+                <div className="font-display text-2xl tracking-widest">M.V. CROWN</div>
                 <div className="eyebrow text-gold-text text-[10px] mt-0.5">Cruise Ship</div>
               </div>
             </div>
@@ -2291,7 +2291,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
           {/* Footer note */}
           <div className="px-7 md:px-8 pb-8 text-xs text-muted-foreground text-center space-y-1">
             <p>A confirmation email with your invoice will follow after payment.</p>
-            <p>📞 +880 1712-823482 &nbsp;|&nbsp; ✉ mvalaskacruise@gmail.com</p>
+            <p>📞 +880 1712-823482 &nbsp;|&nbsp; ✉ mvcrowncruise@gmail.com</p>
           </div>
         </motion.div>
 

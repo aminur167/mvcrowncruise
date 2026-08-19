@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Landmark, Leaf, LifeBuoy, ShieldCheck } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
@@ -19,7 +19,7 @@ const milestones = [
   {
     year: "2020",
     title: "Maiden voyage",
-    body: "Fully government-licensed, M.V. Alaska enters the Sundarbans for her first season with the Forest Department's blessing.",
+    body: "Fully government-licensed, M.V. CROWN enters the Sundarbans for her first season with the Forest Department's blessing.",
   },
   {
     year: "2022",
@@ -76,8 +76,8 @@ export const Route = createFileRoute("/about")({
   component: About,
   head: () => ({
     meta: [
-      { title: "About MV Alaska — Bangladesh's Most Luxurious Cruise" },
-      { name: "description", content: "The story behind MV Alaska — the largest government-approved luxury cruise ship operating in the Sundarbans." },
+      { title: "About MV CROWN — Bangladesh's Most Luxurious Cruise" },
+      { name: "description", content: "The story behind MV CROWN — the largest government-approved luxury cruise ship operating in the Sundarbans." },
     ],
   }),
 });
@@ -88,7 +88,7 @@ function About() {
       <PageHero
         eyebrow="The Brand"
         title={<>A floating <em className="not-italic">five-star</em> sanctuary.</>}
-        subtitle="MV Alaska was conceived as Bangladesh's answer to the world's great river expedition vessels — uncompromising in comfort, devoted to the wild."
+        subtitle="MV CROWN was conceived as Bangladesh's answer to the world's great river expedition vessels — uncompromising in comfort, devoted to the wild."
         image={deck}
       />
 
@@ -98,12 +98,12 @@ function About() {
             <SectionHeader
               eyebrow="Our Philosophy"
               title={<>Deep wilderness. <em className="not-italic">Deep comfort.</em><br />One deck.</>}
-              description="The conviction that has steered M.V. Alaska since her first voyage: that the world's largest mangrove forest deserves to be seen properly — and that seeing it properly should never mean roughing it."
+              description="The conviction that has steered M.V. CROWN since her first voyage: that the world's largest mangrove forest deserves to be seen properly — and that seeing it properly should never mean roughing it."
             />
           </div>
           <div className="lg:col-span-7 space-y-6 text-muted-foreground leading-relaxed text-lg">
             <p>
-              Exploring the Sundarbans once demanded a compromise: the wilderness came at the cost of comfort, or comfort at the cost of the wild. M.V. Alaska was built to retire that choice. Thirty-one private balcony suites look directly over tiger country; master chefs turn the day's river catch into candlelit dinners on the open deck; and every departure sails with Bangladesh's most experienced naturalists and trained forest guards aboard.
+              Exploring the Sundarbans once demanded a compromise: the wilderness came at the cost of comfort, or comfort at the cost of the wild. M.V. CROWN was built to retire that choice. Thirty-one private balcony suites look directly over tiger country; master chefs turn the day's river catch into candlelit dinners on the open deck; and every departure sails with Bangladesh's most experienced naturalists and trained forest guards aboard.
             </p>
             <p>
               Six years on the river and more than 35,000 guests later, our measure of success is unchanged. We are fully government-licensed, benchmarked against the world's great expedition vessels, and proudly Bangladeshi. Couples and families, corporate retreats in our dedicated conference suite, full-ship private charters — whoever steps aboard, the standard never wavers.
@@ -229,7 +229,7 @@ function About() {
 
       <section className="py-28 md:py-36 gradient-ocean">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 items-center">
-          <img src={canal} alt="M.V. Alaska in the Sundarbans" className="rounded-2xl shadow-luxe aspect-[4/3] object-cover" />
+          <img src={canal} alt="M.V. CROWN in the Sundarbans" className="rounded-2xl shadow-luxe aspect-[4/3] object-cover" />
           <div className="text-background">
             <SectionHeader
               light

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/site/Hero";
 import { WhyChoose } from "@/components/site/WhyChoose";
 import { Experience } from "@/components/site/Experience";
@@ -13,11 +13,11 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "MV Alaska Cruise Ship — Luxury Sundarbans Cruise Bangladesh" },
+      { title: "MV CROWN Cruise Ship — Luxury Sundarbans Cruise Bangladesh" },
       {
         name: "description",
         content:
-          "Bangladesh's most luxurious government-approved Sundarbans cruise. Private balcony suites, BBQ deck nights, expert naturalists. Reserve your voyage with MV Alaska.",
+          "Bangladesh's most luxurious government-approved Sundarbans cruise. Private balcony suites, BBQ deck nights, expert naturalists. Reserve your voyage with MV CROWN.",
       },
     ],
   }),

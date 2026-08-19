@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/manage")({
   component: ManageBookingPage,
   head: () => ({
     meta: [
-      { title: "Manage your booking — MV Alaska Cruise" },
+      { title: "Manage your booking — MV CROWN Cruise" },
       // The result renders someone's booking; it must never be indexed.
       { name: "robots", content: "noindex, nofollow" },
       { name: "referrer", content: "no-referrer" },

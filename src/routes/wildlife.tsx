@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
   Landmark,
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/wildlife")({
   component: WildlifePage,
   head: () => ({
     meta: [
-      { title: "Wildlife Experience — MV Alaska Sundarbans" },
+      { title: "Wildlife Experience — MV CROWN Sundarbans" },
       { name: "description", content: "Royal Bengal tigers, spotted deer, kingfishers and the world's largest mangrove ecosystem — experienced from a luxury cruise." },
     ],
   }),

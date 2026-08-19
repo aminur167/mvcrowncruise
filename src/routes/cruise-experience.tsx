@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Anchor, Wifi, Wind, Coffee, Shield, Compass, Crown, Bed, Bath, Eye, Sparkles, Users } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
@@ -18,8 +18,8 @@ export const Route = createFileRoute("/cruise-experience")({
   },
   head: () => ({
     meta: [
-      { title: "Onboard Experience — MV Alaska Cruise" },
-      { name: "description", content: "Pool deck, conference hall, BBQ deck, prayer room, lounges, Starlink internet — every facility on MV Alaska, plus a day-by-day expedition map." },
+      { title: "Onboard Experience — MV CROWN Cruise" },
+      { name: "description", content: "Pool deck, conference hall, BBQ deck, prayer room, lounges, Starlink internet — every facility on MV CROWN, plus a day-by-day expedition map." },
     ],
   }),
 });
@@ -43,7 +43,7 @@ const facilities = [
 const journey: Stop[] = [
   {
     id: "embark", day: 1, time: "11:00", name: "Khulna", x: 12, y: 8, icon: "anchor", type: "anchor",
-    desc: "The voyage begins at Khulna jetty. A champagne welcome on the sky deck and a ceremonial conch as MV Alaska eases away from the dock and turns south down the Rupsha river.",
+    desc: "The voyage begins at Khulna jetty. A champagne welcome on the sky deck and a ceremonial conch as MV CROWN eases away from the dock and turns south down the Rupsha river.",
     highlights: ["Champagne welcome on the sky deck", "Suite check-in with cold towel service", "Captain's safety brief", "First lunch service as we set sail"],
   },
   {
@@ -142,7 +142,7 @@ function CruiseExp() {
             align="center"
             eyebrow="The Journey"
             title={<>Three days. Eight stops. <em className="not-italic">One cinematic arc.</em></>}
-            description="A guided walk through every moment aboard MV Alaska — from the champagne welcome at Khulna to the wild Bay of Bengal coastline at Jamtola. Tap any node on the map, hover for context, or share a single stop with a friend."
+            description="A guided walk through every moment aboard MV CROWN — from the champagne welcome at Khulna to the wild Bay of Bengal coastline at Jamtola. Tap any node on the map, hover for context, or share a single stop with a friend."
           />
           <div className="mt-16">
             <ItineraryMap stops={journey} title="The Signature Expedition" paramKey="stop" />
@@ -158,7 +158,7 @@ function CruiseExp() {
           <div className="eyebrow text-gold-soft mb-5">◆ The Ship</div>
           <h2 className="font-display text-4xl md:text-5xl font-light leading-tight">A floating five-star hotel — not a boat.</h2>
           <p className="mt-6 text-background/75 leading-relaxed">
-            MV Alaska is engineered like a luxury hotel that happens to navigate. Three full decks, thirty-one suites, two restaurants, a pool, a conference suite, and a crew trained in five-star hospitality.
+            MV CROWN is engineered like a luxury hotel that happens to navigate. Three full decks, thirty-one suites, two restaurants, a pool, a conference suite, and a crew trained in five-star hospitality.
           </p>
         </div>
         <div className="bg-mangrove text-background p-12 md:p-20 flex flex-col justify-center md:order-3">

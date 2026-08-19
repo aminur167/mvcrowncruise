@@ -73,7 +73,7 @@ export function FoodMenuSection() {
           <div className="rounded-md border border-gold/25 px-6 py-8 md:px-12 md:py-10">
             {/* Card header */}
             <div className="text-center">
-              <div className="eyebrow text-gold text-[10px]">M.V. Alaska ◆ The Galley</div>
+              <div className="eyebrow text-gold text-[10px]">M.V. Crown ◆ The Galley</div>
               <h3 className="mt-2 font-display text-3xl md:text-4xl font-light tracking-wide">
                 {day.day_label}
               </h3>

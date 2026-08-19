@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { Ban, Clock, Loader2 } from "lucide-react";
 
 import { BookingLoadError } from "@/components/booking/BookingLoadError";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/payment/cancel")({
   validateSearch: (s: Record<string, unknown>) => ({
     booking: typeof s.booking === "string" ? s.booking : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Cancelled — MV Alaska Cruise" }] }),
+  head: () => ({ meta: [{ title: "Payment Cancelled — MV CROWN Cruise" }] }),
 });
 
 function PaymentCancelPage() {

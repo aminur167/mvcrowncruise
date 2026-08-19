@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Anchor, Loader2, Lock, User } from "lucide-react";
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/staff_/login")({
   beforeLoad: () => {
     if (isStaffLoggedIn()) throw redirect({ to: "/staff" });
   },
-  head: () => ({ meta: [{ title: "Staff Login — MV Alaska" }] }),
+  head: () => ({ meta: [{ title: "Staff Login — MV CROWN" }] }),
 });
 
 function StaffLoginPage() {
@@ -48,7 +48,7 @@ function StaffLoginPage() {
           <div className="size-14 rounded-2xl gradient-gold grid place-items-center mx-auto mb-4 shadow-luxe">
             <Anchor className="size-7 text-ocean" />
           </div>
-          <h1 className="font-display text-3xl text-background">MV Alaska</h1>
+          <h1 className="font-display text-3xl text-background">MV CROWN</h1>
           <p className="eyebrow text-gold-soft text-[10px] mt-1">Staff Dashboard</p>
         </div>
 
@@ -97,7 +97,7 @@ function StaffLoginPage() {
         </form>
 
         <p className="text-center text-xs text-background/40 mt-6">
-          Staff access only · MV Alaska Cruise Ship
+          Staff access only · MV CROWN Cruise Ship
         </p>
       </div>
     </div>

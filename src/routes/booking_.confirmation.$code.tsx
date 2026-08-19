@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -24,7 +24,7 @@ import type { ApiError, PaymentType } from "@/lib/api/types";
 export const Route = createFileRoute("/booking_/confirmation/$code")({
   component: BookingConfirmationPage,
   head: ({ params }) => ({
-    meta: [{ title: `Booking ${params.code} — MV Alaska Cruise` }],
+    meta: [{ title: `Booking ${params.code} — MV CROWN Cruise` }],
   }),
 });
 

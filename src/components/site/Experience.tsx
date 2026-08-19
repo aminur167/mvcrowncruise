@@ -49,7 +49,7 @@ const experiences: ExperienceItem[] = [
     video: shipVideo,
     eyebrow: "04 — Wild",
     title: "Hidden Mangrove Canals",
-    desc: "Glide through corridors only Alaska can navigate.",
+    desc: "Glide through corridors only Crown can navigate.",
     href: "/wildlife",
     span: "lg:col-span-12",
   },
@@ -72,7 +72,7 @@ export function Experience() {
             light
             eyebrow="The Experience"
             title={<>A floating five-star <em className="not-italic">private world</em>.</>}
-            description="Every corner of MV Alaska is designed for slow, sensory immersion — from the wood-clad cabins to the open sky lounge."
+            description="Every corner of MV Crown is designed for slow, sensory immersion — from the wood-clad cabins to the open sky lounge."
           />
           <Link
             to="/cruise-experience"

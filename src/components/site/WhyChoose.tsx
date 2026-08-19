@@ -53,12 +53,12 @@ export function WhyChoose() {
         <div className="grid gap-16 lg:grid-cols-12">
           <div className="lg:col-span-5 lg:sticky lg:top-32 lg:self-start space-y-8">
             <SectionHeader
-              eyebrow="Why MV Alaska"
+              eyebrow="Why MV Crown"
               title={<>The most refined way to discover Sundarbans.</>}
               description="A floating five-star sanctuary engineered for travellers who refuse to compromise on comfort while seeking the wild."
             />
             <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-              <img src={img104} alt="MV Alaska grand lobby" loading="lazy" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+              <img src={img104} alt="MV Crown grand lobby" loading="lazy" className="image-zoom absolute inset-0 h-full w-full object-cover" />
             </div>
           </div>
 

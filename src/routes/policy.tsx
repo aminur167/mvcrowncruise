@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowRight,
@@ -16,11 +16,11 @@ export const Route = createFileRoute("/policy")({
   component: Policy,
   head: () => ({
     meta: [
-      { title: "Payment & Cancellation Policy — MV Alaska Cruise" },
+      { title: "Payment & Cancellation Policy — MV CROWN Cruise" },
       {
         name: "description",
         content:
-          "Booking confirmation, payment and cancellation terms for MV Alaska Sundarbans cruise packages.",
+          "Booking confirmation, payment and cancellation terms for MV CROWN Sundarbans cruise packages.",
       },
     ],
   }),

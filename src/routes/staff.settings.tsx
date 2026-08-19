@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ function SettingsPage() {
       <div>
         <h1 className="font-display text-3xl">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Your account and document settings on the MV Alaska staff dashboard.
+          Your account and document settings on the MV CROWN staff dashboard.
         </p>
       </div>
 

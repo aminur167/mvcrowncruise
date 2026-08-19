@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Bed, Wifi, Wind, Refrigerator, Bath, Eye } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
@@ -12,8 +12,8 @@ export const Route = createFileRoute("/cabins")({
   component: Cabins,
   head: () => ({
     meta: [
-      { title: "Luxury Cabins & Suites — MV Alaska Cruise" },
-      { name: "description", content: "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV Alaska." },
+      { title: "Luxury Cabins & Suites — MV CROWN Cruise" },
+      { name: "description", content: "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV CROWN." },
     ],
   }),
 });

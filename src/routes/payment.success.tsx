@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, Check, Loader2, Mail } from "lucide-react";
 
 import { BookingLoadError } from "@/components/booking/BookingLoadError";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/payment/success")({
   validateSearch: (s: Record<string, unknown>) => ({
     booking: typeof s.booking === "string" ? s.booking : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Successful — MV Alaska Cruise" }] }),
+  head: () => ({ meta: [{ title: "Payment Successful — MV CROWN Cruise" }] }),
 });
 
 function PaymentSuccessPage() {

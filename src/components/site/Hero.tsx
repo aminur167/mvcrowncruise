@@ -27,9 +27,9 @@ const slides: Slide[] = [
   },
   {
     img: heroImg,
-    eyebrow: "◆ Aboard M.V. Alaska",
+    eyebrow: "◆ Aboard M.V. Crown",
     title: <>Your home <em className="not-italic text-gradient-gold font-normal">on</em><br />the river.</>,
-    sub: "Three decks of comfort in motion — watch Alaska glide through the delta.",
+    sub: "Three decks of comfort in motion — watch Crown glide through the delta.",
   },
   {
     img: img21,

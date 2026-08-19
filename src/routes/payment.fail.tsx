@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2, Phone, X } from "lucide-react";
 
 import { BookingLoadError } from "@/components/booking/BookingLoadError";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/payment/fail")({
   validateSearch: (s: Record<string, unknown>) => ({
     booking: typeof s.booking === "string" ? s.booking : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Failed — MV Alaska Cruise" }] }),
+  head: () => ({ meta: [{ title: "Payment Failed — MV CROWN Cruise" }] }),
 });
 
 function PaymentFailPage() {
