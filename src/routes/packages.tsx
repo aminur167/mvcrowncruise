@@ -28,8 +28,8 @@ export const Route = createFileRoute("/packages")({
   },
   head: () => ({
     meta: [
-      { title: "Tour Packages — MV CROWN Sundarbans Cruise" },
-      { name: "description", content: "Family, couple, corporate and full-ship charter packages aboard MV CROWN. 3-day Sundarbans expeditions with day-by-day interactive itinerary maps." },
+      { title: "Tour Packages — MV THE CROWN Sundarbans Cruise" },
+      { name: "description", content: "Family, couple, corporate and full-ship charter packages aboard MV THE CROWN. 3-day Sundarbans expeditions with day-by-day interactive itinerary maps." },
     ],
   }),
 });
@@ -43,7 +43,7 @@ type MarketingTemplate = {
 
 const signature: Stop[] = [
   { id: "s1", day: 1, time: "Morning", name: "Khulna", x: 12, y: 8, icon: "anchor",
-    desc: "Welcome aboard MV CROWN at Khulna jetty. Champagne reception on the sky deck as we set sail south through the Rupsha river.",
+    desc: "Welcome aboard MV THE CROWN at Khulna jetty. Champagne reception on the sky deck as we set sail south through the Rupsha river.",
     highlights: ["Boarding & welcome reception", "Suite check-in", "Sky-deck briefing", "Sundown sail through Rupsha"] },
   { id: "s2", day: 1, time: "Evening", name: "Mongla", x: 28, y: 22, icon: "waves",
     desc: "Cross into the Sundarbans buffer at Mongla. Sunset BBQ dinner on the open deck as the mangrove forest closes in around us.",

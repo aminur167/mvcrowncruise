@@ -9,9 +9,9 @@ export function Footer() {
       <div className="container-luxe py-20 grid gap-14 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <div className="flex items-center gap-4">
-            <img src={logo} alt="MV Crown Cruise Ship" className="h-20 w-auto object-contain" />
+            <img src={logo} alt="MV THE CROWN" className="h-20 w-auto object-contain" />
             <div className="leading-none">
-              <div className="font-display text-3xl tracking-widest font-bold">M.V. CROWN</div>
+              <div className="font-display text-3xl tracking-widest font-bold">MV THE CROWN</div>
               <div className="eyebrow text-gold-soft text-[10px] mt-1 tracking-[0.2em]">
                 Cruise Ship
               </div>
@@ -28,10 +28,10 @@ export function Footer() {
               {
                 Icon: Facebook,
                 href: "https://www.facebook.com/profile.php?id=100093297079777",
-                label: "MV Crown on Facebook",
+                label: "MV THE CROWN on Facebook",
               },
-              { Icon: Instagram, href: "#", label: "MV Crown on Instagram" },
-              { Icon: Youtube, href: "#", label: "MV Crown on YouTube" },
+              { Icon: Instagram, href: "#", label: "MV THE CROWN on Instagram" },
+              { Icon: Youtube, href: "#", label: "MV THE CROWN on YouTube" },
             ].map(({ Icon, href, label }) => (
               <a
                 key={label}
@@ -84,7 +84,7 @@ export function Footer() {
             </li>
             <li className="flex items-center gap-3">
               <Mail className="size-4 text-gold" />
-              mvcrowncruise@gmail.com
+              info@mvthecrown.com
             </li>
           </ul>
         </div>
@@ -106,7 +106,7 @@ export function Footer() {
 
       <div className="border-t border-white/8">
         <div className="container-luxe py-6 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-background/50">
-          <div>© {new Date().getFullYear()} MV Crown Cruise Ship. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} MV THE CROWN. All rights reserved.</div>
           <div className="flex gap-6">
             <Link to="/policy" className="hover:text-gold">
               Privacy

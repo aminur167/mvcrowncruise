@@ -16,7 +16,7 @@ export const Route = createFileRoute("/contact")({
   component: Contact,
   head: () => ({
     meta: [
-      { title: "Contact — MV CROWN Cruise Reservations" },
+      { title: "Contact — MV THE CROWN Reservations" },
       { name: "description", content: "Reach our reservations team in Dhaka and Khulna. WhatsApp, phone, email — we respond within hours." },
     ],
   }),
@@ -92,7 +92,7 @@ function Contact() {
   function whatsappHref() {
     const inquiryLabel = INQUIRY_TYPES.find((t) => t.value === form.inquiryType)?.label;
     const lines = [
-      "Hello MV CROWN, I'd like to enquire about a cruise.",
+      "Hello MV THE CROWN, I'd like to enquire about a cruise.",
       form.name && `Name: ${form.name}`,
       inquiryLabel && `Inquiry: ${inquiryLabel}`,
       form.date && `Departure: ${form.date}`,
@@ -119,7 +119,7 @@ function Contact() {
             <div className="space-y-6">
               {[
                 { icon: Phone, label: "Phone", lines: ["+880 1712-823482", "+880 1831-694307", "+880 1550-699732"] },
-                { icon: Mail, label: "Email", lines: ["mvcrowncruise@gmail.com"] },
+                { icon: Mail, label: "Email", lines: ["info@mvthecrown.com"] },
                 { icon: MessageCircle, label: "WhatsApp", lines: ["+880 1712-823482"] },
                 { icon: MapPin, label: "Dhaka Office", lines: ["13/A Planners Tower, Banglamotor, Dhaka"] },
                 { icon: MapPin, label: "Khulna Office", lines: ["71, KDA Avenue, Khulna, Bangladesh"] },

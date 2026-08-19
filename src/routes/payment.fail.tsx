@@ -11,7 +11,7 @@ export const Route = createFileRoute("/payment/fail")({
   validateSearch: (s: Record<string, unknown>) => ({
     booking: typeof s.booking === "string" ? s.booking : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Failed — MV CROWN Cruise" }] }),
+  head: () => ({ meta: [{ title: "Payment Failed — MV THE CROWN" }] }),
 });
 
 function PaymentFailPage() {

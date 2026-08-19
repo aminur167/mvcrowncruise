@@ -16,11 +16,11 @@ export const Route = createFileRoute("/policy")({
   component: Policy,
   head: () => ({
     meta: [
-      { title: "Payment & Cancellation Policy — MV CROWN Cruise" },
+      { title: "Payment & Cancellation Policy — MV THE CROWN" },
       {
         name: "description",
         content:
-          "Booking confirmation, payment and cancellation terms for MV CROWN Sundarbans cruise packages.",
+          "Booking confirmation, payment and cancellation terms for MV THE CROWN Sundarbans cruise packages.",
       },
     ],
   }),

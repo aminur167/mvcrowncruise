@@ -11,7 +11,7 @@ export const Route = createFileRoute("/payment/success")({
   validateSearch: (s: Record<string, unknown>) => ({
     booking: typeof s.booking === "string" ? s.booking : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Successful — MV CROWN Cruise" }] }),
+  head: () => ({ meta: [{ title: "Payment Successful — MV THE CROWN" }] }),
 });
 
 function PaymentSuccessPage() {
@@ -106,7 +106,7 @@ function PaymentSuccessPage() {
       {booking?.status === "pending" && !isPolling && (
         <div className="text-center text-sm text-muted-foreground">
           Still processing — please check your email shortly, or{" "}
-          <a href="mailto:mvalaskacruise@gmail.com" className="text-gold hover:underline">
+          <a href="mailto:info@mvthecrown.com" className="text-gold hover:underline">
             contact us
           </a>{" "}
           if this doesn't update.

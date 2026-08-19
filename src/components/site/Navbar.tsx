@@ -41,9 +41,9 @@ export function Navbar() {
       >
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <img src={logo} alt="MV Crown Cruise Ship" className="h-14 w-auto object-contain" />
+            <img src={logo} alt="MV THE CROWN" className="h-14 w-auto object-contain" />
             <div className="leading-none">
-              <div className="font-display text-xl tracking-widest text-background font-bold">M.V. CROWN</div>
+              <div className="font-display text-xl tracking-widest text-background font-bold">MV THE CROWN</div>
               <div className="eyebrow text-gold-soft text-[10px] mt-0.5 tracking-[0.2em]">Cruise Ship</div>
             </div>
           </Link>

@@ -27,7 +27,7 @@ export const Route = createFileRoute("/staff")({
       throw redirect({ to: "/staff/login" });
     }
   },
-  head: () => ({ meta: [{ title: "Staff Dashboard — MV CROWN" }] }),
+  head: () => ({ meta: [{ title: "Staff Dashboard — MV THE CROWN" }] }),
 });
 
 const NAV = [
@@ -85,7 +85,7 @@ function StaffLayout() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <div className="font-display text-lg leading-none truncate">MV CROWN</div>
+              <div className="font-display text-lg leading-none truncate">MV THE CROWN</div>
               <div className="eyebrow text-gold-soft text-[8px] mt-0.5">Staff Dashboard</div>
             </div>
           )}

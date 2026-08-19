@@ -25,7 +25,7 @@ export const Route = createFileRoute("/manage")({
   component: ManageBookingPage,
   head: () => ({
     meta: [
-      { title: "Manage your booking — MV CROWN Cruise" },
+      { title: "Manage your booking — MV THE CROWN" },
       // The result renders someone's booking; it must never be indexed.
       { name: "robots", content: "noindex, nofollow" },
       { name: "referrer", content: "no-referrer" },

@@ -21,8 +21,8 @@ export const Route = createFileRoute("/gallery")({
   component: Gallery,
   head: () => ({
     meta: [
-      { title: "Gallery — MV CROWN Cruise Photography" },
-      { name: "description", content: "Cinematic photography from MV CROWN's Sundarbans expeditions — wildlife, vessel, dining, and landscape." },
+      { title: "Gallery — MV THE CROWN Photography" },
+      { name: "description", content: "Cinematic photography from MV THE CROWN's Sundarbans expeditions — wildlife, vessel, dining, and landscape." },
     ],
   }),
 });
@@ -65,7 +65,7 @@ function Gallery() {
       <PageHero
         eyebrow="The Gallery"
         title={<>Stories the <em className="not-italic">camera</em> remembered.</>}
-        subtitle="A cinematic archive from voyages aboard MV CROWN."
+        subtitle="A cinematic archive from voyages aboard MV THE CROWN."
         image={canal}
       />
       <section className="py-20 bg-background">

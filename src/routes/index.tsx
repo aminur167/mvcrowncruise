@@ -13,11 +13,11 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "MV CROWN Cruise Ship — Luxury Sundarbans Cruise Bangladesh" },
+      { title: "MV THE CROWN — Luxury Sundarbans Cruise Bangladesh" },
       {
         name: "description",
         content:
-          "Bangladesh's most luxurious government-approved Sundarbans cruise. Private balcony suites, BBQ deck nights, expert naturalists. Reserve your voyage with MV CROWN.",
+          "Bangladesh's most luxurious government-approved Sundarbans cruise. Private balcony suites, BBQ deck nights, expert naturalists. Reserve your voyage with MV THE CROWN.",
       },
     ],
   }),

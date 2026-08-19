@@ -24,8 +24,8 @@ export const Route = createFileRoute("/dining")({
   component: Dining,
   head: () => ({
     meta: [
-      { title: "Dining Experience — MV CROWN Cruise" },
-      { name: "description", content: "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV CROWN." },
+      { title: "Dining Experience — MV THE CROWN" },
+      { name: "description", content: "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV THE CROWN." },
     ],
   }),
 });
@@ -82,7 +82,7 @@ function Dining() {
             description="Our chefs source fresh catch and seasonal produce daily. Every meal is a slow ritual — set against the backdrop of the world's wildest delta."
           />
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img107} alt="MV CROWN dining hall" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={img107} alt="MV THE CROWN dining hall" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
         </div>
       </section>
@@ -94,7 +94,7 @@ function Dining() {
             align="center"
             eyebrow="The Daily Rhythm"
             title={<>Four services. <em className="not-italic">Sunrise to starlight.</em></>}
-            description="From the first espresso of the morning to desserts under the stars — this is how a day tastes aboard MV CROWN."
+            description="From the first espresso of the morning to desserts under the stars — this is how a day tastes aboard MV THE CROWN."
           />
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {menus.map((m, i) => (
@@ -215,7 +215,7 @@ function Dining() {
       <section className="py-28 md:py-36 bg-secondary/30 border-y border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img106} alt="MV CROWN conference suite" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={img106} alt="MV THE CROWN conference suite" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
             <SectionHeader
@@ -267,14 +267,14 @@ function Dining() {
       <section className="py-24 md:py-28 bg-background border-t border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-16/10 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={chefBbq} alt="MV CROWN executive chef at the live BBQ grill" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img src={chefBbq} alt="MV THE CROWN executive chef at the live BBQ grill" className="image-zoom absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
             <div className="eyebrow text-gold mb-6 flex items-center gap-3"><span className="h-px w-8 bg-current" /> A Note From The Galley</div>
             <blockquote className="font-display text-2xl md:text-3xl font-light leading-relaxed">
               "We cook the way the delta feeds us — what the river gives in the morning is on your table by night. Nothing rushed, nothing from a packet."
             </blockquote>
-            <p className="mt-6 text-sm text-muted-foreground tracking-wide">— Executive Chef, MV CROWN</p>
+            <p className="mt-6 text-sm text-muted-foreground tracking-wide">— Executive Chef, MV THE CROWN</p>
           </div>
         </div>
       </section>

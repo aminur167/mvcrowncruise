@@ -14,12 +14,12 @@ export function CTA() {
           transition={{ duration: 1 }}
           className="relative overflow-hidden rounded-3xl shadow-luxe"
         >
-          <img src={hero} alt="MV Crown" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={hero} alt="MV THE CROWN" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-ocean via-ocean/80 to-ocean/30" />
           <div className="relative p-10 md:p-20 max-w-2xl">
             <div className="eyebrow text-gold-soft mb-5">◆ Begin Your Voyage</div>
             <h2 className="font-display text-background text-4xl md:text-6xl font-light leading-[1.05]">
-              The river is waiting. <em className="not-italic">So is Crown.</em>
+              The river is waiting. <em className="not-italic">So is MV THE CROWN.</em>
             </h2>
             <p className="mt-6 text-background/75 text-base md:text-lg leading-relaxed">
               Reserve your suite for the next departure. Limited cabins each season — our most luxurious experiences sell out months in advance.

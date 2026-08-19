@@ -11,7 +11,7 @@ const reviews = [
   {
     name: "Marc & Eloise Vermeer",
     role: "Travelers · Netherlands",
-    text: "We've cruised the Mekong, the Nile, the Amazon. MV Crown holds its own — service, food, and an unforgettable tiger sighting at sunrise.",
+    text: "We've cruised the Mekong, the Nile, the Amazon. MV THE CROWN holds its own — service, food, and an unforgettable tiger sighting at sunrise.",
   },
   {
     name: "Faisal Ahmed",

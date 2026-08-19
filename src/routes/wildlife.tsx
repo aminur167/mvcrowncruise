@@ -39,7 +39,7 @@ export const Route = createFileRoute("/wildlife")({
   component: WildlifePage,
   head: () => ({
     meta: [
-      { title: "Wildlife Experience — MV CROWN Sundarbans" },
+      { title: "Wildlife Experience — MV THE CROWN Sundarbans" },
       { name: "description", content: "Royal Bengal tigers, spotted deer, kingfishers and the world's largest mangrove ecosystem — experienced from a luxury cruise." },
     ],
   }),

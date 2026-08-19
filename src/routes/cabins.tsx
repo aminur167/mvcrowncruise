@@ -12,8 +12,8 @@ export const Route = createFileRoute("/cabins")({
   component: Cabins,
   head: () => ({
     meta: [
-      { title: "Luxury Cabins & Suites — MV CROWN Cruise" },
-      { name: "description", content: "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV CROWN." },
+      { title: "Luxury Cabins & Suites — MV THE CROWN" },
+      { name: "description", content: "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV THE CROWN." },
     ],
   }),
 });

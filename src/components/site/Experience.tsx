@@ -72,7 +72,7 @@ export function Experience() {
             light
             eyebrow="The Experience"
             title={<>A floating five-star <em className="not-italic">private world</em>.</>}
-            description="Every corner of MV Crown is designed for slow, sensory immersion — from the wood-clad cabins to the open sky lounge."
+            description="Every corner of MV THE CROWN is designed for slow, sensory immersion — from the wood-clad cabins to the open sky lounge."
           />
           <Link
             to="/cruise-experience"

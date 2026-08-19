@@ -24,7 +24,7 @@ import type { ApiError, PaymentType } from "@/lib/api/types";
 export const Route = createFileRoute("/booking_/confirmation/$code")({
   component: BookingConfirmationPage,
   head: ({ params }) => ({
-    meta: [{ title: `Booking ${params.code} — MV CROWN Cruise` }],
+    meta: [{ title: `Booking ${params.code} — MV THE CROWN` }],
   }),
 });
 
