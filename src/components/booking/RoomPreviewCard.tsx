@@ -25,6 +25,11 @@ type Props = {
    *  shows a static card that follows the mouse away. */
   interactive?: boolean;
   onClose?: () => void;
+  /** Desktop hover grid only: open a photo full-size. Owned by a stable
+   *  ancestor (not this card) because the card itself unmounts the instant
+   *  the mouse leaves the tile — which it would, the moment someone moves
+   *  toward the lightbox to use its controls. */
+  onOpenGallery?: (index: number) => void;
 };
 
 /**
@@ -39,7 +44,13 @@ type Props = {
  * therefore computed from the tile's viewport rect and flipped/clamped to stay
  * on screen.
  */
-export function RoomPreviewCard({ room, anchor, interactive = false, onClose }: Props) {
+export function RoomPreviewCard({
+  room,
+  anchor,
+  interactive = false,
+  onClose,
+  onOpenGallery,
+}: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -100,20 +111,28 @@ export function RoomPreviewCard({ room, anchor, interactive = false, onClose }: 
               className={`grid gap-px bg-border ${images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
             >
               {images.slice(0, 4).map((image, index) => (
-                <div key={image.id} className="relative aspect-4/3 bg-muted">
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => onOpenGallery?.(index)}
+                  aria-label={`View photo ${index + 1} of ${images.length}, room ${room.room_number}, full size`}
+                  className="group relative aspect-4/3 cursor-pointer overflow-hidden bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean"
+                >
                   <img
                     src={image.thumbnail_url || image.image}
                     alt=""
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  {index === 3 && images.length > 4 && (
+                  {index === 3 && images.length > 4 ? (
                     <span className="absolute inset-0 grid place-items-center bg-midnight/60 text-background text-sm font-semibold">
                       +{images.length - 4}
                     </span>
+                  ) : (
+                    <span className="absolute inset-0 bg-midnight/0 transition-colors duration-300 group-hover:bg-midnight/20" />
                   )}
-                </div>
+                </button>
               ))}
             </div>
           )}

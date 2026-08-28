@@ -1,9 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 
 import type { LucideIcon } from "lucide-react";
 import { BedDouble, Camera, Check, Compass, ConciergeBell, Users, Waves, X } from "lucide-react";
 
 import { RoomPreviewCard } from "@/components/booking/RoomPreviewCard";
+import { Lightbox } from "@/components/booking/RoomGallery";
 import { usePackageRooms } from "@/hooks/queries/usePackageRooms";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatBDT } from "@/lib/money";
@@ -190,6 +192,7 @@ function RoomCell({
   checked,
   onSelect,
   isMobile,
+  onOpenGallery,
 }: {
   room: PackageRoom;
   checked: boolean;
@@ -197,6 +200,9 @@ function RoomCell({
   /** Touch has no hover, and a tap must still select the cabin — so the
    *  preview gets its own small camera badge there instead. */
   isMobile: boolean;
+  /** Desktop hover preview only — opens this room's full-size lightbox,
+   *  owned by RoomPicker rather than the transient hover card itself. */
+  onOpenGallery: (room: PackageRoom, index: number) => void;
 }) {
   const selectable = room.availability === "available";
   const tileRef = useRef<HTMLLabelElement>(null);
@@ -308,6 +314,7 @@ function RoomCell({
           anchor={preview.rect}
           interactive={preview.tapped}
           onClose={() => setPreview(null)}
+          onOpenGallery={(index) => onOpenGallery(room, index)}
         />
       )}
       {/* aria-hidden: the tile's visual text is a terse duplicate of the radio's
@@ -380,6 +387,7 @@ function Deck({
   onToggleRoom,
   vertical,
   isMobile,
+  onOpenGallery,
 }: {
   plan: DeckPlan;
   roomsByNumber: Map<string, PackageRoom>;
@@ -391,6 +399,7 @@ function Deck({
   /** Draw the ship bow-up (mobile) rather than bow-right. Only the chosen hull
    * is rendered — the other must not be left in the DOM. */
   vertical: boolean;
+  onOpenGallery: (room: PackageRoom, index: number) => void;
 }) {
   const deckHeadingId = useId();
   const deckRooms = [...plan.port, ...plan.starboard]
@@ -441,6 +450,7 @@ function Deck({
         checked={selectedRoomIds.has(r.id)}
         onSelect={() => onToggleRoom(r)}
         isMobile={isMobile}
+        onOpenGallery={onOpenGallery}
       />
     );
   };
@@ -654,6 +664,10 @@ export function RoomPicker({ packageId, selectedRoomIds, onToggleRoom }: Props) 
   // Matches the md breakpoint the deck layouts are keyed to — used to mount one
   // deck rather than render both and hide one.
   const isMobile = useIsMobile();
+  // Lives here, not inside the hover preview card: that card unmounts the
+  // instant the mouse leaves the tile, which it would the moment someone
+  // moves toward the lightbox to use its controls.
+  const [gallery, setGallery] = useState<{ room: PackageRoom; index: number } | null>(null);
 
   if (!packageId) {
     return (
@@ -745,6 +759,7 @@ export function RoomPicker({ packageId, selectedRoomIds, onToggleRoom }: Props) 
               onToggleRoom={onToggleRoom}
               vertical={false}
               isMobile={isMobile}
+              onOpenGallery={(room, index) => setGallery({ room, index })}
             />
           ))}
         </div>
@@ -788,6 +803,7 @@ export function RoomPicker({ packageId, selectedRoomIds, onToggleRoom }: Props) 
               onToggleRoom={onToggleRoom}
               vertical
               isMobile={isMobile}
+              onOpenGallery={(room, index) => setGallery({ room, index })}
             />
           )}
         </div>
@@ -843,6 +859,29 @@ export function RoomPicker({ packageId, selectedRoomIds, onToggleRoom }: Props) 
           ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {gallery && (
+          <Lightbox
+            images={gallery.room.preview_images.map((image) => ({ ...image, sort_order: 0 }))}
+            roomNumber={gallery.room.room_number}
+            index={gallery.index}
+            onClose={() => setGallery(null)}
+            onNavigate={(delta) =>
+              setGallery((g) =>
+                g
+                  ? {
+                      ...g,
+                      index:
+                        (g.index + delta + g.room.preview_images.length) %
+                        g.room.preview_images.length,
+                    }
+                  : g,
+              )
+            }
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -80,7 +80,7 @@ export function RoomGallery({ images, roomNumber, variant = "strip", className =
   );
 }
 
-function Lightbox({
+export function Lightbox({
   images,
   roomNumber,
   index,
