@@ -205,10 +205,10 @@ export function Hero() {
            * each) — `sm:contents` unwraps this box at sm+ so the two links
            * fall back into the row above as plain siblings, matching how
            * they always looked on desktop. */}
-          <div className="flex gap-4 sm:contents">
+          <div className="flex gap-3 sm:gap-4 sm:contents">
             <Link
               to="/packages"
-              className="flex-1 sm:flex-none px-4 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors text-center"
+              className="flex-1 sm:flex-none px-2 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.06em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors text-center whitespace-nowrap"
             >
               Explore Packages
             </Link>
@@ -216,7 +216,7 @@ export function Hero() {
               href={SISTER_SHIP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.06em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
             >
               Visit MV Alaska <ArrowUpRight className="size-3 sm:size-3.5 shrink-0" />
             </a>
