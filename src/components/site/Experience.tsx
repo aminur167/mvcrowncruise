@@ -7,7 +7,7 @@ import deck from "@/assets/deck-sunset.jpg";
 import cabin from "@/assets/103.jpeg";
 import dining from "@/assets/dining-bbq.jpg";
 import canal from "@/assets/canal-mangrove.jpg";
-import shipVideo from "@/assets/MvalaskaVideo.mp4";
+import shipVideo from "@/assets/crown-ship.mp4";
 
 type ExperienceItem = {
   img: string;
@@ -71,7 +71,11 @@ export function Experience() {
           <SectionHeader
             light
             eyebrow="The Experience"
-            title={<>A floating five-star <em className="not-italic">private world</em>.</>}
+            title={
+              <>
+                A floating five-star <em className="not-italic">private world</em>.
+              </>
+            }
             description="Every corner of MV THE CROWN is designed for slow, sensory immersion — from the wood-clad cabins to the open sky lounge."
           />
           <Link
