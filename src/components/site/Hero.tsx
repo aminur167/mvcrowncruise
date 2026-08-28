@@ -7,7 +7,7 @@ import skyDeckPoolNight from "@/assets/sky-deck-pool-night.jpg";
 import cabinSuiteInterior from "@/assets/cabin-suite-interior.jpg";
 import shipArrivalNight from "@/assets/ship-arrival-night.jpg";
 import canalImg from "@/assets/canal-mangrove.jpg";
-import shipVideo from "@/assets/MvalaskaVideo.mp4";
+import shipVideo from "@/assets/crown-ship.mp4";
 
 // Our sister ship's own, separately hosted site — an external link, not a
 // route in this app.
