@@ -64,7 +64,7 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
     name: "Upper Deck",
     aft: { label: "Swimming Pool & Sitting Area", icon: Waves, variant: "pool" },
     port: [
-      room("307"),
+      room("308"),
       room("309"),
       room("310"),
       room("311"),
@@ -79,7 +79,7 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
       room("304"),
       room("305"),
       room("306"),
-      room("308"),
+      room("307"),
     ],
   },
   {
