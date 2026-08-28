@@ -2,10 +2,10 @@ import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion"
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import heroImg from "@/assets/hero-cruise.jpg";
-import img21 from "@/assets/21.jpeg";
-import img23 from "@/assets/23.jpeg";
-import tigerImg from "@/assets/wildlife-tiger.jpg";
+import shipOnRiver from "@/assets/ship-on-the-river.jpg";
+import skyDeckPoolNight from "@/assets/sky-deck-pool-night.jpg";
+import cabinSuiteInterior from "@/assets/cabin-suite-interior.jpg";
+import shipArrivalNight from "@/assets/ship-arrival-night.jpg";
 import canalImg from "@/assets/canal-mangrove.jpg";
 import shipVideo from "@/assets/MvalaskaVideo.mp4";
 
@@ -36,7 +36,7 @@ const slides: Slide[] = [
     sub: "Explore the world's largest mangrove forest aboard Bangladesh's most luxurious government-approved cruise ship.",
   },
   {
-    img: heroImg,
+    img: shipOnRiver,
     eyebrow: "◆ Aboard MV THE CROWN",
     title: (
       <>
@@ -48,40 +48,40 @@ const slides: Slide[] = [
     sub: "Three decks of comfort in motion — watch MV THE CROWN glide through the delta.",
   },
   {
-    img: img21,
-    eyebrow: "◆ Sundown On The Sky Deck",
+    img: skyDeckPoolNight,
+    eyebrow: "◆ Nightfall On The Sky Deck",
     title: (
       <>
-        Golden hours <em className="not-italic text-gradient-gold font-normal">over</em>
+        Evenings glow <em className="not-italic text-gradient-gold font-normal">over</em>
         <br />
-        the wild delta.
+        the open deck.
       </>
     ),
-    sub: "Open-air sky decks, candlelit dinners and a sunset that stretches across the horizon.",
+    sub: "The rooftop pool and open-air lounge come alive after dark, lit for a night on the water.",
   },
   {
-    img: img23,
-    eyebrow: "◆ Cinematic Mangrove Canals",
+    img: cabinSuiteInterior,
+    eyebrow: "◆ Private Suites",
     title: (
       <>
-        Drift through <em className="not-italic text-gradient-gold font-normal">untouched</em>
+        Rest in <em className="not-italic text-gradient-gold font-normal">quiet</em>
         <br />
-        green corridors.
+        comfort.
       </>
     ),
-    sub: "Glide silently through narrow tidal canals, escorted by expert naturalists and silent canoes.",
+    sub: "Wood-clad cabins with plush seating and everything you need to unwind between excursions.",
   },
   {
-    img: tigerImg,
-    eyebrow: "◆ Royal Bengal Encounters",
+    img: shipArrivalNight,
+    eyebrow: "◆ Welcome Aboard",
     title: (
       <>
-        Where the <em className="not-italic text-gradient-gold font-normal">tiger</em>
+        Your journey <em className="not-italic text-gradient-gold font-normal">begins</em>
         <br />
-        still rules.
+        here.
       </>
     ),
-    sub: "Documentary-grade wildlife expeditions across Kotka, Hiron Point and Kochikhali.",
+    sub: "Step aboard MV THE CROWN at the jetty — the gateway to your Sundarbans expedition.",
   },
 ];
 
