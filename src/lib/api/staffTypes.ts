@@ -65,6 +65,7 @@ export interface StaffPackage {
   marketing_description: string;
   hero_image: string | null;
   highlights: string[];
+  rating: string | null;
   bookings_count: number | null;
   paid_total: Money | null;
   due_total: Money | null;
@@ -83,6 +84,8 @@ export interface StaffPackageWrite {
   marketing_title?: string;
   marketing_description?: string;
   highlights?: string[];
+  /** Blank/omitted hides the rating on the public card. */
+  rating?: string | null;
 }
 
 export interface StaffPayment {

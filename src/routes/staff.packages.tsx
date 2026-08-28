@@ -557,6 +557,7 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
     marketing_title: pkg?.marketing_title ?? "",
     marketing_description: pkg?.marketing_description ?? "",
     highlights: pkg?.highlights ?? [],
+    rating: pkg?.rating ?? null,
   });
 
   const set = (patch: Partial<StaffPackageWrite>) => setForm((f) => ({ ...f, ...patch }));
@@ -655,6 +656,18 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
             value={form.marketing_title}
             onChange={(e) => set({ marketing_title: e.target.value })}
             placeholder="e.g. Sundarbans Explorer"
+            className={staffInputClass}
+          />
+        </StaffField>
+        <StaffField label="Rating (out of 5)">
+          <input
+            type="number"
+            min={0}
+            max={5}
+            step={0.1}
+            value={form.rating ?? ""}
+            onChange={(e) => set({ rating: e.target.value === "" ? null : e.target.value })}
+            placeholder="e.g. 4.8 — leave blank to hide"
             className={staffInputClass}
           />
         </StaffField>

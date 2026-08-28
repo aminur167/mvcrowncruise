@@ -29,6 +29,11 @@ export interface Package {
   marketing_description: string;
   hero_image: string | null;
   highlights: string[];
+  /** Editorial score out of 5 (e.g. "4.8"), staff-entered. Null hides the
+   *  rating on the card rather than showing a fabricated one. */
+  rating: string | null;
+  /** Live count of sellable cabins not booked or admin-blocked. */
+  available_rooms: number;
 }
 
 export type KidChargeType = "free" | "fixed" | "full_adult";
