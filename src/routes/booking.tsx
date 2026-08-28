@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import img109 from "@/assets/109.jpeg";
+import sisterShipImage from "@/assets/M.V._ALASKA_AboutPageImage.jpeg";
 import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar";
 import { PackagePicker } from "@/components/booking/PackagePicker";
 import { RoomGallery } from "@/components/booking/RoomGallery";
@@ -386,7 +387,7 @@ function Booking() {
           </div>
 
           {/* ── Right: sticky summary sidebar (hidden on payment step) ── */}
-          {selectedPackage && !isWideStep && (
+          {!isWideStep && (
             <aside className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-40 lg:self-start">
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
@@ -394,13 +395,19 @@ function Booking() {
                 transition={{ duration: 0.4 }}
                 className="space-y-5"
               >
-                <SummaryCard
-                  data={data}
-                  selectedPackage={selectedPackage}
-                  quote={quote}
-                  quoting={quoting}
-                />
-                <HelpCard />
+                {selectedPackage ? (
+                  <>
+                    <SummaryCard
+                      data={data}
+                      selectedPackage={selectedPackage}
+                      quote={quote}
+                      quoting={quoting}
+                    />
+                    <HelpCard />
+                  </>
+                ) : (
+                  step === 0 && <SisterShipCard />
+                )}
               </motion.div>
             </aside>
           )}
@@ -723,6 +730,41 @@ function HelpCard() {
   );
 }
 
+/* ── Fills the sidebar slot before a package is chosen, when it would
+ *  otherwise sit empty (the summary card only has something to show once a
+ *  package is selected). ── */
+function SisterShipCard() {
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="relative h-32">
+        <img
+          src={sisterShipImage}
+          alt="MV Alaska Cruise sailing the Sundarbans"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-ocean/85 via-ocean/15 to-transparent" />
+        <div className="absolute bottom-3 left-4 eyebrow text-gold-soft text-[9px] flex items-center gap-1.5">
+          <Anchor className="size-3" /> Same Company, Another Ship
+        </div>
+      </div>
+      <div className="px-5 py-4">
+        <div className="font-display text-lg leading-tight">Sailing elsewhere?</div>
+        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+          Meet MV Alaska Cruise — our sister ship's own voyages and departures.
+        </p>
+        <a
+          href={SISTER_SHIP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold-text hover:underline underline-offset-4"
+        >
+          Visit MV Alaska Cruise <ArrowUpRight className="size-3.5" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 /* ── Shared step header — consistent hierarchy across every step ── */
 function StepHeader({
   step,
@@ -761,17 +803,6 @@ function StepPackage({ data, update, onNext }: StepProps & { onNext: () => void 
         highlight="package."
         description="Browse our upcoming voyages and pick the departure that suits you. Every package includes all meals, guided excursions, and your private room."
       />
-      <p className="-mt-6 mb-8 text-sm text-muted-foreground">
-        Looking to sail on our other ship instead?{" "}
-        <a
-          href={SISTER_SHIP_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-gold-text font-medium hover:underline underline-offset-4"
-        >
-          Visit MV Alaska Cruise <ArrowUpRight className="size-3.5" />
-        </a>
-      </p>
       <PackagePicker
         selectedPackageId={data.packageId}
         onSelectPackage={(pkg) => {
