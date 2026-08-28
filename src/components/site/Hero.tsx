@@ -1,13 +1,17 @@
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import heroImg from "@/assets/hero-cruise.jpg";
 import img21 from "@/assets/21.jpeg";
 import img23 from "@/assets/23.jpeg";
 import tigerImg from "@/assets/wildlife-tiger.jpg";
 import canalImg from "@/assets/canal-mangrove.jpg";
 import shipVideo from "@/assets/MvalaskaVideo.mp4";
+
+// Our sister ship's own, separately hosted site — an external link, not a
+// route in this app.
+const SISTER_SHIP_URL = "https://www.mvalaskacruise.com/";
 
 type Slide = {
   img: string;
@@ -22,31 +26,61 @@ const slides: Slide[] = [
     img: canalImg,
     video: shipVideo,
     eyebrow: "◆ The Premium Brand For River Cruising",
-    title: <>Luxury <em className="not-italic text-gradient-gold font-normal">Sundarbans</em><br />Cruise Experience</>,
+    title: (
+      <>
+        Luxury <em className="not-italic text-gradient-gold font-normal">Sundarbans</em>
+        <br />
+        Cruise Experience
+      </>
+    ),
     sub: "Explore the world's largest mangrove forest aboard Bangladesh's most luxurious government-approved cruise ship.",
   },
   {
     img: heroImg,
     eyebrow: "◆ Aboard MV THE CROWN",
-    title: <>Your home <em className="not-italic text-gradient-gold font-normal">on</em><br />the river.</>,
+    title: (
+      <>
+        Your home <em className="not-italic text-gradient-gold font-normal">on</em>
+        <br />
+        the river.
+      </>
+    ),
     sub: "Three decks of comfort in motion — watch MV THE CROWN glide through the delta.",
   },
   {
     img: img21,
     eyebrow: "◆ Sundown On The Sky Deck",
-    title: <>Golden hours <em className="not-italic text-gradient-gold font-normal">over</em><br />the wild delta.</>,
+    title: (
+      <>
+        Golden hours <em className="not-italic text-gradient-gold font-normal">over</em>
+        <br />
+        the wild delta.
+      </>
+    ),
     sub: "Open-air sky decks, candlelit dinners and a sunset that stretches across the horizon.",
   },
   {
     img: img23,
     eyebrow: "◆ Cinematic Mangrove Canals",
-    title: <>Drift through <em className="not-italic text-gradient-gold font-normal">untouched</em><br />green corridors.</>,
+    title: (
+      <>
+        Drift through <em className="not-italic text-gradient-gold font-normal">untouched</em>
+        <br />
+        green corridors.
+      </>
+    ),
     sub: "Glide silently through narrow tidal canals, escorted by expert naturalists and silent canoes.",
   },
   {
     img: tigerImg,
     eyebrow: "◆ Royal Bengal Encounters",
-    title: <>Where the <em className="not-italic text-gradient-gold font-normal">tiger</em><br />still rules.</>,
+    title: (
+      <>
+        Where the <em className="not-italic text-gradient-gold font-normal">tiger</em>
+        <br />
+        still rules.
+      </>
+    ),
     sub: "Documentary-grade wildlife expeditions across Kotka, Hiron Point and Kochikhali.",
   },
 ];
@@ -173,6 +207,14 @@ export function Hero() {
           >
             Explore Packages
           </Link>
+          <a
+            href={SISTER_SHIP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-8 py-4 text-background/70 text-xs uppercase tracking-[0.2em] font-medium hover:text-gold transition-colors"
+          >
+            Visit MV Alaska <ArrowUpRight className="size-3.5" />
+          </a>
         </motion.div>
       </motion.div>
 
@@ -213,14 +255,15 @@ export function Hero() {
         </div>
       </div>
 
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
         className="absolute left-6 bottom-32 z-10 hidden md:flex flex-col items-center gap-3 text-background/60"
       >
-        <div className="eyebrow [writing-mode:vertical-rl] rotate-180 text-[9px]">Scroll to discover</div>
+        <div className="eyebrow [writing-mode:vertical-rl] rotate-180 text-[9px]">
+          Scroll to discover
+        </div>
         <ChevronDown className="size-4 animate-bounce" />
       </motion.div>
     </section>

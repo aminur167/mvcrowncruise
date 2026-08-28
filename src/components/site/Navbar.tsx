@@ -1,11 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Phone, ArrowUpRight } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import logo from "@/assets/logo.png";
-
-// Our sister ship's own, separately hosted site — an external link, not a
-// route in this app.
-const SISTER_SHIP_URL = "https://www.mvalaskacruise.com/";
 
 const links = [
   { to: "/", label: "Home" },
@@ -75,14 +71,6 @@ export function Navbar() {
               <Phone className="size-3.5" />
               +880 1712-823482
             </a>
-            <a
-              href={SISTER_SHIP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-background/25 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-background/80 hover:border-gold hover:text-gold transition-colors"
-            >
-              MV Alaska <ArrowUpRight className="size-3" />
-            </a>
             <Link
               to="/booking"
               className="px-5 py-2.5 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.18em] font-semibold hover-lift shadow-luxe"
@@ -114,15 +102,6 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
-            <a
-              href={SISTER_SHIP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="py-3 flex items-center justify-between text-background/90 hover:text-gold border-b border-white/5 text-sm tracking-wide"
-            >
-              Visit MV Alaska
-              <ArrowUpRight className="size-3.5" />
-            </a>
             <Link
               to="/booking"
               onClick={() => setOpen(false)}
