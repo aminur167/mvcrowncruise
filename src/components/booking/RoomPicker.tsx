@@ -1,19 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 import type { LucideIcon } from "lucide-react";
-import {
-  Armchair,
-  ArrowUpDown,
-  BedDouble,
-  Camera,
-  Check,
-  Compass,
-  ConciergeBell,
-  Crown,
-  Users,
-  Waves,
-  X,
-} from "lucide-react";
+import { BedDouble, Camera, Check, Compass, ConciergeBell, Users, Waves, X } from "lucide-react";
 
 import { RoomPreviewCard } from "@/components/booking/RoomPreviewCard";
 import { usePackageRooms } from "@/hooks/queries/usePackageRooms";
@@ -36,7 +24,8 @@ const AVAILABILITY_LABEL: Record<RoomAvailability, string> = {
 };
 
 /* ── Deck-plan data ─────────────────────────────────────────────────────────
- * Presentational layout only (docs/Alaska Room Layout for corporate.pdf),
+ * MV The Crown's real deck plan (mvcrowncruise-backend/docs/Crown New Room
+ * Layout for corporate.pdf),
  * drawn top-down like the ship's architecture. On md+ screens the ship lies
  * horizontally (stern left, bow right); on mobile the same deck is drawn
  * vertically (bow top, stern bottom) so it fits the viewport without
@@ -73,16 +62,15 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
   {
     floor: 2,
     name: "Upper Deck",
-    aft: { label: "Swimming Pool", icon: Waves, variant: "pool" },
+    aft: { label: "Swimming Pool & Sitting Area", icon: Waves, variant: "pool" },
     port: [
+      room("307"),
       room("309"),
       room("310"),
       room("311"),
       room("312"),
       room("313"),
       room("314"),
-      feature("Mini Lounge", Armchair),
-      feature("Owners Suite", Crown, 2),
     ],
     starboard: [
       room("301"),
@@ -91,15 +79,13 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
       room("304"),
       room("305"),
       room("306"),
-      feature("Stair", ArrowUpDown),
-      room("307"),
       room("308"),
     ],
   },
   {
     floor: 1,
     name: "Main Deck",
-    aft: { label: "Reception & Main Lounge", icon: ConciergeBell, variant: "lounge" },
+    aft: { label: "Reception & Lounge", icon: ConciergeBell, variant: "lounge" },
     port: [
       room("209"),
       room("210"),
@@ -108,8 +94,6 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
       room("213"),
       room("214"),
       room("215"),
-      room("216"),
-      room("217"),
     ],
     starboard: [
       room("201"),
@@ -118,7 +102,6 @@ const SHIP_DECK_PLANS: DeckPlan[] = [
       room("204"),
       room("205"),
       room("206"),
-      feature("Stair", ArrowUpDown),
       room("207"),
       room("208"),
     ],
