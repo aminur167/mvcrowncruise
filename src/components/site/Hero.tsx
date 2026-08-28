@@ -211,7 +211,7 @@ export function Hero() {
             href={SISTER_SHIP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-8 py-4 text-background/70 text-xs uppercase tracking-[0.2em] font-medium hover:text-gold transition-colors"
+            className="inline-flex items-center gap-1.5 px-8 py-4 rounded-full border border-background/30 text-background text-xs uppercase tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
           >
             Visit MV Alaska <ArrowUpRight className="size-3.5" />
           </a>
