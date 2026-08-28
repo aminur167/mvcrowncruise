@@ -1,7 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ArrowUpRight } from "lucide-react";
 import logo from "@/assets/logo.png";
+
+// Our sister ship's own, separately hosted site — an external link, not a
+// route in this app.
+const SISTER_SHIP_URL = "https://www.mvalaskacruise.com/";
 
 const links = [
   { to: "/", label: "Home" },
@@ -33,9 +37,7 @@ export function Navbar() {
     >
       <div
         className={`container-luxe transition-all duration-500 ${
-          scrolled
-            ? "rounded-full glass-dark px-6 py-3 mx-4 md:mx-auto"
-            : "px-2"
+          scrolled ? "rounded-full glass-dark px-6 py-3 mx-4 md:mx-auto" : "px-2"
         }`}
         style={scrolled ? { maxWidth: "1200px" } : undefined}
       >
@@ -43,8 +45,12 @@ export function Navbar() {
           <Link to="/" className="flex items-center gap-3 group">
             <img src={logo} alt="MV THE CROWN" className="h-14 w-auto object-contain" />
             <div className="leading-none">
-              <div className="font-display text-xl tracking-widest text-background font-bold">MV THE CROWN</div>
-              <div className="eyebrow text-gold-soft text-[10px] mt-0.5 tracking-[0.2em]">Cruise Ship</div>
+              <div className="font-display text-xl tracking-widest text-background font-bold">
+                MV THE CROWN
+              </div>
+              <div className="eyebrow text-gold-soft text-[10px] mt-0.5 tracking-[0.2em]">
+                Cruise Ship
+              </div>
             </div>
           </Link>
 
@@ -68,6 +74,14 @@ export function Navbar() {
             >
               <Phone className="size-3.5" />
               +880 1712-823482
+            </a>
+            <a
+              href={SISTER_SHIP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-background/25 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-background/80 hover:border-gold hover:text-gold transition-colors"
+            >
+              MV Alaska <ArrowUpRight className="size-3" />
             </a>
             <Link
               to="/booking"
@@ -100,6 +114,15 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            <a
+              href={SISTER_SHIP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-3 flex items-center justify-between text-background/90 hover:text-gold border-b border-white/5 text-sm tracking-wide"
+            >
+              Visit MV Alaska
+              <ArrowUpRight className="size-3.5" />
+            </a>
             <Link
               to="/booking"
               onClick={() => setOpen(false)}

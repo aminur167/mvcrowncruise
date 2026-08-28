@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
   Anchor,
   Baby,
   BadgeCheck,
@@ -45,14 +46,8 @@ import { useCreateBooking } from "@/hooks/queries/useCreateBooking";
 import { parseLocalDate } from "@/lib/dates";
 import { formatBDT } from "@/lib/money";
 import { bookingContactSchema, type BookingContactValues } from "@/lib/validation/bookingForm";
-import {
-  ForeignGuestsSection,
-  type ForeignGuestDraft,
-} from "@/components/booking/ForeignGuests";
-import {
-  foreignGuestIssues,
-  serialiseForeignGuests,
-} from "@/lib/validation/foreignGuests";
+import { ForeignGuestsSection, type ForeignGuestDraft } from "@/components/booking/ForeignGuests";
+import { foreignGuestIssues, serialiseForeignGuests } from "@/lib/validation/foreignGuests";
 import { countryName } from "@/lib/countries";
 import type { ApiError, BookingPublic, PackageRoom } from "@/lib/api/types";
 
@@ -106,6 +101,10 @@ const steps = [
   { label: "Room", icon: Bed },
   { label: "Guests & Pay", icon: CreditCard },
 ] as const;
+
+// Our sister ship's own, separately hosted site — an external link, not a
+// route in this app.
+const SISTER_SHIP_URL = "https://www.mvalaskacruise.com/";
 
 const STEP_ROOM = 2;
 
@@ -662,7 +661,8 @@ function SummaryCard({
                       {room.room_number ? `Room ${room.room_number}` : `Room ${i + 1}`}
                       <span className="text-muted-foreground/70">
                         {" "}
-                        · {room.adult_count} ad{room.kids.length ? ` · ${room.kids.length} kid` : ""}
+                        · {room.adult_count} ad
+                        {room.kids.length ? ` · ${room.kids.length} kid` : ""}
                       </span>
                     </span>
                     <span className="text-foreground font-medium">{formatBDT(room.total)}</span>
@@ -761,6 +761,17 @@ function StepPackage({ data, update, onNext }: StepProps & { onNext: () => void 
         highlight="package."
         description="Browse our upcoming voyages and pick the departure that suits you. Every package includes all meals, guided excursions, and your private room."
       />
+      <p className="-mt-6 mb-8 text-sm text-muted-foreground">
+        Looking to sail on our other ship instead?{" "}
+        <a
+          href={SISTER_SHIP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-gold-text font-medium hover:underline underline-offset-4"
+        >
+          Visit MV Alaska Cruise <ArrowUpRight className="size-3.5" />
+        </a>
+      </p>
       <PackagePicker
         selectedPackageId={data.packageId}
         onSelectPackage={(pkg) => {
@@ -1035,9 +1046,7 @@ function RoomGuestsCard({
    *  silently becomes one the server rejects at submit ("2 foreign adults but
    *  the room has only 1"), long after the customer changed the counter. */
   const trimForeign = (adults: number, kids: number) =>
-    foreignGuests.filter((g) =>
-      g.slot < (g.guest_type === "adult" ? adults : kids),
-    );
+    foreignGuests.filter((g) => g.slot < (g.guest_type === "adult" ? adults : kids));
 
   const setAdultCount = (n: number) => {
     const adults = Math.max(1, Math.min(maxAdults, n));
@@ -1065,9 +1074,7 @@ function RoomGuestsCard({
       kidAges: kidAges.filter((_, idx) => idx !== i),
       foreignGuests: foreignGuests
         .filter((g) => !(g.guest_type === "kid" && g.slot === i))
-        .map((g) =>
-          g.guest_type === "kid" && g.slot > i ? { ...g, slot: g.slot - 1 } : g,
-        ),
+        .map((g) => (g.guest_type === "kid" && g.slot > i ? { ...g, slot: g.slot - 1 } : g)),
     });
   const setKidAge = (i: number, age: number) =>
     onChange({
@@ -1116,8 +1123,8 @@ function RoomGuestsCard({
           <span>
             <strong className="font-semibold">Travelling with a foreign national?</strong>{" "}
             <span className="text-muted-foreground">
-              Tick “Any foreign nationals in this cabin?” at the bottom of this
-              card and add their passport.
+              Tick “Any foreign nationals in this cabin?” at the bottom of this card and add their
+              passport.
             </span>
           </span>
         </div>
@@ -1268,40 +1275,38 @@ function GuestsCards({
 
   return (
     <div className="space-y-4">
-        {/* One guests card per selected cabin */}
-        {data.rooms.map((selection, i) => (
-          <RoomGuestsCard
-            key={selection.room.id}
-            index={i}
-            selection={selection}
-            adultSurcharge={adultSurcharge}
-            kidSurcharge={kidSurcharge}
-            onChange={(patch) =>
-              update({ rooms: updateRoom(data.rooms, selection.room.id, patch) })
-            }
-          />
-        ))}
+      {/* One guests card per selected cabin */}
+      {data.rooms.map((selection, i) => (
+        <RoomGuestsCard
+          key={selection.room.id}
+          index={i}
+          selection={selection}
+          adultSurcharge={adultSurcharge}
+          kidSurcharge={kidSurcharge}
+          onChange={(patch) => update({ rooms: updateRoom(data.rooms, selection.room.id, patch) })}
+        />
+      ))}
 
-        {/* Special requests — the label must be associated, not just adjacent:
+      {/* Special requests — the label must be associated, not just adjacent:
             with no htmlFor the field's accessible name fell back to the
             placeholder, which also vanishes as soon as the user types. */}
-        <div className="rounded-2xl border border-border bg-card shadow-luxe px-5 py-4">
-          <label
-            htmlFor={requestsId}
-            className="eyebrow text-muted-foreground text-[10px] block mb-2"
-          >
-            Special requests <span className="normal-case font-normal">(optional)</span>
-          </label>
-          <textarea
-            id={requestsId}
-            rows={2}
-            maxLength={1000}
-            placeholder="Dietary requirements, anniversary arrangement, accessibility needs…"
-            value={data.requests}
-            onChange={(e) => update({ requests: e.target.value })}
-            className="w-full bg-background border border-border rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none placeholder:text-muted-foreground/60 transition-all"
-          />
-        </div>
+      <div className="rounded-2xl border border-border bg-card shadow-luxe px-5 py-4">
+        <label
+          htmlFor={requestsId}
+          className="eyebrow text-muted-foreground text-[10px] block mb-2"
+        >
+          Special requests <span className="normal-case font-normal">(optional)</span>
+        </label>
+        <textarea
+          id={requestsId}
+          rows={2}
+          maxLength={1000}
+          placeholder="Dietary requirements, anniversary arrangement, accessibility needs…"
+          value={data.requests}
+          onChange={(e) => update({ requests: e.target.value })}
+          className="w-full bg-background border border-border rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none placeholder:text-muted-foreground/60 transition-all"
+        />
+      </div>
 
       <div className="flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
         <Shield className="size-3.5 text-gold shrink-0" />
@@ -1317,20 +1322,14 @@ function GuestsCards({
  *  rate — so every existing booking's summary is unchanged. Counts and rates
  *  both come from the server's breakdown, so the "2 × ৳3,000" label always
  *  matches the amount beside it. */
-function ForeignSurchargeLines({
-  room,
-}: {
-  room: import("@/lib/api/types").RoomPriceBreakdown;
-}) {
+function ForeignSurchargeLines({ room }: { room: import("@/lib/api/types").RoomPriceBreakdown }) {
   const lines: { label: string; amount: string }[] = [];
   if (room.foreign_adult_count > 0 && Number(room.foreigner_adult_surcharge) > 0) {
     lines.push({
       label: `Foreign national — adult (${room.foreign_adult_count} × ${formatBDT(
         room.foreigner_adult_surcharge,
       )})`,
-      amount: String(
-        Number(room.foreigner_adult_surcharge) * room.foreign_adult_count,
-      ),
+      amount: String(Number(room.foreigner_adult_surcharge) * room.foreign_adult_count),
     });
   }
   if (room.foreign_kid_count > 0 && Number(room.foreigner_kid_surcharge) > 0) {
@@ -1468,7 +1467,6 @@ function StepPayment({
               </div>
             </div>
           </div>
-
         </div>
 
         {/* ── Right: payment panel (sticky, elevated) ── */}
@@ -1686,7 +1684,9 @@ function StepPayment({
                         </span>
                       </div>
                       <span className="mt-1 block text-[10px] text-muted-foreground leading-snug">
-                        {type === "full" ? "Pay the entire amount now" : "Part now, rest on boarding"}
+                        {type === "full"
+                          ? "Pay the entire amount now"
+                          : "Part now, rest on boarding"}
                       </span>
                     </label>
                   );
@@ -1770,9 +1770,7 @@ function StepPayment({
                   a dead-end 400 into something the customer can fix. */}
               {guestIssues.length > 0 && (
                 <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-3.5 py-3 text-[11px] text-destructive space-y-1">
-                  <div className="font-semibold">
-                    Complete the passport details to continue:
-                  </div>
+                  <div className="font-semibold">Complete the passport details to continue:</div>
                   {guestIssues.map((issue) => (
                     <div key={issue}>· {issue}</div>
                   ))}
@@ -1843,8 +1841,8 @@ function ForeignGuestSummary({ booking }: { booking: BookingPublic }) {
           )),
         )}
         <p className="text-[11px] text-muted-foreground pt-1">
-          Passport numbers are partly hidden here for your security. The full
-          details are on your invoice and the ship's boarding manifest.
+          Passport numbers are partly hidden here for your security. The full details are on your
+          invoice and the ship's boarding manifest.
         </p>
       </div>
     </div>
@@ -1897,8 +1895,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
     if (!win) return;
     // Escape values before writing them into the receipt HTML — special_requests
     // is free-form customer text and must never inject markup into the document.
-    const esc = (s: string) =>
-      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const rows = (pairs: [string, string][]) =>
       pairs
         .map(([k, v]) => `<div class="row"><span>${k}</span><span>${esc(v)}</span></div>`)
