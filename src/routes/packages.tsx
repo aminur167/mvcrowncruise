@@ -1,11 +1,13 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
-import { MapPin, Loader2 } from "lucide-react";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { Clock, MapPin, Check, ArrowUpRight, Loader2 } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { CTA } from "@/components/site/CTA";
-import { PackageCard } from "@/components/site/PackageCard";
 import { ItineraryMap, type Stop } from "@/components/site/ItineraryMap";
 import { usePackages } from "@/hooks/queries/usePackages";
+import { parseLocalDate } from "@/lib/dates";
+import { formatBDT } from "@/lib/money";
 import type { Package } from "@/lib/api/types";
 import deck from "@/assets/deck-sunset.jpg";
 import cabin from "@/assets/cabin-luxury.jpg";
@@ -465,19 +467,76 @@ function PackagesPage() {
         {packageList.map((pkg, i) => {
           const tpl = templateFor(pkg);
           const title = pkg.marketing_title || `${pkg.ship.name} Voyage`;
-          const itineraryId = `pkg-${pkg.id}-itinerary`;
+          const dateRange = `${parseLocalDate(pkg.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} – ${parseLocalDate(pkg.end_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
           return (
             <div key={pkg.id} className="container-luxe">
-              <div className="max-w-md mx-auto mb-10">
-                <PackageCard
-                  pkg={pkg}
-                  index={i}
-                  itineraryHref={`#${itineraryId}`}
-                  fallbackImage={tpl.img}
-                />
-              </div>
+              <motion.article
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.7 }}
+                className="group bg-card rounded-3xl overflow-hidden shadow-luxe grid md:grid-cols-5 mb-10"
+              >
+                <div className="relative md:col-span-2 aspect-[4/3] md:aspect-auto overflow-hidden">
+                  <img
+                    src={pkg.hero_image ?? tpl.img}
+                    alt={title}
+                    loading="lazy"
+                    className="image-zoom absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full glass-dark text-gold eyebrow text-[10px]">
+                    {tpl.tag}
+                  </div>
+                  <div className="absolute bottom-4 left-4 eyebrow text-background/80 text-[10px]">
+                    Voyage 0{i + 1}
+                  </div>
+                  {pkg.booking_status === "closed" && (
+                    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-destructive/90 text-destructive-foreground eyebrow text-[10px]">
+                      Booking Closed
+                    </div>
+                  )}
+                </div>
+                <div className="md:col-span-3 p-7 lg:p-10 flex flex-col">
+                  <h2 className="font-display text-3xl lg:text-4xl font-normal">{title}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{pkg.marketing_description}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="size-3.5 text-gold" /> {pkg.days} Days · {pkg.nights} Nights
+                    </span>
+                    <span className="flex items-start gap-1.5">
+                      <MapPin className="size-3.5 text-gold mt-0.5" /> {dateRange}
+                    </span>
+                  </div>
+                  <ul className="mt-5 grid sm:grid-cols-2 gap-1.5 text-sm">
+                    {(pkg.highlights.length ? pkg.highlights : tpl.inc).map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-muted-foreground">
+                        <Check className="size-3.5 text-gold" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-auto pt-6 flex items-end justify-between border-t border-border">
+                    <div>
+                      <div className="eyebrow text-muted-foreground text-[10px]">From / adult</div>
+                      <div className="font-display text-3xl">{formatBDT(pkg.adult_price)}</div>
+                    </div>
+                    {pkg.is_bookable ? (
+                      <Link
+                        to="/booking"
+                        search={{ package: pkg.id }}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-ocean/35 text-ocean text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-ocean hover:text-primary-foreground transition-colors"
+                      >
+                        Reserve <ArrowUpRight className="size-3" />
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-muted-foreground text-[10px] uppercase tracking-[0.2em] font-semibold cursor-not-allowed">
+                        Booking Closed
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </motion.article>
 
-              <div id={itineraryId} className="mt-12 scroll-mt-28">
+              <div className="mt-12">
                 <SectionHeader
                   eyebrow="Day-by-day route"
                   title={
