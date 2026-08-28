@@ -186,6 +186,11 @@ function RoomsSkeleton({ mobile }: { mobile: boolean }) {
 /** How long the mouse must rest on a tile before its preview appears.
  *  Without a delay, sweeping across a 31-cabin deck flashes 31 cards. */
 const PREVIEW_DELAY_MS = 160;
+/** Grace period before a closed tile's preview actually unmounts — long
+ *  enough for the pointer to cross the gap to the portal-rendered card
+ *  beside it, short enough that moving on to another tile still feels
+ *  instant. */
+const PREVIEW_CLOSE_DELAY_MS = 250;
 
 function RoomCell({
   room,
@@ -206,7 +211,8 @@ function RoomCell({
 }) {
   const selectable = room.availability === "available";
   const tileRef = useRef<HTMLLabelElement>(null);
-  const timer = useRef<number | null>(null);
+  const openTimer = useRef<number | null>(null);
+  const closeTimer = useRef<number | null>(null);
   const [preview, setPreview] = useState<{ rect: DOMRect; tapped: boolean } | null>(null);
   const hasPreview = room.preview_images.length > 0;
 
@@ -217,18 +223,51 @@ function RoomCell({
 
   function scheduleOpen() {
     if (isMobile || !hasPreview) return;
-    timer.current = window.setTimeout(() => openPreview(false), PREVIEW_DELAY_MS);
+    if (closeTimer.current) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    openTimer.current = window.setTimeout(() => openPreview(false), PREVIEW_DELAY_MS);
   }
 
-  function cancelOpen() {
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = null;
+  /* The card renders in a portal next to (not inside) this tile, so the
+   * cursor is briefly over neither element while crossing the gap between
+   * them. Closing on that exact instant meant the card vanished before a
+   * pointer could ever reach it — nobody could click a photo. A short grace
+   * period bridges the gap; cancelClose (called from the card's own
+   * onMouseEnter) keeps it open for as long as the pointer is actually
+   * over the card, however long that takes. */
+  function scheduleClose() {
+    if (openTimer.current) {
+      window.clearTimeout(openTimer.current);
+      openTimer.current = null;
+    }
+    closeTimer.current = window.setTimeout(() => {
+      setPreview((current) => (current?.tapped ? current : null));
+    }, PREVIEW_CLOSE_DELAY_MS);
+  }
+
+  function cancelClose() {
+    if (closeTimer.current) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }
+
+  /* Keyboard focus leaving the tile is unambiguous — no gap to cross,
+   * so close immediately rather than waiting out the grace period. */
+  function closeNow() {
+    if (openTimer.current) window.clearTimeout(openTimer.current);
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    openTimer.current = null;
+    closeTimer.current = null;
     setPreview((current) => (current?.tapped ? current : null));
   }
 
   useEffect(
     () => () => {
-      if (timer.current) window.clearTimeout(timer.current);
+      if (openTimer.current) window.clearTimeout(openTimer.current);
+      if (closeTimer.current) window.clearTimeout(closeTimer.current);
     },
     [],
   );
@@ -261,10 +300,10 @@ function RoomCell({
             : `Room ${room.room_number} · ${AVAILABILITY_LABEL[room.availability]}`
       }
       onMouseEnter={scheduleOpen}
-      onMouseLeave={cancelOpen}
+      onMouseLeave={scheduleClose}
       // Keyboard users get the same preview: the tiles are already focusable.
       onFocus={() => !isMobile && hasPreview && openPreview(false)}
-      onBlur={cancelOpen}
+      onBlur={closeNow}
       style={{ height: cellSize() }}
       className={`focus-ring-within relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border shadow-sm px-1 text-center transition-all ${
         !selectable
@@ -315,6 +354,8 @@ function RoomCell({
           interactive={preview.tapped}
           onClose={() => setPreview(null)}
           onOpenGallery={(index) => onOpenGallery(room, index)}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
         />
       )}
       {/* aria-hidden: the tile's visual text is a terse duplicate of the radio's

@@ -30,6 +30,13 @@ type Props = {
    *  the mouse leaves the tile — which it would, the moment someone moves
    *  toward the lightbox to use its controls. */
   onOpenGallery?: (index: number) => void;
+  /** Desktop hover only: the card is a separate portal-rendered element
+   *  next to the tile, not inside it, so the tile's own mouseleave can't
+   *  tell the pointer is still over the card. These let the card cancel
+   *  the tile's pending close while it has the pointer, and resume it
+   *  when the pointer actually leaves the card. */
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 };
 
 /**
@@ -50,6 +57,8 @@ export function RoomPreviewCard({
   interactive = false,
   onClose,
   onOpenGallery,
+  onMouseEnter,
+  onMouseLeave,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -93,6 +102,8 @@ export function RoomPreviewCard({
       }}
       className="fixed z-100 rounded-xl border border-border bg-card shadow-luxe overflow-hidden text-left"
       onClick={(event) => event.stopPropagation()}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {images.length > 0 && (
         <div className="relative">
