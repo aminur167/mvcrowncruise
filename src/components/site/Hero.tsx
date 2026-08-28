@@ -193,28 +193,34 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.2 }}
-          className="mt-10 flex flex-wrap gap-4 justify-center"
+          className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 justify-center"
         >
           <Link
             to="/booking"
-            className="px-8 py-4 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.2em] font-semibold shadow-gold hover-lift"
+            className="px-8 py-4 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.2em] font-semibold shadow-gold hover-lift text-center"
           >
             Book Your Journey
           </Link>
-          <Link
-            to="/packages"
-            className="px-8 py-4 rounded-full border border-background/30 text-background text-xs uppercase tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
-          >
-            Explore Packages
-          </Link>
-          <a
-            href={SISTER_SHIP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-8 py-4 rounded-full border border-background/30 text-background text-xs uppercase tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
-          >
-            Visit MV Alaska <ArrowUpRight className="size-3.5" />
-          </a>
+          {/* Secondary pair: one row on mobile too (not one full-width pill
+           * each) — `sm:contents` unwraps this box at sm+ so the two links
+           * fall back into the row above as plain siblings, matching how
+           * they always looked on desktop. */}
+          <div className="flex gap-4 sm:contents">
+            <Link
+              to="/packages"
+              className="flex-1 sm:flex-none px-4 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors text-center"
+            >
+              Explore Packages
+            </Link>
+            <a
+              href={SISTER_SHIP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 sm:px-8 py-4 rounded-full border border-background/30 text-background text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
+            >
+              Visit MV Alaska <ArrowUpRight className="size-3 sm:size-3.5 shrink-0" />
+            </a>
+          </div>
         </motion.div>
       </motion.div>
 
