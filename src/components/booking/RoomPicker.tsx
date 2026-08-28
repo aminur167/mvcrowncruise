@@ -453,17 +453,26 @@ function Deck({
    * room number they must show, so the numbers overlapped illegibly. Cells now
    * refuse to shrink past a readable, tappable width and the hull scrolls
    * instead (see the overflow-x wrapper below). */
-  const renderRow = (cells: PlanCell[]) => (
-    <div
-      className="grid"
-      style={{
-        gap: ROW_GAP,
-        gridTemplateColumns: `repeat(${columns}, minmax(${MIN_CELL_W}px, 1fr))`,
-      }}
-    >
-      {cells.map((cell, i) => renderCell(cell, i, false))}
-    </div>
-  );
+  const renderRow = (cells: PlanCell[]) => {
+    // A row shorter than the deck's column count is bow-aligned (right):
+    // leading blank tracks absorb the gap on the stern side instead of
+    // trailing empty space stranding the last cabin short of the bow.
+    const padCount = Math.max(0, columns - rowUnits(cells));
+    return (
+      <div
+        className="grid"
+        style={{
+          gap: ROW_GAP,
+          gridTemplateColumns: `repeat(${columns}, minmax(${MIN_CELL_W}px, 1fr))`,
+        }}
+      >
+        {Array.from({ length: padCount }, (_, i) => (
+          <div key={`pad-${i}`} aria-hidden="true" />
+        ))}
+        {cells.map((cell, i) => renderCell(cell, i, false))}
+      </div>
+    );
+  };
 
   /* Vertical (mobile): bow first, so cells render in reverse order. */
   const renderColumn = (cells: PlanCell[]) => (
