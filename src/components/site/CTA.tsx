@@ -14,7 +14,11 @@ export function CTA() {
           transition={{ duration: 1 }}
           className="relative overflow-hidden rounded-3xl shadow-luxe"
         >
-          <img src={hero} alt="MV THE CROWN" className="absolute inset-0 h-full w-full object-cover" />
+          <img
+            src={hero}
+            alt="MV THE CROWN"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-ocean via-ocean/80 to-ocean/30" />
           <div className="relative p-10 md:p-20 max-w-2xl">
             <div className="eyebrow text-gold-soft mb-5">◆ Begin Your Voyage</div>
@@ -22,7 +26,8 @@ export function CTA() {
               The river is waiting. <em className="not-italic">So is MV THE CROWN.</em>
             </h2>
             <p className="mt-6 text-background/75 text-base md:text-lg leading-relaxed">
-              Reserve your suite for the next departure. Limited cabins each season — our most luxurious experiences sell out months in advance.
+              Reserve your suite for the next departure. Limited cabins each season — our most
+              luxurious experiences sell out months in advance.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
@@ -32,7 +37,7 @@ export function CTA() {
                 Reserve Now <ArrowUpRight className="size-4" />
               </Link>
               <a
-                href="https://wa.me/8801712823482"
+                href="https://wa.me/8801831694307"
                 className="px-8 py-4 rounded-full border border-background/40 text-background text-xs uppercase tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
               >
                 Chat on WhatsApp

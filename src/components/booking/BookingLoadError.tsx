@@ -23,12 +23,10 @@ export function BookingLoadError({
           <AlertTriangle className="size-4.5 text-destructive" />
         </div>
         <div className="space-y-1.5">
-          <div className="font-display text-xl leading-tight">
-            We couldn't load your booking
-          </div>
+          <div className="font-display text-xl leading-tight">We couldn't load your booking</div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Your payment may still have gone through — we just couldn't reach our system to
-            confirm it. Please don't pay again until you've checked.
+            Your payment may still have gone through — we just couldn't reach our system to confirm
+            it. Please don't pay again until you've checked.
           </p>
         </div>
       </div>
@@ -36,9 +34,7 @@ export function BookingLoadError({
       {bookingCode && (
         <div className="rounded-xl border border-border bg-card px-4 py-3">
           <div className="eyebrow text-[9px] text-muted-foreground">Your booking reference</div>
-          <div className="font-display text-2xl text-ocean tracking-wide mt-0.5">
-            {bookingCode}
-          </div>
+          <div className="font-display text-2xl text-ocean tracking-wide mt-0.5">{bookingCode}</div>
         </div>
       )}
 
@@ -55,10 +51,10 @@ export function BookingLoadError({
           </button>
         )}
         <a
-          href="tel:+8801712823482"
+          href="tel:+8801831694307"
           className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-11 rounded-full border border-border text-sm hover:border-gold hover:text-gold transition-colors"
         >
-          <Phone className="size-3.5" /> Call +880 1712-823482
+          <Phone className="size-3.5" /> Call +880 1831-694307
         </a>
       </div>
     </div>

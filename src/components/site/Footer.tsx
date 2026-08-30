@@ -77,7 +77,6 @@ export function Footer() {
             <li className="flex items-start gap-3">
               <Phone className="size-4 text-gold shrink-0 mt-0.5" />
               <div>
-                <div>+880 1712-823482</div>
                 <div>+880 1831-694307</div>
                 <div>+880 1550-699732</div>
               </div>
@@ -123,4 +122,3 @@ export function Footer() {
     </footer>
   );
 }
-
