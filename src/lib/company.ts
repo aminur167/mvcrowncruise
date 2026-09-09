@@ -41,8 +41,10 @@ export const COMPANY = {
   },
 
   support: {
-    emails: ["metamorphosistourism25@gmail.com", "info@mvthecrown.com"],
-    phones: ["+880 1831-694307", "+880 1550-699732"],
+    emails: ["metamorphosistourism25@gmail.com"],
+    // First in the list is the reservations line: it is the one the navbar,
+    // the floating call button and every "call us" fallback use.
+    phones: ["+880 1831-694307", "+880 1712-823482", "+880 1550-699732"],
   },
 
   /** SSLCommerz asks for "management details" alongside the company ones.

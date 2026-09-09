@@ -10,10 +10,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
-// The gateway's own artwork, with its white ground flood-filled away from the
-// edges so the tiles float on the dark footer; the wording and rules are
-// redrawn white and the SSLCOMMERZ plate is left in its brand blue. Keying out
-// white globally instead would hollow every tile — they are white cards.
+// SSLCommerz's own two-row artwork with the white ground already cut away, so
+// the tiles sit on the footer rather than on a white plate. The gateway only
+// publish light-background variants; this transparent copy is shared with the
+// sister ship's site — it is the gateway's asset, not either merchant's.
 import paymentBanner from "@/assets/sslcommerz-payment-banner.webp";
 import { COMPANY, branchAddress, registeredAddress, registrationRows } from "@/lib/company";
 
@@ -179,10 +179,9 @@ export function Footer() {
       </div>
 
       {/* ── SSLCommerz payment banner ──
-          SSLCommerz only publish light-background artwork; this copy has had
-          its white ground cut away (see the note beside the asset) so the tiles
-          sit on the footer itself rather than on a white plate. No heading —
-          the artwork already reads "Pay With".
+          No heading above it: the artwork already reads "Pay With". At fifty
+          tiles it cannot shrink to a phone's width and stay legible, so it
+          scrolls sideways in its own band with a floor on the width.
 
           Intrinsic size is declared so the strip reserves its height before the
           image loads; without it the legal block below jumps on load. */}
@@ -190,11 +189,12 @@ export function Footer() {
         <div className="container-luxe py-8 overflow-x-auto">
           <img
             src={paymentBanner}
-            alt="Pay with Visa, Mastercard, American Express, bKash, Nagad, Rocket, Upay and all major Bangladeshi bank cards and mobile wallets — verified by SSLCommerz"
-            width={1280}
-            height={143}
+            alt="Pay with Visa, Mastercard, American Express, UnionPay, DBBL Nexus, bKash, Nagad, Rocket, Upay, mobile wallets and bank cards — verified by SSLCommerz"
+            width={2640}
+            height={296}
             className="w-full h-auto min-w-[820px]"
             loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
