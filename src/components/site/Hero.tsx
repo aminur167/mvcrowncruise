@@ -4,7 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import shipOnRiver from "@/assets/ship-on-the-river.jpg";
 import skyDeckPoolNight from "@/assets/sky-deck-pool-night.jpg";
-import cabinSuiteInterior from "@/assets/cabin-suite-interior.jpg";
+// The made-up suite, not the older shot of the same cabin — that one was taken
+// before turndown, with a bare mattress and the linens still stacked on it.
+import cabinSuiteInterior from "@/assets/cabin-suite-made-up.jpg";
 import shipArrivalNight from "@/assets/ship-arrival-night.jpg";
 import canalImg from "@/assets/canal-mangrove.jpg";
 import shipVideo from "@/assets/crown-ship.mp4";
@@ -69,7 +71,7 @@ const slides: Slide[] = [
         comfort.
       </>
     ),
-    sub: "Wood-clad cabins with plush seating and everything you need to unwind between excursions.",
+    sub: "Turned-down beds, a private sofa and everything you need to unwind between excursions.",
   },
   {
     img: shipArrivalNight,
