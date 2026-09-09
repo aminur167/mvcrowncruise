@@ -4,6 +4,7 @@ import { Landmark, Leaf, LifeBuoy, ShieldCheck } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Stats } from "@/components/site/Stats";
+import { COMPANY, registeredAddress } from "@/lib/company";
 import deck from "@/assets/deck-sunset.jpg";
 import canal from "@/assets/M.V._ALASKA_AboutPageImage.jpeg";
 import shipVideo from "@/assets/crown-ship.mp4";
@@ -268,6 +269,110 @@ function About() {
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Company & registration ──
+          SSLCommerz merchant compliance: the trade licence number and the
+          registered address from that licence must be reachable from the site,
+          along with company and management details. Everything here reads from
+          lib/company.ts so the footer and the policy pages can never print a
+          different number than this table. */}
+      <section className="py-24 md:py-32 bg-secondary/40">
+        <div className="container-luxe">
+          <SectionHeader
+            align="center"
+            eyebrow="Know More"
+            title={
+              <>
+                About our <em className="not-italic">company.</em>
+              </>
+            }
+            description="MV THE CROWN is owned and operated as a legally registered Bangladeshi tourism business, licensed for Sundarbans expedition cruising."
+          />
+
+          <div className="mt-14 grid lg:grid-cols-12 gap-8">
+            {/* Registration table */}
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-border bg-background shadow-luxe overflow-hidden">
+                <div className="px-7 py-4 border-b border-border bg-card">
+                  <div className="eyebrow text-gold-text text-[10px]">Registration Details</div>
+                </div>
+                <dl className="divide-y divide-border text-sm">
+                  {(
+                    [
+                      ["Registered Name", COMPANY.legalName],
+                      ["Trade Licence Number", COMPANY.registration.tradeLicence],
+                      ["Tax Identification Number (e-TIN)", COMPANY.registration.tin],
+                      ["BIN (VAT Registration)", COMPANY.registration.bin],
+                      ["DBID", COMPANY.registration.dbid],
+                      ["Type of Ownership", COMPANY.ownershipType],
+                      ["Area of Economic Activity", COMPANY.businessActivity],
+                      ["Registered Address", registeredAddress],
+                    ] as [string, string][]
+                  )
+                    // A blank number is worse than an absent row — it reads as
+                    // an unregistered business rather than an unfilled field.
+                    .filter(([, value]) => value)
+                    .map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="px-7 py-4 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6"
+                      >
+                        <dt className="text-muted-foreground sm:w-64 shrink-0">{label}</dt>
+                        <dd className="font-semibold text-foreground sm:text-right sm:ml-auto">
+                          {value}
+                        </dd>
+                      </div>
+                    ))}
+                </dl>
+              </div>
+            </div>
+
+            {/* Management & contact */}
+            <div className="lg:col-span-5 space-y-8">
+              <div className="rounded-2xl border border-border bg-background shadow-luxe overflow-hidden">
+                <div className="px-7 py-4 border-b border-border bg-card">
+                  <div className="eyebrow text-gold-text text-[10px]">Management</div>
+                </div>
+                <ul className="divide-y divide-border text-sm">
+                  {COMPANY.management.map((person) => (
+                    <li key={person.title} className="px-7 py-4">
+                      <div className="font-semibold">{person.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{person.title}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-background shadow-luxe overflow-hidden">
+                <div className="px-7 py-4 border-b border-border bg-card">
+                  <div className="eyebrow text-gold-text text-[10px]">Contact</div>
+                </div>
+                <div className="px-7 py-5 text-sm space-y-2">
+                  {COMPANY.support.emails.map((email) => (
+                    <div key={email}>
+                      <span className="text-muted-foreground">Email: </span>
+                      <a href={`mailto:${email}`} className="font-semibold hover:text-gold-text">
+                        {email}
+                      </a>
+                    </div>
+                  ))}
+                  {COMPANY.support.phones.map((phone) => (
+                    <div key={phone}>
+                      <span className="text-muted-foreground">Phone: </span>
+                      <a
+                        href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                        className="font-semibold hover:text-gold-text"
+                      >
+                        {phone}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

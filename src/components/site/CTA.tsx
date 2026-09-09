@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
+import { whatsappUrl } from "@/lib/company";
 import hero from "@/assets/M.V._ALASKA_cruising_Sundarbans_202607171057.jpeg";
 
 export function CTA() {
@@ -37,7 +38,9 @@ export function CTA() {
                 Reserve Now <ArrowUpRight className="size-4" />
               </Link>
               <a
-                href="https://wa.me/8801831694307"
+                href={whatsappUrl()}
+                target="_blank"
+                rel="noreferrer"
                 className="px-8 py-4 rounded-full border border-background/40 text-background text-xs uppercase tracking-[0.2em] font-medium hover:border-gold hover:text-gold transition-colors"
               >
                 Chat on WhatsApp

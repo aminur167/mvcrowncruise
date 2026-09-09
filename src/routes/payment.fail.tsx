@@ -5,6 +5,7 @@ import { BookingLoadError } from "@/components/booking/BookingLoadError";
 import { BookingStatusCard } from "@/components/booking/BookingStatusCard";
 import { ResultShell } from "@/components/booking/ResultShell";
 import { useBooking } from "@/hooks/queries/useBooking";
+import { primaryPhone, telHref } from "@/lib/company";
 
 export const Route = createFileRoute("/payment/fail")({
   component: PaymentFailPage,
@@ -49,8 +50,8 @@ function PaymentFailPage() {
         </div>
         <p className="leading-relaxed">
           Payments can fail due to bank limits or a timeout. If it keeps happening, call us at{" "}
-          <a href="tel:+8801831694307" className="font-medium text-foreground hover:text-gold">
-            +880 1831-694307
+          <a href={telHref(primaryPhone)} className="font-medium text-foreground hover:text-gold">
+            {primaryPhone}
           </a>{" "}
           and we'll help you complete it.
         </p>

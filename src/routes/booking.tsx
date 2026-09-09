@@ -45,6 +45,7 @@ import { usePackage } from "@/hooks/queries/usePackages";
 import { useBookingQuote } from "@/hooks/queries/useBookingQuote";
 import { useCreateBooking } from "@/hooks/queries/useCreateBooking";
 import { parseLocalDate } from "@/lib/dates";
+import { primaryPhone, supportEmail, telHref, whatsappNumber } from "@/lib/company";
 import { formatBDT } from "@/lib/money";
 import { bookingContactSchema, type BookingContactValues } from "@/lib/validation/bookingForm";
 import { ForeignGuestsSection, type ForeignGuestDraft } from "@/components/booking/ForeignGuests";
@@ -708,22 +709,22 @@ function HelpCard() {
       <div className="eyebrow text-gold-text text-[10px] mb-3">Need help booking?</div>
       <div className="space-y-2.5 text-sm">
         <a
-          href="tel:+8801831694307"
+          href={telHref(primaryPhone)}
           className="flex items-center gap-3 text-foreground hover:text-gold transition-colors"
         >
           <div className="size-7 rounded-full bg-ocean/10 grid place-items-center shrink-0">
             <Phone className="size-3 text-gold" />
           </div>
-          +880 1831-694307
+          {primaryPhone}
         </a>
         <a
-          href="mailto:info@mvthecrown.com"
+          href={`mailto:${supportEmail}`}
           className="flex items-center gap-3 text-foreground hover:text-gold transition-colors"
         >
           <div className="size-7 rounded-full bg-ocean/10 grid place-items-center shrink-0">
             <Mail className="size-3 text-gold" />
           </div>
-          info@mvthecrown.com
+          {supportEmail}
         </a>
       </div>
     </div>
@@ -1413,9 +1414,12 @@ function StepPayment({
 }: StepPaymentProps) {
   const partialAmountId = useId();
   const partialErrorId = `${partialAmountId}-error`;
+  const termsId = useId();
+  const termsErrorId = `${termsId}-error`;
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<BookingContactValues>({
     resolver: zodResolver(bookingContactSchema),
@@ -1424,8 +1428,18 @@ function StepPayment({
       email: data.email,
       phone: data.phone,
       requests: data.requests,
+      // Deliberately unchecked, and deliberately NOT restored from `data` —
+      // SSLCommerz requires the customer to tick it themselves on every visit
+      // to this step, so returning from a failed payment re-asks.
+      acceptedTerms: undefined as unknown as true,
     },
   });
+
+  // Consent gates the button as well as the schema. The schema alone would be
+  // enough to keep an unconsented booking away from the gateway, but a live
+  // button is the wrong signal to a reviewer checking that the box is
+  // genuinely mandatory.
+  const acceptedTerms = watch("acceptedTerms");
 
   function submit(values: BookingContactValues) {
     // `requests` is edited directly on this page via GuestsCards → data.requests,
@@ -1808,9 +1822,69 @@ function StepPayment({
                 </div>
               )}
 
+              {/* Policy consent — SSLCommerz merchant compliance requires this
+                  immediately before the pay action, blank by default, ticked by
+                  the customer, with each policy hyperlinked. It is enforced by
+                  the form schema, not by disabling the button: leaving the
+                  button live means an untouched checkbox produces a visible
+                  error rather than a dead control with no explanation. Links
+                  open in a new tab so a half-filled booking is never lost. */}
+              <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3.5">
+                <label htmlFor={termsId} className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    id={termsId}
+                    type="checkbox"
+                    {...register("acceptedTerms")}
+                    aria-invalid={errors.acceptedTerms ? true : undefined}
+                    aria-describedby={errors.acceptedTerms ? termsErrorId : undefined}
+                    className="mt-0.5 size-4 shrink-0 rounded border-border accent-gold cursor-pointer"
+                  />
+                  <span className="text-[11px] leading-relaxed text-muted-foreground">
+                    I have read and agree to the website's{" "}
+                    <Link
+                      to="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-gold-text font-semibold underline underline-offset-2"
+                    >
+                      Terms &amp; Conditions
+                    </Link>
+                    ,{" "}
+                    <Link
+                      to="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-gold-text font-semibold underline underline-offset-2"
+                    >
+                      Privacy Policy
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      to="/refund-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-gold-text font-semibold underline underline-offset-2"
+                    >
+                      Refund &amp; Cancellation Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {errors.acceptedTerms && (
+                  <p id={termsErrorId} role="alert" className="mt-2 text-[11px] text-destructive">
+                    {errors.acceptedTerms.message}
+                  </p>
+                )}
+              </div>
+
               <button
                 type="submit"
-                disabled={submitting || !quote || partialInvalid || guestIssues.length > 0}
+                disabled={
+                  submitting || !quote || partialInvalid || guestIssues.length > 0 || !acceptedTerms
+                }
                 className="w-full flex items-center justify-center gap-2 px-8 py-3.5 rounded-full gradient-gold text-ocean text-[11px] uppercase tracking-[0.2em] font-semibold shadow-luxe hover-lift disabled:opacity-40 disabled:pointer-events-none"
               >
                 {submitting ? (
@@ -1917,7 +1991,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
       `Phone: ${booking.phone}\n\n` +
       `Thank you!`,
   );
-  const waUrl = `https://wa.me/8801831694307?text=${waMessage}`;
+  const waUrl = `https://wa.me/${whatsappNumber}?text=${waMessage}`;
 
   // Dedicated print markup (styled by the print CSS below) so the downloaded
   // receipt is branded instead of unstyled app DOM.
@@ -2020,7 +2094,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
         </div>
         <div class="footer">
           <p>A confirmation email with your invoice will follow after payment.</p>
-          <p>+880 1831-694307 &nbsp;|&nbsp; info@mvthecrown.com</p>
+          <p>${primaryPhone} &nbsp;|&nbsp; ${supportEmail}</p>
         </div>
       </body></html>
     `);
@@ -2319,7 +2393,9 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
           {/* Footer note */}
           <div className="px-7 md:px-8 pb-8 text-xs text-muted-foreground text-center space-y-1">
             <p>A confirmation email with your invoice will follow after payment.</p>
-            <p>📞 +880 1831-694307 &nbsp;|&nbsp; ✉ info@mvthecrown.com</p>
+            <p>
+              📞 {primaryPhone} &nbsp;|&nbsp; ✉ {supportEmail}
+            </p>
           </div>
         </motion.div>
 

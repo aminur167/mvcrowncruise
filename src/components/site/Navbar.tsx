@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
+import { primaryPhone, telHref } from "@/lib/company";
 import logo from "@/assets/logo.png";
 
 const links = [
@@ -65,11 +66,11 @@ export function Navbar() {
 
           <div className="hidden md:flex items-center gap-3">
             <a
-              href="tel:+8801831694307"
+              href={telHref(primaryPhone)}
               className="hidden xl:flex items-center gap-2 text-xs text-background/80 hover:text-gold transition-colors"
             >
               <Phone className="size-3.5" />
-              +880 1831-694307
+              {primaryPhone}
             </a>
             <Link
               to="/booking"

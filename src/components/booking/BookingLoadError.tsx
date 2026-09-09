@@ -1,4 +1,5 @@
 import { AlertTriangle, Phone, RotateCw } from "lucide-react";
+import { primaryPhone, telHref } from "@/lib/company";
 
 /**
  * Shown on payment-outcome pages when the booking fetch fails.
@@ -51,10 +52,10 @@ export function BookingLoadError({
           </button>
         )}
         <a
-          href="tel:+8801831694307"
+          href={telHref(primaryPhone)}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-11 rounded-full border border-border text-sm hover:border-gold hover:text-gold transition-colors"
         >
-          <Phone className="size-3.5" /> Call +880 1831-694307
+          <Phone className="size-3.5" /> Call {primaryPhone}
         </a>
       </div>
     </div>

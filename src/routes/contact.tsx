@@ -6,11 +6,14 @@ import { PageHero } from "@/components/site/PageHero";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { INQUIRY_TYPES, submitContactMessage, type InquiryType } from "@/lib/api/contact";
 import type { ApiError } from "@/lib/api/types";
+import {
+  COMPANY,
+  branchAddress,
+  primaryPhone,
+  registeredAddress,
+  whatsappNumber,
+} from "@/lib/company";
 import canal from "@/assets/canal-mangrove.jpg";
-
-// The reservations WhatsApp line — the "Send via WhatsApp" button opens a
-// pre-filled chat to this number. Digits only, international format, no "+".
-const WHATSAPP_NUMBER = "8801831694307";
 
 export const Route = createFileRoute("/contact")({
   component: Contact,
@@ -103,7 +106,7 @@ function Contact() {
       form.guests && `Guests: ${form.guests}`,
       form.message && `\n${form.message}`,
     ].filter(Boolean);
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
   }
 
   return (
@@ -133,18 +136,21 @@ function Contact() {
 
             <div className="space-y-6">
               {[
-                { icon: Phone, label: "Phone", lines: ["+880 1831-694307", "+880 1550-699732"] },
-                { icon: Mail, label: "Email", lines: ["info@mvthecrown.com"] },
-                { icon: MessageCircle, label: "WhatsApp", lines: ["+880 1831-694307"] },
+                { icon: Phone, label: "Phone", lines: [...COMPANY.support.phones] },
+                { icon: Mail, label: "Email", lines: [...COMPANY.support.emails] },
+                { icon: MessageCircle, label: "WhatsApp", lines: [primaryPhone] },
                 {
+                  // Labelled "Registered Office" because SSLCommerz check the
+                  // address on the site against the trade licence, and the
+                  // licence address is the Khulna one.
                   icon: MapPin,
-                  label: "Dhaka Office",
-                  lines: ["13/A Planners Tower, Banglamotor, Dhaka"],
+                  label: "Registered Office",
+                  lines: [registeredAddress],
                 },
                 {
                   icon: MapPin,
-                  label: "Khulna Office",
-                  lines: ["71, KDA Avenue, Khulna, Bangladesh"],
+                  label: "Dhaka Office",
+                  lines: [branchAddress],
                 },
               ].map((c) => (
                 <div key={c.label} className="flex gap-4 pb-6 border-b border-border last:border-0">
