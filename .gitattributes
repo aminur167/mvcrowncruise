@@ -1,0 +1,25 @@
+# Line endings.
+#
+# Git is configured with core.autocrlf=true on the Windows machines this is
+# developed on, so it checks files out with CRLF. Prettier's endOfLine default
+# is "lf", so every file then fails `eslint .` with "Delete ␍" — four thousand
+# errors that mean nothing, and which drown the ones that do.
+#
+# Committed content was always LF (autocrlf normalises on the way in); this
+# just stops the checkout from rewriting it, so the working tree matches what
+# the repo and the linter both expect.
+* text=auto eol=lf
+
+# Binary assets git must never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.mp4 binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
