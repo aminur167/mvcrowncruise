@@ -4,9 +4,8 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import shipOnRiver from "@/assets/ship-on-the-river.jpg";
 import skyDeckPoolNight from "@/assets/sky-deck-pool-night.jpg";
-// The made-up suite, not the older shot of the same cabin — that one was taken
-// before turndown, with a bare mattress and the linens still stacked on it.
-import cabinSuiteInterior from "@/assets/cabin-suite-made-up.jpg";
+import cabinSuiteMadeUp from "@/assets/cabin-suite-made-up.jpg";
+import cabinSuiteInterior from "@/assets/cabin-suite-interior.jpg";
 import shipArrivalNight from "@/assets/ship-arrival-night.jpg";
 import canalImg from "@/assets/canal-mangrove.jpg";
 import shipVideo from "@/assets/crown-ship.mp4";
@@ -62,7 +61,7 @@ const slides: Slide[] = [
     sub: "The rooftop pool and open-air lounge come alive after dark, lit for a night on the water.",
   },
   {
-    img: cabinSuiteInterior,
+    img: cabinSuiteMadeUp,
     eyebrow: "◆ Private Suites",
     title: (
       <>
@@ -72,6 +71,18 @@ const slides: Slide[] = [
       </>
     ),
     sub: "Turned-down beds, a private sofa and everything you need to unwind between excursions.",
+  },
+  {
+    img: cabinSuiteInterior,
+    eyebrow: "◆ Room To Yourself",
+    title: (
+      <>
+        Space to <em className="not-italic text-gradient-gold font-normal">spread</em>
+        <br />
+        out.
+      </>
+    ),
+    sub: "Every suite has its own lounge corner — sofa, low table and a window on the delta.",
   },
   {
     img: shipArrivalNight,
