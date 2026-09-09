@@ -47,7 +47,7 @@ export const COMPANY = {
 
   /** SSLCommerz asks for "management details" alongside the company ones.
    *  The business is a proprietorship, so the proprietor is the first row. */
-  management: [{ name: "[Proprietor's name]", title: "Proprietor" }],
+  management: [{ name: "Abdullah Al Masud Talukder", title: "Proprietor" }],
 
   /** Rows with an empty value are dropped everywhere they are rendered — a
    *  blank number reads as an unregistered business, which is worse than an

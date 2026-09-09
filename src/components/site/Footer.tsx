@@ -10,7 +10,11 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
-import paymentBanner from "@/assets/sslcommerz-payment-banner.jpg";
+// The gateway's own artwork, with its white ground flood-filled away from the
+// edges so the tiles float on the dark footer; the wording and rules are
+// redrawn white and the SSLCOMMERZ plate is left in its brand blue. Keying out
+// white globally instead would hollow every tile — they are white cards.
+import paymentBanner from "@/assets/sslcommerz-payment-banner.webp";
 import { COMPANY, branchAddress, registeredAddress, registrationRows } from "@/lib/company";
 
 /** SSLCommerz merchant compliance requires all three policies, About Us, the
@@ -175,17 +179,21 @@ export function Footer() {
       </div>
 
       {/* ── SSLCommerz payment banner ──
+          SSLCommerz only publish light-background artwork; this copy has had
+          its white ground cut away (see the note beside the asset) so the tiles
+          sit on the footer itself rather than on a white plate. No heading —
+          the artwork already reads "Pay With".
+
           Intrinsic size is declared so the strip reserves its height before the
-          image loads; without it the whole legal block below shifts. */}
-      <div className="border-t border-white/8 bg-white">
-        <div className="container-luxe py-6">
-          <div className="eyebrow text-ocean/50 text-[10px] mb-3">Accepted payment methods</div>
+          image loads; without it the legal block below jumps on load. */}
+      <div className="border-t border-white/8">
+        <div className="container-luxe py-8 overflow-x-auto">
           <img
             src={paymentBanner}
             alt="Pay with Visa, Mastercard, American Express, bKash, Nagad, Rocket, Upay and all major Bangladeshi bank cards and mobile wallets — verified by SSLCommerz"
             width={1280}
             height={143}
-            className="w-full h-auto"
+            className="w-full h-auto min-w-[820px]"
             loading="lazy"
           />
         </div>
