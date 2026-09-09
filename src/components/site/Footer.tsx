@@ -30,15 +30,6 @@ const POLICY_LINKS: [string, string][] = [
   ["Contact Us", "/contact"],
 ];
 
-const EXPLORE_LINKS: [string, string][] = [
-  ["About Us", "/about"],
-  ["Cabins", "/cabins"],
-  ["Packages", "/packages"],
-  ["Wildlife", "/wildlife"],
-  ["Dining", "/dining"],
-  ["Gallery", "/gallery"],
-];
-
 const SOCIALS = [
   {
     Icon: Facebook,
@@ -58,7 +49,7 @@ export function Footer() {
 
       <div className="container-luxe py-20 grid gap-14 lg:grid-cols-12">
         {/* ── Brand ── */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-3">
           <div className="flex items-center gap-4">
             <img src={logo} alt="MV THE CROWN" className="h-20 w-auto object-contain" />
             <div className="leading-none">
@@ -72,22 +63,6 @@ export function Footer() {
             The premium brand for river cruising. Bangladesh's most luxurious government-approved
             Sundarbans cruise — where adventure meets elegance.
           </p>
-          {/* Icon-only links carry no text, so each needs an explicit accessible
-              name — without one a screen reader announces only "link". */}
-          <div className="mt-6 flex gap-3">
-            {SOCIALS.map(({ Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="size-10 rounded-full border border-white/15 grid place-items-center hover:border-gold hover:text-gold transition-colors"
-              >
-                <Icon aria-hidden="true" className="size-4" />
-              </a>
-            ))}
-          </div>
         </div>
 
         {/* ── Policies ── */}
@@ -95,20 +70,6 @@ export function Footer() {
           <div className="eyebrow text-gold mb-5">Policies</div>
           <ul className="space-y-3 text-sm text-background/75">
             {POLICY_LINKS.map(([label, to]) => (
-              <li key={to}>
-                <Link to={to} className="hover:text-gold transition-colors">
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* ── Explore ── */}
-        <div className="lg:col-span-2">
-          <div className="eyebrow text-gold mb-5">Explore</div>
-          <ul className="space-y-3 text-sm text-background/75">
-            {EXPLORE_LINKS.map(([label, to]) => (
               <li key={to}>
                 <Link to={to} className="hover:text-gold transition-colors">
                   {label}
@@ -154,26 +115,39 @@ export function Footer() {
             </li>
           </ul>
         </div>
-      </div>
 
-      {/* ── Offices ──
-          The registered address is labelled separately because SSLCommerz
-          checks it against the trade licence; the branch is just an office. */}
-      <div className="border-t border-white/8">
-        <div className="container-luxe py-8 grid gap-6 sm:grid-cols-2">
-          <div>
-            <div className="eyebrow text-gold mb-3 text-[10px]">Registered Office</div>
-            <div className="flex items-start gap-3 text-sm text-background/75">
-              <MapPin aria-hidden="true" className="size-4 text-gold shrink-0 mt-0.5" />
-              <address className="not-italic">{registeredAddress}</address>
-            </div>
-          </div>
-          <div>
-            <div className="eyebrow text-gold mb-3 text-[10px]">Dhaka Office</div>
-            <div className="flex items-start gap-3 text-sm text-background/75">
-              <MapPin aria-hidden="true" className="size-4 text-gold shrink-0 mt-0.5" />
-              <address className="not-italic">{branchAddress}</address>
-            </div>
+        {/* ── Offices ──
+            The registered address leads, because SSLCommerz check the address
+            on the site against the one on the trade licence. The social links
+            live at the foot of this column rather than under the brand: it is
+            the shortest of the four, so they land where the columns would
+            otherwise end ragged. */}
+        <div className="lg:col-span-3">
+          <div className="eyebrow text-gold mb-5">Offices</div>
+          <ul className="space-y-4 text-sm text-background/75">
+            {[registeredAddress, branchAddress].map((office) => (
+              <li key={office} className="flex items-start gap-3">
+                <MapPin aria-hidden="true" className="size-4 text-gold shrink-0 mt-0.5" />
+                <address className="not-italic">{office}</address>
+              </li>
+            ))}
+          </ul>
+
+          {/* Icon-only links carry no text, so each needs an explicit accessible
+              name — without one a screen reader announces only "link". */}
+          <div className="mt-7 flex gap-3">
+            {SOCIALS.map(({ Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="size-10 rounded-full border border-white/15 grid place-items-center hover:border-gold hover:text-gold transition-colors"
+              >
+                <Icon aria-hidden="true" className="size-4" />
+              </a>
+            ))}
           </div>
         </div>
       </div>
