@@ -58,7 +58,12 @@ export function WhyChoose() {
               description="A floating five-star sanctuary engineered for travellers who refuse to compromise on comfort while seeking the wild."
             />
             <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-              <img src={img104} alt="MV THE CROWN grand lobby" loading="lazy" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+              <img
+                src={img104}
+                alt="MV THE CROWN grand lobby"
+                loading="lazy"
+                className="image-zoom absolute inset-0 h-full w-full object-cover"
+              />
             </div>
           </div>
 

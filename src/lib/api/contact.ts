@@ -28,9 +28,6 @@ export interface ContactMessageResponse extends ContactMessageRequest {
 export async function submitContactMessage(
   payload: ContactMessageRequest,
 ): Promise<ContactMessageResponse> {
-  const { data } = await apiClient.post<ContactMessageResponse>(
-    "/contact-messages/",
-    payload,
-  );
+  const { data } = await apiClient.post<ContactMessageResponse>("/contact-messages/", payload);
   return data;
 }

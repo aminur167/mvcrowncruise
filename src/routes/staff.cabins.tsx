@@ -48,7 +48,10 @@ export const Route = createFileRoute("/staff/cabins")({
  *   highlights → "Title | description" per line
  */
 const linesToFeatures = (text: string) =>
-  text.split("\n").map((line) => line.trim()).filter(Boolean);
+  text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
 const linesToAmenities = (text: string) =>
   text
@@ -84,7 +87,10 @@ function StaffCabins() {
   const queryClient = useQueryClient();
   const cabinsQuery = useQuery({ queryKey: ["staff", "cabins"], queryFn: getStaffCabins });
   const shipsQuery = useQuery({ queryKey: ["staff", "ships"], queryFn: getStaffShips });
-  const roomTypesQuery = useQuery({ queryKey: ["staff", "room-types"], queryFn: getStaffRoomTypes });
+  const roomTypesQuery = useQuery({
+    queryKey: ["staff", "room-types"],
+    queryFn: getStaffRoomTypes,
+  });
 
   const [editing, setEditing] = useState<StaffCabin | "new" | null>(null);
   const [photosFor, setPhotosFor] = useState<number | null>(null);
@@ -97,10 +103,11 @@ function StaffCabins() {
   };
 
   const toggleMutation = useMutation({
-    mutationFn: (cabin: StaffCabin) =>
-      updateStaffCabin(cabin.id, { is_active: !cabin.is_active }),
+    mutationFn: (cabin: StaffCabin) => updateStaffCabin(cabin.id, { is_active: !cabin.is_active }),
     onSuccess: (cabin) => {
-      toast.success(cabin.is_active ? "Cabin is now visible on the website." : "Cabin hidden from the website.");
+      toast.success(
+        cabin.is_active ? "Cabin is now visible on the website." : "Cabin hidden from the website.",
+      );
       invalidate();
     },
     onError: (err) => toast.error(errorText(err)),
@@ -162,7 +169,9 @@ function StaffCabins() {
                   </div>
                 )}
                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-black/55 text-white">
-                  {cabin.images.length ? `${cabin.images.length} photo${cabin.images.length > 1 ? "s" : ""}` : "No photos"}
+                  {cabin.images.length
+                    ? `${cabin.images.length} photo${cabin.images.length > 1 ? "s" : ""}`
+                    : "No photos"}
                 </span>
                 {!cabin.is_active && (
                   <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-amber-100/95 text-amber-700">
@@ -204,7 +213,11 @@ function StaffCabins() {
                   </button>
                   <button
                     onClick={() => {
-                      if (window.confirm(`Delete "${cabin.name}" and all its photos? This cannot be undone.`)) {
+                      if (
+                        window.confirm(
+                          `Delete "${cabin.name}" and all its photos? This cannot be undone.`,
+                        )
+                      ) {
                         deleteMutation.mutate(cabin.id);
                       }
                     }}
@@ -338,7 +351,9 @@ function CabinFormDialog({
               onChange={(e) => set("ship", Number(e.target.value))}
             >
               {ships.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           </StaffField>
@@ -398,7 +413,9 @@ function CabinFormDialog({
             className={`${staffInputClass} min-h-24 font-mono text-xs`}
             value={form.highlights}
             onChange={(e) => set("highlights", e.target.value)}
-            placeholder={"Private Balcony | Step outside at dawn and watch mist rise over the delta."}
+            placeholder={
+              "Private Balcony | Step outside at dawn and watch mist rise over the delta."
+            }
           />
         </StaffField>
 
@@ -454,9 +471,7 @@ function CabinPhotosDialog({
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
       setUploading(true);
-      const nextOrder = images.length
-        ? Math.max(...images.map((i) => i.sort_order)) + 1
-        : 0;
+      const nextOrder = images.length ? Math.max(...images.map((i) => i.sort_order)) + 1 : 0;
       // Sequential, so sort_order stays deterministic and one failure
       // doesn't abort the files already uploaded.
       for (const [i, file] of files.entries()) {
@@ -512,8 +527,8 @@ function CabinPhotosDialog({
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="text-xs text-muted-foreground">
-            {images.length} photo(s). The <Star className="inline size-3 text-gold fill-gold" /> photo
-            is the cabin card's main image; the rest appear in the detail page gallery.
+            {images.length} photo(s). The <Star className="inline size-3 text-gold fill-gold" />{" "}
+            photo is the cabin card's main image; the rest appear in the detail page gallery.
           </div>
           <input
             ref={fileInputRef}
@@ -532,7 +547,11 @@ function CabinPhotosDialog({
             disabled={uploading}
             className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-40"
           >
-            {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <ImagePlus className="size-3.5" />}
+            {uploading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <ImagePlus className="size-3.5" />
+            )}
             Add photos
           </button>
         </div>

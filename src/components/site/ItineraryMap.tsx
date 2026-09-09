@@ -1,8 +1,18 @@
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
 import {
-  Anchor, Compass, Sunrise, Trees, Waves, Camera, Bird, MapPin,
-  Utensils, Footprints, Link2, Check,
+  Anchor,
+  Compass,
+  Sunrise,
+  Trees,
+  Waves,
+  Camera,
+  Bird,
+  MapPin,
+  Utensils,
+  Footprints,
+  Link2,
+  Check,
 } from "lucide-react";
 
 import { copyToClipboard } from "@/lib/clipboard";
@@ -25,39 +35,54 @@ export type Stop = {
 
 const iconFor = (k?: Stop["icon"]) => {
   switch (k) {
-    case "anchor": return Anchor;
-    case "trees": return Trees;
-    case "waves": return Waves;
-    case "camera": return Camera;
-    case "bird": return Bird;
-    case "sun": return Sunrise;
-    case "dining": return Utensils;
-    case "trek": return Footprints;
-    default: return MapPin;
+    case "anchor":
+      return Anchor;
+    case "trees":
+      return Trees;
+    case "waves":
+      return Waves;
+    case "camera":
+      return Camera;
+    case "bird":
+      return Bird;
+    case "sun":
+      return Sunrise;
+    case "dining":
+      return Utensils;
+    case "trek":
+      return Footprints;
+    default:
+      return MapPin;
   }
 };
 
 const inferType = (s: Stop): StopType => {
   if (s.type) return s.type;
   switch (s.icon) {
-    case "anchor": return "anchor";
+    case "anchor":
+      return "anchor";
     case "trees":
-    case "bird": return "wildlife";
-    case "waves": return "canal";
-    case "dining": return "dining";
+    case "bird":
+      return "wildlife";
+    case "waves":
+      return "canal";
+    case "dining":
+      return "dining";
     case "camera":
     case "sun":
-    case "trek": return "excursion";
-    default: return "excursion";
+    case "trek":
+      return "excursion";
+    default:
+      return "excursion";
   }
 };
 
 const TYPE_META: Record<StopType, { label: string; color: string; ring: string }> = {
-  wildlife:  { label: "Wildlife",  color: "var(--mangrove)", ring: "ring-mangrove/40" },
-  canal:     { label: "Canal",     color: "var(--teal)",     ring: "ring-teal/40" },
-  dining:    { label: "Dining",    color: "var(--gold)",     ring: "ring-gold/40" },
-  excursion: { label: "Excursion", color: "var(--ocean)",    ring: "ring-ocean/40" },
-  anchor:    { label: "Port",      color: "var(--gold)",     ring: "ring-gold/40" },
+  wildlife: { label: "Wildlife", color: "var(--mangrove)", ring: "ring-mangrove/40" },
+  canal: { label: "Canal", color: "var(--teal)", ring: "ring-teal/40" },
+  dining: { label: "Dining", color: "var(--gold)", ring: "ring-gold/40" },
+  excursion: { label: "Excursion", color: "var(--ocean)", ring: "ring-ocean/40" },
+  anchor: { label: "Port", color: "var(--gold)", ring: "ring-gold/40" },
 };
 
 export function ItineraryMap({
@@ -84,7 +109,11 @@ export function ItineraryMap({
 
   // Build a smooth path through stops
   const path = stops
-    .map((s, i) => (i === 0 ? `M ${s.x} ${s.y}` : `S ${(stops[i - 1].x + s.x) / 2} ${(stops[i - 1].y + s.y) / 2 - 4}, ${s.x} ${s.y}`))
+    .map((s, i) =>
+      i === 0
+        ? `M ${s.x} ${s.y}`
+        : `S ${(stops[i - 1].x + s.x) / 2} ${(stops[i - 1].y + s.y) / 2 - 4}, ${s.x} ${s.y}`,
+    )
     .join(" ");
 
   const tooltipIdx = hover ?? active;
@@ -101,14 +130,20 @@ export function ItineraryMap({
   const usedTypes = Array.from(new Set(stops.map(inferType)));
 
   return (
-    <div ref={containerRef} className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-stretch scroll-mt-24">
+    <div
+      ref={containerRef}
+      className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-stretch scroll-mt-24"
+    >
       {/* Map canvas */}
       <div className="lg:col-span-7 relative rounded-3xl overflow-hidden bg-linear-to-br from-mangrove/15 via-background to-teal/10 border border-border shadow-luxe">
         {/* paper texture */}
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, var(--ocean) 1px, transparent 0)",
-          backgroundSize: "18px 18px",
-        }} />
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, var(--ocean) 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+          }}
+        />
 
         {/* compass */}
         <div className="absolute top-5 right-5 size-14 rounded-full glass-dark grid place-items-center text-gold z-10">
@@ -119,7 +154,11 @@ export function ItineraryMap({
           {title && <div className="font-display text-xl text-foreground mt-1">{title}</div>}
         </div>
 
-        <svg viewBox="0 0 100 70" className="block w-full h-auto" preserveAspectRatio="xMidYMid meet">
+        <svg
+          viewBox="0 0 100 70"
+          className="block w-full h-auto"
+          preserveAspectRatio="xMidYMid meet"
+        >
           <defs>
             <linearGradient id={`water-${paramKey}`} x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="var(--teal)" stopOpacity="0.15" />
@@ -133,15 +172,40 @@ export function ItineraryMap({
 
           <rect width="100" height="70" fill={`url(#water-${paramKey})`} />
 
-          <path d="M 0 0 L 100 0 L 100 18 C 80 22, 65 16, 50 22 C 35 28, 20 20, 0 26 Z" fill={`url(#land-${paramKey})`} />
-          <path d="M 8 30 C 18 28, 25 34, 22 40 C 19 46, 10 44, 6 40 Z" fill={`url(#land-${paramKey})`} />
-          <path d="M 32 36 C 44 32, 50 40, 46 48 C 40 54, 30 50, 28 44 Z" fill={`url(#land-${paramKey})`} />
-          <path d="M 58 40 C 70 36, 78 44, 74 52 C 68 58, 56 54, 54 48 Z" fill={`url(#land-${paramKey})`} />
-          <path d="M 82 32 C 92 30, 96 38, 92 46 C 86 50, 78 46, 78 40 Z" fill={`url(#land-${paramKey})`} />
-          <path d="M 0 60 L 100 60 L 100 70 L 0 70 Z" fill={`url(#water-${paramKey})`} opacity="0.6" />
+          <path
+            d="M 0 0 L 100 0 L 100 18 C 80 22, 65 16, 50 22 C 35 28, 20 20, 0 26 Z"
+            fill={`url(#land-${paramKey})`}
+          />
+          <path
+            d="M 8 30 C 18 28, 25 34, 22 40 C 19 46, 10 44, 6 40 Z"
+            fill={`url(#land-${paramKey})`}
+          />
+          <path
+            d="M 32 36 C 44 32, 50 40, 46 48 C 40 54, 30 50, 28 44 Z"
+            fill={`url(#land-${paramKey})`}
+          />
+          <path
+            d="M 58 40 C 70 36, 78 44, 74 52 C 68 58, 56 54, 54 48 Z"
+            fill={`url(#land-${paramKey})`}
+          />
+          <path
+            d="M 82 32 C 92 30, 96 38, 92 46 C 86 50, 78 46, 78 40 Z"
+            fill={`url(#land-${paramKey})`}
+          />
+          <path
+            d="M 0 60 L 100 60 L 100 70 L 0 70 Z"
+            fill={`url(#water-${paramKey})`}
+            opacity="0.6"
+          />
 
-          <path d="M 12 4 C 20 14, 14 22, 22 30 C 30 38, 26 48, 36 56 C 48 62, 70 60, 92 54"
-            stroke="var(--teal)" strokeWidth="0.4" fill="none" opacity="0.4" strokeDasharray="0.6 0.6" />
+          <path
+            d="M 12 4 C 20 14, 14 22, 22 30 C 30 38, 26 48, 36 56 C 48 62, 70 60, 92 54"
+            stroke="var(--teal)"
+            strokeWidth="0.4"
+            fill="none"
+            opacity="0.4"
+            strokeDasharray="0.6 0.6"
+          />
 
           <motion.path
             d={path}
@@ -170,7 +234,12 @@ export function ItineraryMap({
               >
                 <title>{`Day ${s.day} · ${s.name} — ${TYPE_META[t].label}`}</title>
                 <circle cx={s.x} cy={s.y} r={isActive ? 2.8 : 1.8} fill={c} opacity="0.25">
-                  <animate attributeName="r" values={`${isActive ? 2.8 : 1.8};${isActive ? 4.2 : 2.6};${isActive ? 2.8 : 1.8}`} dur="2.4s" repeatCount="indefinite" />
+                  <animate
+                    attributeName="r"
+                    values={`${isActive ? 2.8 : 1.8};${isActive ? 4.2 : 2.6};${isActive ? 2.8 : 1.8}`}
+                    dur="2.4s"
+                    repeatCount="indefinite"
+                  />
                 </circle>
                 <circle
                   cx={s.x}
@@ -180,12 +249,25 @@ export function ItineraryMap({
                   stroke="var(--background)"
                   strokeWidth="0.3"
                 />
-                <text x={s.x} y={s.y - 2.4} fontSize="1.8" textAnchor="middle" className="font-display"
+                <text
+                  x={s.x}
+                  y={s.y - 2.4}
+                  fontSize="1.8"
+                  textAnchor="middle"
+                  className="font-display"
                   fill={isActive ? "var(--ocean)" : "var(--mangrove)"}
-                  style={{ fontWeight: isActive ? 600 : 500 }}>
+                  style={{ fontWeight: isActive ? 600 : 500 }}
+                >
                   {s.name}
                 </text>
-                <text x={s.x} y={s.y + 3} fontSize="1.2" textAnchor="middle" fill="var(--gold)" letterSpacing="0.15">
+                <text
+                  x={s.x}
+                  y={s.y + 3}
+                  fontSize="1.2"
+                  textAnchor="middle"
+                  fill="var(--gold)"
+                  letterSpacing="0.15"
+                >
                   DAY {s.day}
                 </text>
               </g>
@@ -204,12 +286,20 @@ export function ItineraryMap({
             maxWidth: "220px",
           }}
         >
-          <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.2em]" style={{ color: TYPE_META[tipType].color }}>
-            <span className="size-1.5 rounded-full" style={{ background: TYPE_META[tipType].color }} />
+          <div
+            className="flex items-center gap-2 text-[9px] uppercase tracking-[0.2em]"
+            style={{ color: TYPE_META[tipType].color }}
+          >
+            <span
+              className="size-1.5 rounded-full"
+              style={{ background: TYPE_META[tipType].color }}
+            />
             {TYPE_META[tipType].label}
           </div>
           <div className="font-display text-base mt-0.5 leading-tight">{tip.name}</div>
-          <div className="text-[10px] text-background/70 mt-0.5">Day {tip.day} · {tip.time}</div>
+          <div className="text-[10px] text-background/70 mt-0.5">
+            Day {tip.day} · {tip.time}
+          </div>
         </div>
 
         {/* Day chips */}
@@ -240,7 +330,10 @@ export function ItineraryMap({
           <div className="flex items-center gap-3 eyebrow text-gold text-[10px]">
             <span
               className="size-9 rounded-full grid place-items-center"
-              style={{ background: `color-mix(in oklab, ${TYPE_META[activeType].color} 15%, transparent)`, color: TYPE_META[activeType].color }}
+              style={{
+                background: `color-mix(in oklab, ${TYPE_META[activeType].color} 15%, transparent)`,
+                color: TYPE_META[activeType].color,
+              }}
             >
               <Icon className="size-4" />
             </span>
@@ -277,7 +370,10 @@ export function ItineraryMap({
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {usedTypes.map((t) => (
               <div key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="size-2.5 rounded-full" style={{ background: TYPE_META[t].color }} />
+                <span
+                  className="size-2.5 rounded-full"
+                  style={{ background: TYPE_META[t].color }}
+                />
                 {TYPE_META[t].label}
               </div>
             ))}

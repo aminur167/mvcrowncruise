@@ -40,7 +40,11 @@ export const Route = createFileRoute("/wildlife")({
   head: () => ({
     meta: [
       { title: "Wildlife Experience — MV THE CROWN Sundarbans" },
-      { name: "description", content: "Royal Bengal tigers, spotted deer, kingfishers and the world's largest mangrove ecosystem — experienced from a luxury cruise." },
+      {
+        name: "description",
+        content:
+          "Royal Bengal tigers, spotted deer, kingfishers and the world's largest mangrove ecosystem — experienced from a luxury cruise.",
+      },
     ],
   }),
 });
@@ -48,10 +52,30 @@ export const Route = createFileRoute("/wildlife")({
 /* ------------------------------ Conservation ------------------------------ */
 
 const conservationFacts = [
-  { icon: Landmark, value: "1997", label: "UNESCO World Heritage", desc: "Protected as a natural World Heritage Site" },
-  { icon: Globe, value: "10,000 km²", label: "Largest Mangrove on Earth", desc: "A single forest shared by Bangladesh & India" },
-  { icon: PawPrint, value: "125", label: "Royal Bengal Tigers", desc: "2024 census, Bangladesh Sundarbans" },
-  { icon: Bird, value: "300+", label: "Bird Species", desc: "Residents, raptors and winter migrants" },
+  {
+    icon: Landmark,
+    value: "1997",
+    label: "UNESCO World Heritage",
+    desc: "Protected as a natural World Heritage Site",
+  },
+  {
+    icon: Globe,
+    value: "10,000 km²",
+    label: "Largest Mangrove on Earth",
+    desc: "A single forest shared by Bangladesh & India",
+  },
+  {
+    icon: PawPrint,
+    value: "125",
+    label: "Royal Bengal Tigers",
+    desc: "2024 census, Bangladesh Sundarbans",
+  },
+  {
+    icon: Bird,
+    value: "300+",
+    label: "Bird Species",
+    desc: "Residents, raptors and winter migrants",
+  },
 ];
 
 /* ------------------------------ Species guide ----------------------------- */
@@ -257,7 +281,11 @@ function WildlifePage() {
     <>
       <PageHero
         eyebrow="The Wild"
-        title={<>The <em className="not-italic">last great</em> mangrove on earth.</>}
+        title={
+          <>
+            The <em className="not-italic">last great</em> mangrove on earth.
+          </>
+        }
         subtitle="Documentary-grade encounters with tigers, deer, crocodiles, and 300+ bird species — guided by Bangladesh's most experienced naturalists."
         image={tiger}
       />
@@ -294,7 +322,11 @@ function WildlifePage() {
           <SectionHeader
             align="center"
             eyebrow="Field Guide"
-            title={<>Who you'll <em className="not-italic">meet</em> out there.</>}
+            title={
+              <>
+                Who you'll <em className="not-italic">meet</em> out there.
+              </>
+            }
             description="Every resident of the delta, with an honest read on how likely you are to see them — as briefed by our naturalists on night one."
           />
 
@@ -321,7 +353,9 @@ function WildlifePage() {
                       <PawPrint className="size-10 text-gold/30 stroke-[1.2]" />
                     </div>
                   )}
-                  <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-semibold ${chanceStyle[s.chance]} ${s.img ? "backdrop-blur-sm" : ""}`}>
+                  <span
+                    className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-semibold ${chanceStyle[s.chance]} ${s.img ? "backdrop-blur-sm" : ""}`}
+                  >
                     {s.chance}
                   </span>
                   <span className="absolute bottom-3 left-3 font-display text-lg font-light text-background/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
@@ -333,7 +367,9 @@ function WildlifePage() {
                     {s.name}
                   </h3>
                   <div className="mt-1 text-sm text-muted-foreground">{s.bangla}</div>
-                  <p className="mt-4 text-sm text-muted-foreground leading-relaxed flex-1">{s.desc}</p>
+                  <p className="mt-4 text-sm text-muted-foreground leading-relaxed flex-1">
+                    {s.desc}
+                  </p>
                   <div className="mt-5 pt-4 border-t border-border space-y-1.5 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <MapPin className="size-3.5 text-gold shrink-0" /> {s.where}
@@ -355,7 +391,11 @@ function WildlifePage() {
           <SectionHeader
             align="center"
             eyebrow="When to Sail"
-            title={<>The forest keeps a <em className="not-italic">calendar</em>.</>}
+            title={
+              <>
+                The forest keeps a <em className="not-italic">calendar</em>.
+              </>
+            }
             description="November to February brings cool air, calm water and the winter migrants. The monsoon paints everything green — and keeps its secrets."
           />
 
@@ -370,15 +410,25 @@ function WildlifePage() {
               {months.map((mo) => (
                 <div key={mo.m} className="flex flex-col items-center gap-2">
                   <div className={`w-full rounded-t-md transition-all ${seasonStyle[mo.q].bar}`} />
-                  <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">{mo.m}</div>
+                  <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">
+                    {mo.m}
+                  </div>
                 </div>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-gold" /> Peak season · best sightings</span>
-              <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-mangrove/70" /> Very good shoulder months</span>
-              <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-ocean/40" /> Warm & quiet forest</span>
-              <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-mangrove/30" /> Green monsoon</span>
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-gold" /> Peak season · best sightings
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-mangrove/70" /> Very good shoulder months
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-ocean/40" /> Warm & quiet forest
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-mangrove/30" /> Green monsoon
+              </span>
             </div>
           </motion.div>
 
@@ -407,7 +457,11 @@ function WildlifePage() {
           <SectionHeader
             align="center"
             eyebrow="Fieldcraft & Safety"
-            title={<>Wild encounters, <em className="not-italic">handled properly</em>.</>}
+            title={
+              <>
+                Wild encounters, <em className="not-italic">handled properly</em>.
+              </>
+            }
             description="The Sundarbans is not a zoo — and that is the point. Here is how we bring you close while keeping guests, crew and forest safe."
           />
 
@@ -438,7 +492,11 @@ function WildlifePage() {
           <SectionHeader
             align="center"
             eyebrow="Honest Answers"
-            title={<>"Will I see a <em className="not-italic">tiger</em>?"</>}
+            title={
+              <>
+                "Will I see a <em className="not-italic">tiger</em>?"
+              </>
+            }
             description="The questions every guest asks before sailing — answered the way our naturalists answer them on deck: honestly."
           />
 

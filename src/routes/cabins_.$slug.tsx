@@ -14,7 +14,10 @@ function CabinNotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background">
       <h1 className="font-display text-4xl">Cabin not found</h1>
-      <Link to="/cabins" className="px-6 py-3 rounded-full bg-ocean text-background text-sm uppercase tracking-widest">
+      <Link
+        to="/cabins"
+        className="px-6 py-3 rounded-full bg-ocean text-background text-sm uppercase tracking-widest"
+      >
         Back to cabins
       </Link>
     </div>
@@ -42,15 +45,14 @@ function CabinDetail() {
   if (isError || !cabin) return <CabinNotFound />;
 
   const cabinImages = Array.isArray(cabin.images) ? cabin.images : [];
-  const gallery = cabinImages.length
-    ? cabinImages.map((img) => img.image)
-    : [cabinPlaceholder];
+  const gallery = cabinImages.length ? cabinImages.map((img) => img.image) : [cabinPlaceholder];
   const safeIdx = Math.min(imgIdx, gallery.length - 1);
   const mainImage = cabin.main_image?.image ?? gallery[0];
-  const otherCabins = (Array.isArray(allCabins) ? allCabins : []).filter((c) => c.slug !== cabin.slug);
+  const otherCabins = (Array.isArray(allCabins) ? allCabins : []).filter(
+    (c) => c.slug !== cabin.slug,
+  );
 
-  const go = (dir: number) =>
-    setImgIdx((i) => (i + dir + gallery.length) % gallery.length);
+  const go = (dir: number) => setImgIdx((i) => (i + dir + gallery.length) % gallery.length);
 
   return (
     <>
@@ -108,7 +110,6 @@ function CabinDetail() {
           <ArrowLeft className="size-4" /> All Cabins
         </Link>
 
-
         {/* Title block */}
         <div className="relative z-10 h-full container-luxe flex flex-col justify-end pb-16 pt-32">
           <motion.div
@@ -160,7 +161,6 @@ function CabinDetail() {
       {/* ── Main content ── */}
       <section className="py-24 md:py-32 bg-background">
         <div className="container-luxe grid lg:grid-cols-12 gap-16">
-
           {/* Left — description + highlights */}
           <div className="lg:col-span-7 space-y-14">
             {/* Description */}
@@ -236,10 +236,18 @@ function CabinDetail() {
                   {gallery.map((src, i) => (
                     <button
                       key={i}
-                      onClick={() => { setImgIdx(i); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      onClick={() => {
+                        setImgIdx(i);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                       className={`relative aspect-4/3 rounded-xl overflow-hidden ring-2 transition-all ${i === safeIdx ? "ring-gold" : "ring-transparent hover:ring-gold/50"}`}
                     >
-                      <img src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                      <img
+                        src={src}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -249,7 +257,6 @@ function CabinDetail() {
 
           {/* Right — booking card + specs */}
           <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-32 lg:self-start">
-
             {/* Booking card */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -258,7 +265,11 @@ function CabinDetail() {
               className="rounded-2xl border border-border bg-card shadow-luxe overflow-hidden"
             >
               <div className="relative aspect-video overflow-hidden">
-                <img src={mainImage} alt={cabin.name} className="absolute inset-0 h-full w-full object-cover" />
+                <img
+                  src={mainImage}
+                  alt={cabin.name}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-ocean/80 to-transparent" />
                 <div className="absolute bottom-4 left-5">
                   <div className="eyebrow text-gold-soft text-[10px]">Reserve</div>
@@ -295,7 +306,10 @@ function CabinDetail() {
                 </div>
                 <div className="divide-y divide-border">
                   {cabin.amenities.map((a) => (
-                    <div key={a.label} className="flex items-center justify-between px-6 py-3.5 text-sm">
+                    <div
+                      key={a.label}
+                      className="flex items-center justify-between px-6 py-3.5 text-sm"
+                    >
                       <span className="text-muted-foreground">{a.label}</span>
                       <span className="font-medium text-foreground">{a.value}</span>
                     </div>
@@ -328,7 +342,9 @@ function CabinDetail() {
                         className="size-16 rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-display text-base group-hover:text-gold-text transition-colors truncate">{c.name}</div>
+                        <div className="font-display text-base group-hover:text-gold-text transition-colors truncate">
+                          {c.name}
+                        </div>
                         <div className="text-xs text-muted-foreground mt-0.5">
                           {[c.size_label, c.occupancy].filter(Boolean).join(" · ")}
                         </div>

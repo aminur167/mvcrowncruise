@@ -52,10 +52,7 @@ function StaffLoginPage() {
           <p className="eyebrow text-gold-soft text-[10px] mt-1">Staff Dashboard</p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-card rounded-2xl shadow-luxe p-6 space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-luxe p-6 space-y-4">
           <div>
             <label className="eyebrow text-muted-foreground text-[10px] block mb-2">Username</label>
             <div className="relative">

@@ -59,8 +59,8 @@ function SettingsPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        To change your name, username, or password, contact an administrator in the Django
-        admin panel.
+        To change your name, username, or password, contact an administrator in the Django admin
+        panel.
       </p>
 
       <NotificationInboxSection />
@@ -100,9 +100,8 @@ function NotificationInboxSection() {
           <Mail className="size-5 text-gold" /> Message notifications
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Where inquiries from the website contact form are emailed. Leave blank to use the
-          system default. Every message also appears in{" "}
-          <span className="font-medium">Messages</span>.
+          Where inquiries from the website contact form are emailed. Leave blank to use the system
+          default. Every message also appears in <span className="font-medium">Messages</span>.
         </p>
       </div>
 
@@ -218,8 +217,8 @@ function HelplineSection() {
           <Phone className="size-5 text-gold" /> Helpline numbers
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Printed in the top corner of every guide report and customer invoice. Separate
-          multiple numbers with commas.
+          Printed in the top corner of every guide report and customer invoice. Separate multiple
+          numbers with commas.
         </p>
       </div>
 
@@ -368,8 +367,8 @@ function GuideReportSection() {
           <FileText className="size-5 text-gold" /> Guide report size
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Controls the text size and rows-per-page of the guide collection report PDF.
-          Compact fits more rooms on a page; Large prints bigger, easier-to-read type.
+          Controls the text size and rows-per-page of the guide collection report PDF. Compact fits
+          more rooms on a page; Large prints bigger, easier-to-read type.
         </p>
       </div>
 

@@ -22,7 +22,11 @@ export const Route = createFileRoute("/gallery")({
   head: () => ({
     meta: [
       { title: "Gallery — MV THE CROWN Photography" },
-      { name: "description", content: "Cinematic photography from MV THE CROWN's Sundarbans expeditions — wildlife, vessel, dining, and landscape." },
+      {
+        name: "description",
+        content:
+          "Cinematic photography from MV THE CROWN's Sundarbans expeditions — wildlife, vessel, dining, and landscape.",
+      },
     ],
   }),
 });
@@ -64,7 +68,11 @@ function Gallery() {
     <>
       <PageHero
         eyebrow="The Gallery"
-        title={<>Stories the <em className="not-italic">camera</em> remembered.</>}
+        title={
+          <>
+            Stories the <em className="not-italic">camera</em> remembered.
+          </>
+        }
         subtitle="A cinematic archive from voyages aboard MV THE CROWN."
         image={canal}
       />
@@ -80,7 +88,12 @@ function Gallery() {
               className={`group relative overflow-hidden rounded-xl cursor-zoom-in ${SPANS[i % SPANS.length]}`}
               onClick={() => setLightbox(i)}
             >
-              <img src={img.src} alt={img.caption} loading="lazy" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+              <img
+                src={img.src}
+                alt={img.caption}
+                loading="lazy"
+                className="image-zoom absolute inset-0 h-full w-full object-cover"
+              />
               <div className="absolute inset-0 bg-ocean/0 group-hover:bg-ocean/30 transition-colors" />
               {img.caption && (
                 <figcaption className="absolute inset-x-0 bottom-0 bg-linear-to-t from-midnight/80 via-midnight/40 to-transparent px-3 pb-2.5 pt-8">
@@ -126,10 +139,7 @@ function Lightbox({
     () => onNavigate((index - 1 + count) % count),
     [onNavigate, index, count],
   );
-  const next = useCallback(
-    () => onNavigate((index + 1) % count),
-    [onNavigate, index, count],
-  );
+  const next = useCallback(() => onNavigate((index + 1) % count), [onNavigate, index, count]);
 
   // Keyboard: ← → navigate, Esc closes. Body scroll is locked while open.
   useEffect(() => {

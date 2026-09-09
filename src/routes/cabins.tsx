@@ -13,7 +13,11 @@ export const Route = createFileRoute("/cabins")({
   head: () => ({
     meta: [
       { title: "Luxury Cabins & Suites — MV THE CROWN" },
-      { name: "description", content: "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV THE CROWN." },
+      {
+        name: "description",
+        content:
+          "River-facing private balcony cabins, panorama suites, and honeymoon rooms aboard MV THE CROWN.",
+      },
     ],
   }),
 });
@@ -34,7 +38,11 @@ function Cabins() {
     <>
       <PageHero
         eyebrow="Cabins & Suites"
-        title={<>Your private <em className="not-italic">river</em> sanctuary.</>}
+        title={
+          <>
+            Your private <em className="not-italic">river</em> sanctuary.
+          </>
+        }
         subtitle="Wood-clad interiors, floor-to-ceiling glass, and the Sundarbans as your view."
         image={img109}
       />
@@ -44,14 +52,21 @@ function Cabins() {
           <SectionHeader
             align="center"
             eyebrow="Accommodations"
-            title={<>Every cabin. <em className="not-italic">One standard.</em></>}
+            title={
+              <>
+                Every cabin. <em className="not-italic">One standard.</em>
+              </>
+            }
             description="Every cabin features private en-suite, premium bedding, ambient lighting, and uninterrupted river views."
           />
 
           {isLoading ? (
             <div className="mt-16 grid md:grid-cols-3 gap-6 lg:gap-8">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-2xl overflow-hidden shadow-luxe bg-card animate-pulse">
+                <div
+                  key={i}
+                  className="rounded-2xl overflow-hidden shadow-luxe bg-card animate-pulse"
+                >
                   <div className="aspect-4/3 bg-muted" />
                   <div className="p-7 space-y-3">
                     <div className="h-6 w-2/3 bg-muted rounded" />
@@ -82,7 +97,9 @@ function Cabins() {
                         className="image-zoom absolute inset-0 h-full w-full object-cover"
                       />
                       {c.size_label && (
-                        <div className="absolute top-4 right-4 px-3 py-1 rounded-full glass-dark text-gold-soft eyebrow text-[10px]">{c.size_label}</div>
+                        <div className="absolute top-4 right-4 px-3 py-1 rounded-full glass-dark text-gold-soft eyebrow text-[10px]">
+                          {c.size_label}
+                        </div>
                       )}
                       <div className="absolute inset-0 bg-ocean/0 group-hover:bg-ocean/20 transition-colors duration-500 flex items-center justify-center">
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-5 py-2.5 rounded-full glass text-background text-[10px] uppercase tracking-[0.2em] font-semibold">
@@ -91,7 +108,9 @@ function Cabins() {
                       </div>
                     </div>
                     <div className="p-7">
-                      <h3 className="font-display text-2xl font-normal group-hover:text-gold-text transition-colors">{c.name}</h3>
+                      <h3 className="font-display text-2xl font-normal group-hover:text-gold-text transition-colors">
+                        {c.name}
+                      </h3>
                       {c.occupancy && (
                         <div className="mt-1 text-sm text-muted-foreground">{c.occupancy}</div>
                       )}

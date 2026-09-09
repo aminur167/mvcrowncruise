@@ -40,8 +40,6 @@ export async function initiatePayment(
  * Each carries a download_url bearing that invoice's capability token, so a
  * booking code never exposes anyone else's invoice. */
 export async function getBookingInvoices(bookingCode: string): Promise<BookingInvoice[]> {
-  const { data } = await apiClient.get<BookingInvoice[]>(
-    `/bookings/${bookingCode}/invoices/`,
-  );
+  const { data } = await apiClient.get<BookingInvoice[]>(`/bookings/${bookingCode}/invoices/`);
   return data;
 }

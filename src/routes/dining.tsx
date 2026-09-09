@@ -1,6 +1,14 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { BadgeCheck, GlassWater, Leaf, MonitorPlay, UtensilsCrossed, Users, Wifi } from "lucide-react";
+import {
+  BadgeCheck,
+  GlassWater,
+  Leaf,
+  MonitorPlay,
+  UtensilsCrossed,
+  Users,
+  Wifi,
+} from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { FoodMenuSection } from "@/components/site/FoodMenuSection";
@@ -25,36 +33,108 @@ export const Route = createFileRoute("/dining")({
   head: () => ({
     meta: [
       { title: "Dining Experience — MV THE CROWN" },
-      { name: "description", content: "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV THE CROWN." },
+      {
+        name: "description",
+        content:
+          "BBQ deck nights, buffet halls, traditional Bengali seafood, a chef-curated 3-day menu and an 80-pax conference suite aboard MV THE CROWN.",
+      },
     ],
   }),
 });
 
 const menus = [
-  { img: sunriseBuffetImg, name: "Sunrise Buffet", time: "07:00 — 10:00", desc: "Continental, Bengali breakfast classics, fresh juices, espresso bar." },
-  { img: deckLunchImg, name: "Deck Lunch", time: "13:00 — 15:00", desc: "Coastal salads, river fish curry, slow-braised meats, seasonal vegetables." },
-  { img: sunsetBbqImg, name: "Sunset BBQ", time: "19:30 — 22:30", desc: "Live grill, prawn skewers, chargrilled seafood, candlelight, string lights." },
-  { img: lateLoungeImg, name: "Late Lounge", time: "22:30 — late", desc: "Dessert tasting, herbal teas, cocktails under the stars on the open deck." },
+  {
+    img: sunriseBuffetImg,
+    name: "Sunrise Buffet",
+    time: "07:00 — 10:00",
+    desc: "Continental, Bengali breakfast classics, fresh juices, espresso bar.",
+  },
+  {
+    img: deckLunchImg,
+    name: "Deck Lunch",
+    time: "13:00 — 15:00",
+    desc: "Coastal salads, river fish curry, slow-braised meats, seasonal vegetables.",
+  },
+  {
+    img: sunsetBbqImg,
+    name: "Sunset BBQ",
+    time: "19:30 — 22:30",
+    desc: "Live grill, prawn skewers, chargrilled seafood, candlelight, string lights.",
+  },
+  {
+    img: lateLoungeImg,
+    name: "Late Lounge",
+    time: "22:30 — late",
+    desc: "Dessert tasting, herbal teas, cocktails under the stars on the open deck.",
+  },
 ];
 
 const signatureDishes = [
-  { no: "01", img: prawnDish, name: "Chargrilled Jumbo Prawn", desc: "Golda chingri from the delta's own rivers — live-grilled over charcoal on the BBQ deck, finished with lime butter." },
-  { no: "02", img: hilsaDish, name: "Smoked River Hilsa", desc: "Bengal's most celebrated fish, slow-smoked and served the traditional way — a dish guests talk about long after the voyage." },
-  { no: "03", img: bhartaDish, name: "Bengali Bharta Board", desc: "A spread of classic hand-pounded mashes and vortas with steamed rice — rustic, fiery, and utterly Sundarbans." },
-  { no: "04", img: dessertDish, name: "Bhapa Doi & Sweet Table", desc: "Steamed sweet yogurt, seasonal pithas and Bengali mishti to close every dinner service." },
+  {
+    no: "01",
+    img: prawnDish,
+    name: "Chargrilled Jumbo Prawn",
+    desc: "Golda chingri from the delta's own rivers — live-grilled over charcoal on the BBQ deck, finished with lime butter.",
+  },
+  {
+    no: "02",
+    img: hilsaDish,
+    name: "Smoked River Hilsa",
+    desc: "Bengal's most celebrated fish, slow-smoked and served the traditional way — a dish guests talk about long after the voyage.",
+  },
+  {
+    no: "03",
+    img: bhartaDish,
+    name: "Bengali Bharta Board",
+    desc: "A spread of classic hand-pounded mashes and vortas with steamed rice — rustic, fiery, and utterly Sundarbans.",
+  },
+  {
+    no: "04",
+    img: dessertDish,
+    name: "Bhapa Doi & Sweet Table",
+    desc: "Steamed sweet yogurt, seasonal pithas and Bengali mishti to close every dinner service.",
+  },
 ];
 
 const venues = [
-  { img: img107, name: "Main Dining Hall", desc: "Climate-controlled buffet restaurant with live serving stations — every guest seated in a single service." },
-  { img: img106, name: "Sky Restaurant", desc: "Glass-walled upper-deck hall with panoramic river views on three sides — breakfast with the sunrise, lunch with the mangroves." },
-  { img: deckSunset, name: "BBQ & Open Decks", desc: "String-lit open decks for grill nights, high tea and late lounge service under the stars." },
+  {
+    img: img107,
+    name: "Main Dining Hall",
+    desc: "Climate-controlled buffet restaurant with live serving stations — every guest seated in a single service.",
+  },
+  {
+    img: img106,
+    name: "Sky Restaurant",
+    desc: "Glass-walled upper-deck hall with panoramic river views on three sides — breakfast with the sunrise, lunch with the mangroves.",
+  },
+  {
+    img: deckSunset,
+    name: "BBQ & Open Decks",
+    desc: "String-lit open decks for grill nights, high tea and late lounge service under the stars.",
+  },
 ];
 
 const goodToKnow = [
-  { icon: UtensilsCrossed, title: "Every meal included", desc: "Breakfast, snacks, lunch and dinner — all three days, included in every package. No hidden food bills." },
-  { icon: BadgeCheck, title: "Fully halal kitchen", desc: "Every dish onboard is prepared to halal standards by our own galley team." },
-  { icon: Leaf, title: "Dietary requests", desc: "Vegetarian, allergies or kids' preferences — just note it in Special Requests when you book." },
-  { icon: GlassWater, title: "Water, tea & coffee", desc: "Safe bottled drinking water at every table, with tea and coffee available through the day." },
+  {
+    icon: UtensilsCrossed,
+    title: "Every meal included",
+    desc: "Breakfast, snacks, lunch and dinner — all three days, included in every package. No hidden food bills.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Fully halal kitchen",
+    desc: "Every dish onboard is prepared to halal standards by our own galley team.",
+  },
+  {
+    icon: Leaf,
+    title: "Dietary requests",
+    desc: "Vegetarian, allergies or kids' preferences — just note it in Special Requests when you book.",
+  },
+  {
+    icon: GlassWater,
+    title: "Water, tea & coffee",
+    desc: "Safe bottled drinking water at every table, with tea and coffee available through the day.",
+  },
 ];
 
 const corporatePoints = [
@@ -69,7 +149,11 @@ function Dining() {
     <>
       <PageHero
         eyebrow="The Table"
-        title={<>Dinner under <em className="not-italic">a thousand</em> stars.</>}
+        title={
+          <>
+            Dinner under <em className="not-italic">a thousand</em> stars.
+          </>
+        }
         subtitle="Master-chef curated menus combining coastal Bengali tradition with international refinement."
         image={img110}
       />
@@ -78,11 +162,19 @@ function Dining() {
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <SectionHeader
             eyebrow="The Experience"
-            title={<>From the river. <em className="not-italic">To your plate.</em></>}
+            title={
+              <>
+                From the river. <em className="not-italic">To your plate.</em>
+              </>
+            }
             description="Our chefs source fresh catch and seasonal produce daily. Every meal is a slow ritual — set against the backdrop of the world's wildest delta."
           />
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img107} alt="MV THE CROWN dining hall" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={img107}
+              alt="MV THE CROWN dining hall"
+              className="image-zoom absolute inset-0 h-full w-full object-cover"
+            />
           </div>
         </div>
       </section>
@@ -93,7 +185,11 @@ function Dining() {
           <SectionHeader
             align="center"
             eyebrow="The Daily Rhythm"
-            title={<>Four services. <em className="not-italic">Sunrise to starlight.</em></>}
+            title={
+              <>
+                Four services. <em className="not-italic">Sunrise to starlight.</em>
+              </>
+            }
             description="From the first espresso of the morning to desserts under the stars — this is how a day tastes aboard MV THE CROWN."
           />
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -107,7 +203,11 @@ function Dining() {
                 className="group"
               >
                 <div className="relative aspect-3/4 rounded-2xl overflow-hidden shadow-luxe">
-                  <img src={m.img} alt={m.name} className="image-zoom absolute inset-0 h-full w-full object-cover" />
+                  <img
+                    src={m.img}
+                    alt={m.name}
+                    className="image-zoom absolute inset-0 h-full w-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-linear-to-t from-ocean/85 via-ocean/20 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-6">
                     <div className="eyebrow text-gold-soft text-[10px]">{m.time}</div>
@@ -127,7 +227,11 @@ function Dining() {
           <SectionHeader
             align="center"
             eyebrow="The Menu"
-            title={<>Three days. <em className="not-italic">Twelve services.</em></>}
+            title={
+              <>
+                Three days. <em className="not-italic">Twelve services.</em>
+              </>
+            }
             description="What our galley actually serves, day by day. The exact spread varies by sailing as the chef selects from these dishes."
           />
           <div className="mt-16">
@@ -142,7 +246,11 @@ function Dining() {
           <SectionHeader
             align="center"
             eyebrow="Signature Dishes"
-            title={<>The plates that <em className="not-italic">define the voyage</em>.</>}
+            title={
+              <>
+                The plates that <em className="not-italic">define the voyage</em>.
+              </>
+            }
             light
           />
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -156,7 +264,11 @@ function Dining() {
                 className="group rounded-2xl overflow-hidden bg-background/5 border border-background/10"
               >
                 <div className="relative aspect-4/3 overflow-hidden">
-                  <img src={d.img} alt={d.name} className="image-zoom absolute inset-0 h-full w-full object-cover" />
+                  <img
+                    src={d.img}
+                    alt={d.name}
+                    className="image-zoom absolute inset-0 h-full w-full object-cover"
+                  />
                 </div>
                 <div className="p-6">
                   <div className="font-display text-2xl text-gold-soft/60">{d.no}</div>
@@ -177,7 +289,8 @@ function Dining() {
           <div className="eyebrow text-gold-soft mb-5">◆ Signature Night</div>
           <h2 className="font-display text-4xl md:text-6xl font-light">The BBQ Deck Experience</h2>
           <p className="mt-6 max-w-2xl mx-auto text-background/80 text-lg">
-            Live charcoal grill, jumbo prawns, river fish, hand-cut steaks. Candlelight on every table. Stars overhead. The Sundarbans as soundtrack.
+            Live charcoal grill, jumbo prawns, river fish, hand-cut steaks. Candlelight on every
+            table. Stars overhead. The Sundarbans as soundtrack.
           </p>
         </div>
       </section>
@@ -188,7 +301,11 @@ function Dining() {
           <SectionHeader
             align="center"
             eyebrow="Where You Dine"
-            title={<>Two restaurants. <em className="not-italic">One open sky.</em></>}
+            title={
+              <>
+                Two restaurants. <em className="not-italic">One open sky.</em>
+              </>
+            }
           />
           <div className="mt-16 grid md:grid-cols-3 gap-8">
             {venues.map((v, i) => (
@@ -201,7 +318,11 @@ function Dining() {
                 className="group"
               >
                 <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-                  <img src={v.img} alt={v.name} className="image-zoom absolute inset-0 h-full w-full object-cover" />
+                  <img
+                    src={v.img}
+                    alt={v.name}
+                    className="image-zoom absolute inset-0 h-full w-full object-cover"
+                  />
                 </div>
                 <h3 className="mt-6 font-display text-2xl">{v.name}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
@@ -215,12 +336,20 @@ function Dining() {
       <section className="py-28 md:py-36 bg-secondary/30 border-y border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={img106} alt="MV THE CROWN conference suite" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={img106}
+              alt="MV THE CROWN conference suite"
+              className="image-zoom absolute inset-0 h-full w-full object-cover"
+            />
           </div>
           <div>
             <SectionHeader
               eyebrow="Corporate & Events"
-              title={<>Meetings, <em className="not-italic">mid-river</em>.</>}
+              title={
+                <>
+                  Meetings, <em className="not-italic">mid-river</em>.
+                </>
+              }
               description="Take the annual retreat, the launch, or the leadership offsite somewhere no boardroom can follow. Our conference suite hosts up to 80 pax — with the world's largest mangrove forest outside the windows."
             />
             <ul className="mt-8 space-y-4">
@@ -267,14 +396,23 @@ function Dining() {
       <section className="py-24 md:py-28 bg-background border-t border-border">
         <div className="container-luxe grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-16/10 rounded-2xl overflow-hidden shadow-luxe">
-            <img src={chefBbq} alt="MV THE CROWN executive chef at the live BBQ grill" className="image-zoom absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={chefBbq}
+              alt="MV THE CROWN executive chef at the live BBQ grill"
+              className="image-zoom absolute inset-0 h-full w-full object-cover"
+            />
           </div>
           <div>
-            <div className="eyebrow text-gold mb-6 flex items-center gap-3"><span className="h-px w-8 bg-current" /> A Note From The Galley</div>
+            <div className="eyebrow text-gold mb-6 flex items-center gap-3">
+              <span className="h-px w-8 bg-current" /> A Note From The Galley
+            </div>
             <blockquote className="font-display text-2xl md:text-3xl font-light leading-relaxed">
-              "We cook the way the delta feeds us — what the river gives in the morning is on your table by night. Nothing rushed, nothing from a packet."
+              "We cook the way the delta feeds us — what the river gives in the morning is on your
+              table by night. Nothing rushed, nothing from a packet."
             </blockquote>
-            <p className="mt-6 text-sm text-muted-foreground tracking-wide">— Executive Chef, MV THE CROWN</p>
+            <p className="mt-6 text-sm text-muted-foreground tracking-wide">
+              — Executive Chef, MV THE CROWN
+            </p>
           </div>
         </div>
       </section>

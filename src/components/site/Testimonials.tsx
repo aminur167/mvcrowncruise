@@ -23,13 +23,23 @@ const reviews = [
 export function Testimonials() {
   return (
     <section className="relative py-28 md:py-36 gradient-ocean overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle at 25% 25%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: "radial-gradient(circle at 25% 25%, white 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
       <div className="container-luxe relative">
         <SectionHeader
           light
           align="center"
           eyebrow="Guest Stories"
-          title={<>What our travellers <em className="not-italic">remember</em>.</>}
+          title={
+            <>
+              What our travellers <em className="not-italic">remember</em>.
+            </>
+          }
         />
 
         <div className="mt-16 grid md:grid-cols-3 gap-6">

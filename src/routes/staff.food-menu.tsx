@@ -108,9 +108,7 @@ function FoodMenuPage() {
     queryKey: ["staff", "food-menu-items"],
     queryFn: getStaffFoodMenuItems,
   });
-  const [adding, setAdding] = useState<{ day: FoodMenuDay; meal_type: FoodMealType } | null>(
-    null,
-  );
+  const [adding, setAdding] = useState<{ day: FoodMenuDay; meal_type: FoodMealType } | null>(null);
   const [editing, setEditing] = useState<StaffFoodMenuItem | null>(null);
   const [activeDay, setActiveDay] = useState<FoodMenuDay>("day_1");
   const [search, setSearch] = useState("");
@@ -194,9 +192,9 @@ function FoodMenuPage() {
           <div className="flex items-start gap-2.5 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-xs text-muted-foreground">
             <Info className="size-4 text-gold shrink-0 mt-0.5" />
             <p>
-              This is the <strong className="text-foreground">selection pool</strong> for each
-              day's menu — the chef picks the day's actual dishes from the active items below.
-              Untick an item to hide it without deleting it.
+              This is the <strong className="text-foreground">selection pool</strong> for each day's
+              menu — the chef picks the day's actual dishes from the active items below. Untick an
+              item to hide it without deleting it.
             </p>
           </div>
 
@@ -269,11 +267,7 @@ function FoodMenuPage() {
       )}
 
       {editing && (
-        <EditItemDialog
-          item={editing}
-          onClose={() => setEditing(null)}
-          onSaved={invalidate}
-        />
+        <EditItemDialog item={editing} onClose={() => setEditing(null)} onSaved={invalidate} />
       )}
 
       {copyFrom && shipId && (
@@ -549,12 +543,15 @@ function AddItemDialog({
         <button
           disabled={!name.trim() || !shipId || mutation.isPending}
           onClick={() =>
-            shipId &&
-            mutation.mutate({ ship: shipId, day, meal_type: mealType, name: name.trim() })
+            shipId && mutation.mutate({ ship: shipId, day, meal_type: mealType, name: name.trim() })
           }
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none"
         >
-          {mutation.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
+          {mutation.isPending ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Plus className="size-3.5" />
+          )}
           Add item
         </button>
       </div>

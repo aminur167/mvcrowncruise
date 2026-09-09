@@ -41,7 +41,11 @@ export function Wildlife() {
         <SectionHeader
           align="center"
           eyebrow="Wildlife Storytelling"
-          title={<>Where the wild still <em className="not-italic">writes the rules</em>.</>}
+          title={
+            <>
+              Where the wild still <em className="not-italic">writes the rules</em>.
+            </>
+          }
           description="A documentary-style expedition through the world's largest mangrove ecosystem — guided, narrated, photographed."
         />
 
@@ -79,7 +83,9 @@ export function Wildlife() {
                 className="lg:col-span-5"
               >
                 <div className="eyebrow text-gold mb-4">{s.chapter}</div>
-                <h3 className="font-display text-4xl md:text-5xl font-light leading-[1.05]">{s.title}</h3>
+                <h3 className="font-display text-4xl md:text-5xl font-light leading-[1.05]">
+                  {s.title}
+                </h3>
                 <div className="mt-6 h-px w-16 bg-gold" />
                 <p className="mt-6 text-muted-foreground leading-relaxed text-base">{s.body}</p>
               </motion.div>

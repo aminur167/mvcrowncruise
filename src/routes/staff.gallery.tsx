@@ -47,9 +47,7 @@ function StaffGallery() {
     mutationFn: async (files: File[]) => {
       if (!activeShip) throw new Error("No ship available to attach photos to.");
       setUploading(true);
-      const nextOrder = images.length
-        ? Math.max(...images.map((i) => i.sort_order)) + 1
-        : 0;
+      const nextOrder = images.length ? Math.max(...images.map((i) => i.sort_order)) + 1 : 0;
       // Sequential, so sort_order stays deterministic and one failure
       // doesn't abort the files already uploaded.
       for (const [i, file] of files.entries()) {
@@ -125,7 +123,9 @@ function StaffGallery() {
               title="Ship new uploads belong to"
             >
               {ships.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           )}
@@ -146,7 +146,11 @@ function StaffGallery() {
             disabled={uploading || !activeShip}
             className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-40"
           >
-            {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <ImagePlus className="size-3.5" />}
+            {uploading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <ImagePlus className="size-3.5" />
+            )}
             Add photos
           </button>
         </div>
@@ -198,7 +202,9 @@ function StaffGallery() {
                 <button
                   title="Delete photo"
                   onClick={() => {
-                    if (window.confirm("Delete this photo from the gallery? This cannot be undone.")) {
+                    if (
+                      window.confirm("Delete this photo from the gallery? This cannot be undone.")
+                    ) {
                       deleteMutation.mutate(img.id);
                     }
                   }}

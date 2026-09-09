@@ -6,7 +6,10 @@ import type { BookingStatus } from "@/lib/api/types";
 const PENDING_POLL_MS = 2000;
 const MAX_PENDING_POLLS = 6;
 
-export function useBooking(bookingCode: string | undefined, options?: { pollWhilePending?: boolean }) {
+export function useBooking(
+  bookingCode: string | undefined,
+  options?: { pollWhilePending?: boolean },
+) {
   return useQuery({
     queryKey: ["bookings", bookingCode],
     queryFn: () => getBooking(bookingCode!),

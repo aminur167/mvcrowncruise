@@ -4,7 +4,12 @@ import type { FoodMenu, RoomType, ShipLayout, ShipMini } from "./types";
 export async function getShips(): Promise<ShipMini[]> {
   const { data } = await apiClient.get<ShipMini[]>("/ships/");
   if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && "results" in (data as Record<string, unknown>) && Array.isArray((data as { results: unknown }).results)) {
+  if (
+    data &&
+    typeof data === "object" &&
+    "results" in (data as Record<string, unknown>) &&
+    Array.isArray((data as { results: unknown }).results)
+  ) {
     return (data as { results: ShipMini[] }).results;
   }
   return [];
@@ -23,7 +28,12 @@ export async function getShipFoodMenu(shipId: number): Promise<FoodMenu> {
 export async function getRoomTypes(): Promise<RoomType[]> {
   const { data } = await apiClient.get<RoomType[]>("/room-types/");
   if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && "results" in (data as Record<string, unknown>) && Array.isArray((data as { results: unknown }).results)) {
+  if (
+    data &&
+    typeof data === "object" &&
+    "results" in (data as Record<string, unknown>) &&
+    Array.isArray((data as { results: unknown }).results)
+  ) {
     return (data as { results: RoomType[] }).results;
   }
   return [];

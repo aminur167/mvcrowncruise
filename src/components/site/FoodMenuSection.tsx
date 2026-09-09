@@ -5,13 +5,7 @@ import { useFoodMenu } from "@/hooks/queries/useFoodMenu";
 
 /** Serving order of the day. Days 1 and 2 have two snack sittings — one
  *  before lunch, one after — so evening snacks is its own course. */
-const MEAL_ORDER = [
-  "breakfast",
-  "snacks",
-  "lunch",
-  "evening_snacks",
-  "dinner",
-] as const;
+const MEAL_ORDER = ["breakfast", "snacks", "lunch", "evening_snacks", "dinner"] as const;
 const MEAL_LABEL: Record<(typeof MEAL_ORDER)[number], string> = {
   breakfast: "Breakfast",
   snacks: "Snacks",
@@ -114,9 +108,7 @@ export function FoodMenuSection() {
             </div>
 
             {data.note && (
-              <p className="mt-8 text-center text-xs text-muted-foreground italic">
-                {data.note}
-              </p>
+              <p className="mt-8 text-center text-xs text-muted-foreground italic">{data.note}</p>
             )}
           </div>
         </div>

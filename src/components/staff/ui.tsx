@@ -34,7 +34,10 @@ export function DialogShell({
       >
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between z-10">
           <h2 className="font-display text-xl">{title}</h2>
-          <button onClick={onClose} className="size-8 rounded-full grid place-items-center hover:bg-muted">
+          <button
+            onClick={onClose}
+            className="size-8 rounded-full grid place-items-center hover:bg-muted"
+          >
             <X className="size-4" />
           </button>
         </div>
@@ -53,13 +56,7 @@ export function Info({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function StaffField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+export function StaffField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="eyebrow text-muted-foreground text-[10px] block mb-1.5">{label}</span>

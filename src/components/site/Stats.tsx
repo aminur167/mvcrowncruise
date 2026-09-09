@@ -19,7 +19,12 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
     };
     requestAnimationFrame(step);
   }, [inView, to]);
-  return <span ref={ref}>{val.toLocaleString()}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {val.toLocaleString()}
+      {suffix}
+    </span>
+  );
 }
 
 const stats = [
@@ -68,7 +73,6 @@ export function Stats() {
       <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-ocean/5 blur-[120px] pointer-events-none" />
 
       <div className="relative container-luxe py-24 md:py-32">
-
         {/* Section label */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -112,7 +116,9 @@ export function Stats() {
               <div className="my-4 w-10 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
 
               {/* Label */}
-              <div className="eyebrow text-ocean/80 tracking-[0.25em] text-[0.68rem]">{s.label}</div>
+              <div className="eyebrow text-ocean/80 tracking-[0.25em] text-[0.68rem]">
+                {s.label}
+              </div>
 
               {/* Description */}
               <p className="mt-3 text-xs text-muted-foreground leading-relaxed max-w-45 group-hover:text-foreground/70 transition-colors duration-500">

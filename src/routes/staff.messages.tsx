@@ -55,8 +55,7 @@ function MessagesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["staff", "contact-messages", filter],
-    queryFn: () =>
-      getStaffContactMessages(filter === "all" ? undefined : filter),
+    queryFn: () => getStaffContactMessages(filter === "all" ? undefined : filter),
   });
 
   const statusMutation = useMutation({
@@ -222,7 +221,11 @@ function MessageCard({
             <ActionButton icon={MailOpen} label="Mark read" onClick={() => onStatus("read")} />
           )}
           {msg.status === "archived" ? (
-            <ActionButton icon={ArchiveRestore} label="Unarchive" onClick={() => onStatus("read")} />
+            <ActionButton
+              icon={ArchiveRestore}
+              label="Unarchive"
+              onClick={() => onStatus("read")}
+            />
           ) : (
             <ActionButton icon={Archive} label="Archive" onClick={() => onStatus("archived")} />
           )}

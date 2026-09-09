@@ -14,7 +14,12 @@ export const packages = [
     nights: "3 Days · 2 Nights",
     route: "Khulna → Kotka → Jamtola",
     price: "৳ 28,500",
-    perks: ["Private balcony cabin", "All meals + BBQ night", "Forest trekking", "Naturalist guide"],
+    perks: [
+      "Private balcony cabin",
+      "All meals + BBQ night",
+      "Forest trekking",
+      "Naturalist guide",
+    ],
   },
   {
     img: cabin,
@@ -32,7 +37,12 @@ export const packages = [
     nights: "Custom · 3–7 nights",
     route: "Bespoke route across Sundarbans",
     price: "On request",
-    perks: ["Entire vessel privately", "Conference & event space", "Custom culinary menu", "Branded experience"],
+    perks: [
+      "Entire vessel privately",
+      "Conference & event space",
+      "Custom culinary menu",
+      "Branded experience",
+    ],
   },
 ];
 
@@ -43,7 +53,11 @@ export function Packages() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
           <SectionHeader
             eyebrow="Curated Voyages"
-            title={<>Three nights, <em className="not-italic">a thousand</em> memories.</>}
+            title={
+              <>
+                Three nights, <em className="not-italic">a thousand</em> memories.
+              </>
+            }
             description="Hand-crafted itineraries through the most cinematic corners of Sundarbans — Andharmanik, Kotka, Hiron Point, Dublar Char."
           />
           <Link
@@ -76,9 +90,13 @@ export function Packages() {
                   {p.tag}
                 </div>
                 <div className="absolute bottom-0 inset-x-0 p-6">
-                  <h3 className="font-display text-3xl text-background font-light leading-tight">{p.name}</h3>
+                  <h3 className="font-display text-3xl text-background font-light leading-tight">
+                    {p.name}
+                  </h3>
                   <div className="mt-3 flex items-center gap-4 text-background/75 text-xs">
-                    <span className="flex items-center gap-1.5"><Clock className="size-3.5 text-gold" /> {p.nights}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="size-3.5 text-gold" /> {p.nights}
+                    </span>
                   </div>
                 </div>
               </div>
