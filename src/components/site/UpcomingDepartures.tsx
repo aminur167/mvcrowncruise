@@ -11,9 +11,15 @@ import heroImg from "@/assets/hero-cruise.jpg";
  * open, so the page never shows an empty shell. */
 export function UpcomingDepartures() {
   const { data: packages } = usePackages();
-  // API is ordered by start_date, so the first bookable ones are the soonest.
+  // API is ordered by start_date, so these come out soonest-first.
+  //
+  // Every sailing that is open for booking, not the first three of them: the
+  // fourth was running, selectable on the booking page, and simply missing
+  // from the homepage — which reads as "we have three voyages", not as a
+  // shortened list. The "All packages" link below still exists for when the
+  // season is long.
   const packageList = Array.isArray(packages) ? packages : [];
-  const upcoming = packageList.filter((p) => p.is_bookable).slice(0, 3);
+  const upcoming = packageList.filter((p) => p.is_bookable);
   if (!upcoming.length) return null;
 
   return (

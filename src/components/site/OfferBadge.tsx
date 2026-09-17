@@ -38,13 +38,14 @@ export function OfferBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full gradient-gold text-midnight px-3 py-1 text-[11px] font-bold shadow-luxe ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full gradient-gold text-midnight px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] shadow-luxe ${className}`}
     >
-      <Tag aria-hidden="true" className="size-3" />
-      {live.label || saving}
+      <Tag aria-hidden="true" className="size-3 shrink-0" />
       {/* The label steps back by WEIGHT, never opacity: faded, this measured
-          2.77:1 on the same photographs. */}
-      {live.label && <span className="font-medium">· {saving}</span>}
+          2.77:1 on the same photographs. What it steps back FROM is the
+          saving, which is the part worth reading across a room. */}
+      <span className="font-semibold">{live.label || saving}</span>
+      {live.label && <span className="font-extrabold">· {saving}</span>}
     </span>
   );
 }

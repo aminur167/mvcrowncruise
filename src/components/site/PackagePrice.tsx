@@ -12,6 +12,9 @@ import { formatBDT } from "@/lib/money";
  *  comes off the cabin, so there is no honest per-adult figure to strike
  *  through. The badge carries that offer on its own ("৳1,500 off per cabin").
  *
+ *  The price being charged leads, and the old one follows it struck through:
+ *  led by the struck figure, the eye lands first on a number nobody is paying.
+ *
  *  The old price is marked up with `<s>` rather than a line-through class:
  *  the strike is what makes the number mean "not this any more", and a screen
  *  reader announcing two prices with no relation between them is worse than
@@ -33,15 +36,14 @@ export function PackagePrice({
 
   return (
     <span className="inline-flex items-baseline gap-2 flex-wrap">
-      {after !== null && live && (
-        <s className="text-sm text-muted-foreground decoration-muted-foreground/60">
-          {formatBDT(live.before)}
-        </s>
-      )}
       <span className={`font-display ${nowClass} text-gold-text`}>
         {formatBDT(after ?? adultPrice)}
       </span>
-      <span className="text-xs text-muted-foreground">per adult</span>
+      {after !== null && live && (
+        <s className="text-sm text-muted-foreground/80 decoration-muted-foreground/50">
+          {formatBDT(live.before)}
+        </s>
+      )}
     </span>
   );
 }
