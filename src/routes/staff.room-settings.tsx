@@ -31,6 +31,8 @@ import {
   getStaffRoomImages,
   getStaffRooms,
   getStaffRoomTypes,
+  getStaffShips,
+  updateStaffShip,
   updateStaffForeignerSurcharge,
   updateStaffKidRule,
   updateStaffRoomImage,
@@ -91,13 +93,123 @@ function RoomSettingsPage() {
       </div>
 
       {activeTab === "room-types" ? (
-        <RoomTypesSection />
+        <>
+          <FareBasisCard />
+          <RoomTypesSection />
+        </>
       ) : activeTab === "kid-pricing" ? (
         <KidPricingSection />
       ) : activeTab === "foreigner" ? (
         <ForeignerSurchargeSection />
       ) : (
         <RoomPhotosSection />
+      )}
+    </div>
+  );
+}
+
+/* ── Fare basis ───────────────────────────────────────────────────────────── */
+
+/** Price fields open read-only behind an Edit button.
+ *
+ *  These are the numbers a booking is charged from. Leaving them live means a
+ *  stray click or an autofill can move money with nobody meaning to, and the
+ *  change looks exactly like a saved one afterwards.
+ */
+function useEditLock() {
+  const [editing, setEditing] = useState(false);
+  return { editing, startEditing: () => setEditing(true), stopEditing: () => setEditing(false) };
+}
+
+/** A scroll over a focused number input changes it, silently, by however far
+ *  the wheel turned. On a page of fares that is a price edit nobody made and
+ *  nobody saw. Blur on wheel is the whole fix. */
+const noWheel = (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur();
+
+/** The fare the whole ship prices from: the default adult price a new sailing
+ *  is pre-filled with. One Save for the card. */
+function FareBasisCard() {
+  const queryClient = useQueryClient();
+  const { editing, startEditing, stopEditing } = useEditLock();
+  const [draft, setDraft] = useState<string>("");
+
+  const { data: ships } = useQuery({ queryKey: ["staff", "ships"], queryFn: getStaffShips });
+  const ship = ships?.[0];
+
+  const mutation = useMutation({
+    mutationFn: () => updateStaffShip(ship!.id, { default_adult_price: draft.trim() || null }),
+    onSuccess: () => {
+      toast.success("Fare basis saved.");
+      queryClient.invalidateQueries({ queryKey: ["staff", "ships"] });
+      stopEditing();
+    },
+    onError: (err) => toast.error(errorText(err)),
+  });
+
+  if (!ship) return null;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card shadow-luxe p-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="font-display text-lg leading-none">Fare basis</div>
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-md">
+            Pre-fills the adult price when a new sailing is created. Each sailing can still be
+            priced on its own — this is the starting point, not a rule.
+          </p>
+        </div>
+        {!editing && (
+          <button
+            type="button"
+            onClick={() => {
+              setDraft(ship.default_adult_price ?? "");
+              startEditing();
+            }}
+            className="px-4 min-h-11 rounded-full border border-border text-xs font-semibold hover:border-gold hover:text-gold transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+
+      <div className="mt-5 max-w-xs">
+        <label className="eyebrow text-[10px] text-muted-foreground">Default adult fare</label>
+        <div className="relative mt-1.5">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            ৳
+          </span>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            readOnly={!editing}
+            value={editing ? draft : (ship.default_adult_price ?? "")}
+            onChange={(e) => setDraft(e.target.value)}
+            onWheel={noWheel}
+            placeholder="Not set"
+            className={`${staffInputClass} pl-7 ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`}
+          />
+        </div>
+      </div>
+
+      {editing && (
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+            className="px-5 min-h-11 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.14em] font-semibold disabled:opacity-40"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            onClick={stopEditing}
+            className="px-5 min-h-11 rounded-full border border-border text-xs font-semibold"
+          >
+            Cancel
+          </button>
+        </div>
       )}
     </div>
   );
@@ -207,6 +319,7 @@ function RoomTypeCard({
               min={0}
               value={basePrice}
               onChange={(e) => setBasePrice(e.target.value)}
+              onWheel={noWheel}
               className={`${staffInputClass} pl-8`}
             />
           </div>
@@ -222,6 +335,7 @@ function RoomTypeCard({
               min={1}
               value={maxAdults}
               onChange={(e) => setMaxAdults(Number(e.target.value))}
+              onWheel={noWheel}
               className={staffInputClass}
             />
           </label>
@@ -234,6 +348,7 @@ function RoomTypeCard({
               min={0}
               value={maxKids}
               onChange={(e) => setMaxKids(Number(e.target.value))}
+              onWheel={noWheel}
               className={staffInputClass}
             />
           </label>
@@ -359,6 +474,7 @@ function ForeignerSurchargeSection() {
               step="0.01"
               value={adult}
               onChange={(e) => setDraft({ adult: e.target.value, kid })}
+              onWheel={noWheel}
               className={`${staffInputClass} mt-1.5`}
             />
           </label>
@@ -372,6 +488,7 @@ function ForeignerSurchargeSection() {
               step="0.01"
               value={kid}
               onChange={(e) => setDraft({ adult, kid: e.target.value })}
+              onWheel={noWheel}
               className={`${staffInputClass} mt-1.5`}
             />
           </label>
@@ -552,6 +669,7 @@ function AddKidRuleForm({
             min={0}
             value={minAge}
             onChange={(e) => setMinAge(Number(e.target.value))}
+            onWheel={noWheel}
             className={staffInputClass}
           />
         </label>
@@ -564,6 +682,7 @@ function AddKidRuleForm({
             min={1}
             value={maxAge}
             onChange={(e) => setMaxAge(Number(e.target.value))}
+            onWheel={noWheel}
             className={staffInputClass}
           />
         </label>
@@ -596,6 +715,7 @@ function AddKidRuleForm({
               min={0}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              onWheel={noWheel}
               className={`${staffInputClass} pl-8`}
             />
           </div>
@@ -1142,6 +1262,7 @@ function KidRuleCard({
               min={0}
               value={minAge}
               onChange={(e) => setMinAge(Number(e.target.value))}
+              onWheel={noWheel}
               className={staffInputClass}
             />
           </label>
@@ -1154,6 +1275,7 @@ function KidRuleCard({
               min={1}
               value={maxAge}
               onChange={(e) => setMaxAge(Number(e.target.value))}
+              onWheel={noWheel}
               className={staffInputClass}
             />
           </label>
@@ -1173,6 +1295,7 @@ function KidRuleCard({
                 min={0}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                onWheel={noWheel}
                 className={`${staffInputClass} pl-8`}
               />
             </div>

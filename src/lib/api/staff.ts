@@ -16,6 +16,7 @@ import type {
   StaffInvoice,
   StaffForeignerSurcharge,
   StaffKidRule,
+  StaffNotifications,
   StaffOverview,
   StaffPackage,
   StaffPackageRoom,
@@ -47,10 +48,20 @@ export async function getStaffOverview(): Promise<StaffOverview> {
 }
 
 // ── Packages ──────────────────────────────────────────────────────────────
-export async function getStaffPackages(page = 1): Promise<Paginated<StaffPackage>> {
-  const { data } = await staffClient.get("/staff/packages/", { params: { page } });
+/** Active / Past / Cancelled sailings.
+ *
+ *  The group is sent to the server rather than filtered here, because this
+ *  list is paginated: filtering a 25-row page in the browser shows an empty
+ *  Cancelled tab whenever the cancelled sailings sit on page two. */
+export async function getStaffPackages(
+  page = 1,
+  group?: PackageGroup,
+): Promise<Paginated<StaffPackage>> {
+  const { data } = await staffClient.get("/staff/packages/", { params: { page, group } });
   return data;
 }
+
+export type PackageGroup = "active" | "past" | "cancelled";
 
 export async function createStaffPackage(payload: StaffPackageWrite): Promise<StaffPackage> {
   const { data } = await staffClient.post("/staff/packages/", payload);
@@ -252,7 +263,15 @@ export async function getStaffShips(): Promise<StaffShip[]> {
 export async function updateStaffShip(
   id: number,
   payload: Partial<
-    Pick<StaffShip, "authority_phones" | "contact_notify_email" | "guide_report_density">
+    Pick<
+      StaffShip,
+      | "authority_phones"
+      | "contact_notify_email"
+      | "guide_report_density"
+      | "default_adult_price"
+      | "group_min_pax"
+      | "refund_sla_days"
+    >
   >,
 ): Promise<StaffShip> {
   const { data } = await staffClient.patch(`/staff/ships/${id}/`, payload);
@@ -485,4 +504,39 @@ export async function updateStaffFoodMenuItem(
 
 export async function deleteStaffFoodMenuItem(id: number) {
   await staffClient.delete(`/staff/food-menu-items/${id}/`);
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────
+/** What is waiting for a human: the bell, and the sidebar badge.
+ *
+ *  Its own endpoint rather than a slice of the overview: overview aggregates
+ *  every booking on the system to draw its charts, while this is polled every
+ *  minute by every open tab and only touches outstanding rows. */
+export async function getStaffNotifications(): Promise<StaffNotifications> {
+  const { data } = await staffClient.get("/staff/notifications/");
+  return data;
+}
+
+// ── Payments held for review ──────────────────────────────────────────────
+/** Payments the gateway called risky, or whose IPN could not be processed.
+ *
+ *  Each is holding a cabin out of inventory until a human decides, and the
+ *  money may be captured without being credited — which is why the queue has
+ *  a screen at all. */
+export async function getPaymentsNeedingReview(): Promise<Paginated<StaffPayment>> {
+  const { data } = await staffClient.get("/staff/payments/", {
+    params: { needs_manual_review: "true" },
+  });
+  return data;
+}
+
+/** Close or settle a held payment, having checked the merchant panel.
+ *  `note` records what the panel actually showed, for the audit trail. */
+export async function resolveStaffPayment(
+  id: number,
+  status: "success" | "failed" | "cancelled",
+  note: string,
+): Promise<StaffPayment> {
+  const { data } = await staffClient.post(`/staff/payments/${id}/resolve/`, { status, note });
+  return data;
 }

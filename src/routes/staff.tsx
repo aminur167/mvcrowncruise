@@ -17,8 +17,11 @@ import {
   Wallet,
 } from "lucide-react";
 
-import { staffLogout } from "@/lib/api/staff";
-import { clearStaffSession, getRefreshToken, getStaffUser, isStaffLoggedIn } from "@/lib/staffAuth";
+import { useQuery } from "@tanstack/react-query";
+
+import { NotificationBell } from "@/components/staff/NotificationBell";
+import { getStaffNotifications, staffLogout } from "@/lib/api/staff";
+import { clearStaffSession, getRefreshToken, isStaffLoggedIn } from "@/lib/staffAuth";
 
 export const Route = createFileRoute("/staff")({
   component: StaffLayout,
@@ -48,8 +51,20 @@ const COLLAPSE_KEY = "staff.sidebar.collapsed";
 
 function StaffLayout() {
   const navigate = useNavigate();
-  const user = getStaffUser();
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === "1");
+
+  // Same query key as the bell, so the badge and the popover are one fetch and
+  // can never disagree about how much is waiting.
+  const { data: notifications } = useQuery({
+    queryKey: ["staff", "notifications"],
+    queryFn: getStaffNotifications,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
+  // Refund work that has gone stale: requests nobody has answered, plus
+  // payouts past the window published to the customer.
+  const refundsWaiting =
+    (notifications?.pending_cancellations.count ?? 0) + (notifications?.overdue_payouts.count ?? 0);
 
   function toggle() {
     setCollapsed((c) => {
@@ -91,39 +106,57 @@ function StaffLayout() {
           )}
         </div>
 
-        <nav className="flex-1 py-4 space-y-1 px-2 lg:px-3 overflow-y-auto">
-          {NAV.map(({ to, label, icon: Icon, exact }) => (
-            <Link
-              key={to}
-              to={to}
-              activeOptions={{ exact }}
-              title={collapsed ? label : undefined}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-background/70 hover:text-background hover:bg-white/5 transition-colors [&.active]:bg-gold/15 [&.active]:text-gold-soft ${
-                collapsed ? "justify-center" : ""
-              }`}
-            >
-              <Icon className="size-4.5 shrink-0" />
-              {!collapsed && <span className="truncate">{label}</span>}
-            </Link>
-          ))}
+        <nav className="flex-1 py-4 space-y-1 px-2 lg:px-3 overflow-y-auto scroll-subtle">
+          {NAV.map(({ to, label, icon: Icon, exact }) => {
+            // Refunds is the only item carrying work that goes stale: a
+            // cancellation nobody answers, or a payout past the window we
+            // published to the customer.
+            const badge = to === "/staff/refunds" ? refundsWaiting : 0;
+            return (
+              <Link
+                key={to}
+                to={to}
+                activeOptions={{ exact }}
+                title={collapsed ? label : undefined}
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-background/70 hover:text-background hover:bg-white/5 transition-colors [&.active]:bg-gold/15 [&.active]:text-gold-soft ${
+                  collapsed ? "justify-center" : ""
+                }`}
+              >
+                <Icon className="size-4.5 shrink-0" />
+                {!collapsed && <span className="truncate">{label}</span>}
+                {badge > 0 &&
+                  // On the collapsed rail there is no room for a number, so it
+                  // becomes a dot — still visible, which is the point.
+                  (collapsed ? (
+                    <span
+                      aria-label={`${badge} waiting`}
+                      className="absolute top-1.5 right-1.5 size-2 rounded-full bg-destructive"
+                    />
+                  ) : (
+                    <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-destructive text-[10px] font-semibold text-white grid place-items-center">
+                      {badge > 9 ? "9+" : badge}
+                    </span>
+                  ))}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-2 lg:p-3 border-t border-white/10 shrink-0">
-          {!collapsed && (
-            <div className="px-3 pb-2 text-xs text-background/50 truncate">
-              Signed in as <span className="text-background/80">{user?.username ?? "staff"}</span>
-            </div>
-          )}
+        {/* The bell shares the logout row — icon only, no label. Settings ›
+            Account already says who is signed in, so the line that used to sit
+            here was a second answer to a question nobody asked twice. */}
+        <div className="p-2 lg:p-3 border-t border-white/10 shrink-0 flex items-center gap-1">
           <button
             onClick={handleLogout}
             title={collapsed ? "Log out" : undefined}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-background/70 hover:text-destructive hover:bg-white/5 transition-colors ${
+            className={`flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-background/70 hover:text-destructive hover:bg-white/5 transition-colors ${
               collapsed ? "justify-center" : ""
             }`}
           >
             <LogOut className="size-4.5 shrink-0" />
             {!collapsed && <span>Log out</span>}
           </button>
+          {!collapsed && <NotificationBell />}
         </div>
 
         {/* Collapse / expand toggle — sits on the sidebar's edge */}

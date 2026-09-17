@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -39,12 +39,36 @@ import {
   rejectCancellation,
   voidRefund,
 } from "@/lib/api/staffRefunds";
+import {
+  getPaymentsNeedingReview,
+  getStaffNotifications,
+  resolveStaffPayment,
+} from "@/lib/api/staff";
 import type { StaffCancellationRequest, StaffRefund } from "@/lib/api/staffRefundTypes";
+import type { StaffPayment } from "@/lib/api/staffTypes";
 import { formatBDT } from "@/lib/money";
 
 export const Route = createFileRoute("/staff/refunds")({
   component: RefundsPage,
+  /** Lets the notification bell link at one request, or at a tab, rather than
+   *  dropping the reader on a list to find the thing again. Both are optional
+   *  and anything unrecognised is ignored — a stale bookmark should open the
+   *  page, not an error. */
+  validateSearch: (search: Record<string, unknown>): RefundsSearch => ({
+    request: typeof search.request === "number" ? search.request : undefined,
+    tab:
+      search.tab === "queue" || search.tab === "register" || search.tab === "review"
+        ? search.tab
+        : undefined,
+  }),
 });
+
+type RefundsTab = "queue" | "register" | "review";
+
+type RefundsSearch = {
+  request?: number;
+  tab?: RefundsTab;
+};
 
 const REQUEST_FILTERS = [
   { value: "pending", label: "Pending" },
@@ -60,6 +84,12 @@ const REFUND_FILTERS = [
   { value: "", label: "All" },
 ];
 
+const TABS: { value: RefundsTab; label: string }[] = [
+  { value: "queue", label: "Cancellation queue" },
+  { value: "register", label: "Refund register" },
+  { value: "review", label: "Held for review" },
+];
+
 const PAYOUT_METHODS = [
   { value: "bkash", label: "bKash" },
   { value: "nagad", label: "Nagad" },
@@ -69,7 +99,16 @@ const PAYOUT_METHODS = [
 ];
 
 function RefundsPage() {
-  const [tab, setTab] = useState<"queue" | "register">("queue");
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [tab, setTab] = useState<RefundsTab>(search.tab ?? "queue");
+
+  // Following a bell link while ALREADY on this page never remounts the
+  // component, so useState's initial value does not re-run and the tab would
+  // not move. The effect is what makes the second link work.
+  useEffect(() => {
+    if (search.tab) setTab(search.tab);
+  }, [search.tab]);
 
   const requestSummary = useQuery({
     queryKey: ["staff", "cancellation-summary"],
@@ -79,6 +118,14 @@ function RefundsPage() {
     queryKey: ["staff", "refund-summary"],
     queryFn: getRefundSummary,
   });
+  // Shares the bell's query — one fetch, and the tab count can never disagree
+  // with the badge that sent the reader here.
+  const notifications = useQuery({
+    queryKey: ["staff", "notifications"],
+    queryFn: getStaffNotifications,
+    refetchInterval: 60_000,
+  });
+  const reviewCount = notifications.data?.payments_needing_review.count ?? 0;
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
@@ -141,34 +188,74 @@ function RefundsPage() {
         </div>
       )}
 
-      <div className="flex gap-2">
-        {(["queue", "register"] as const).map((value) => (
-          <button
-            key={value}
-            onClick={() => setTab(value)}
-            className={`px-4 min-h-11 rounded-full text-xs uppercase tracking-[0.14em] font-semibold transition-colors ${
-              tab === value
-                ? "bg-ocean text-background"
-                : "border border-border text-muted-foreground hover:border-gold hover:text-gold"
-            }`}
-          >
-            {value === "queue" ? "Cancellation queue" : "Refund register"}
-          </button>
-        ))}
+      <div className="flex gap-2 flex-wrap">
+        {TABS
+          // The review tab is hidden while its queue is empty: a tab that is
+          // permanently empty teaches people to stop looking at it, which is
+          // exactly the wrong habit for the one screen that holds money. The
+          // overview banner is what raises it when something does arrive.
+          .filter(({ value }) => value !== "review" || reviewCount > 0)
+          .map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setTab(value)}
+              className={`px-4 min-h-11 rounded-full text-xs uppercase tracking-[0.14em] font-semibold transition-colors ${
+                tab === value
+                  ? "bg-ocean text-background"
+                  : "border border-border text-muted-foreground hover:border-gold hover:text-gold"
+              }`}
+            >
+              {label}
+              {value === "review" && reviewCount > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 rounded-full bg-destructive text-white text-[10px]">
+                  {reviewCount}
+                </span>
+              )}
+            </button>
+          ))}
       </div>
 
-      {tab === "queue" ? <CancellationQueue /> : <RefundRegister />}
+      {tab === "queue" && (
+        <CancellationQueue
+          requestId={search.request}
+          onDialogClosed={() =>
+            navigate({ search: (prev: RefundsSearch) => ({ ...prev, request: undefined }) })
+          }
+        />
+      )}
+      {tab === "register" && <RefundRegister />}
+      {tab === "review" && <PaymentReviewQueue />}
     </div>
   );
 }
 
 /* ── Cancellation queue ──────────────────────────────────────────────────── */
 
-function CancellationQueue() {
+function CancellationQueue({
+  requestId,
+  onDialogClosed,
+}: {
+  /** A request the notification bell linked at, or undefined. */
+  requestId?: number;
+  onDialogClosed: () => void;
+}) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState("pending");
   const [search, setSearch] = useState("");
-  const [openId, setOpenId] = useState<number | null>(null);
+  const [openId, setOpenId] = useState<number | null>(requestId ?? null);
+
+  // Same reason the tab needs an effect: a bell link followed while already on
+  // this page does not remount, so the initial state never re-runs.
+  useEffect(() => {
+    if (requestId) setOpenId(requestId);
+  }, [requestId]);
+
+  // Closing must also drop the id from the URL, or the same link followed a
+  // second time changes nothing and opens nothing.
+  function close() {
+    setOpenId(null);
+    onDialogClosed();
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ["staff", "cancellation-requests", status, search],
@@ -230,9 +317,9 @@ function CancellationQueue() {
       {openId !== null && (
         <RequestDialog
           id={openId}
-          onClose={() => setOpenId(null)}
+          onClose={close}
           onDecided={() => {
-            setOpenId(null);
+            close();
             refresh();
           }}
         />
@@ -826,5 +913,166 @@ function MoneyRow({ label, value, strong }: { label: string; value: string; stro
         {formatBDT(value)}
       </span>
     </div>
+  );
+}
+
+/** Payments the gateway held, or whose IPN could not be processed.
+ *
+ *  Two paths have been setting `needs_manual_review` with no screen reading
+ *  it: SSLCommerz calling a payment high-risk — their integration document
+ *  requires holding the service and verifying the customer — and the IPN
+ *  catch-all, where money may have been captured without being credited.
+ *
+ *  Each row is also holding a cabin out of inventory, because a PENDING
+ *  payment blocks the expiry job from releasing it.
+ */
+function PaymentReviewQueue() {
+  const queryClient = useQueryClient();
+  const [resolving, setResolving] = useState<StaffPayment | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["staff", "payments-review"],
+    queryFn: getPaymentsNeedingReview,
+  });
+  const rows = data?.results ?? [];
+
+  return (
+    <>
+      <div className="rounded-xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm text-muted-foreground">
+        Check each of these in the SSLCommerz merchant panel before deciding. Until one is resolved
+        its cabin stays out of inventory.
+      </div>
+
+      <SectionCard bodyClassName="divide-y divide-border">
+        {isLoading && (
+          <div className="p-10 text-center text-muted-foreground">
+            <Loader2 className="size-5 animate-spin mx-auto" />
+          </div>
+        )}
+        {!isLoading && rows.length === 0 && (
+          <div className="p-10 text-center text-sm text-muted-foreground">
+            Nothing held for review.
+          </div>
+        )}
+        {rows.map((payment) => (
+          <div key={payment.id} className="p-4 flex flex-wrap gap-4 items-center">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold">{payment.booking_code}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {formatBDT(payment.amount)} · {payment.transaction_id}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setResolving(payment)}
+              className="px-4 min-h-11 rounded-full bg-ocean text-background text-xs uppercase tracking-[0.14em] font-semibold"
+            >
+              Resolve
+            </button>
+          </div>
+        ))}
+      </SectionCard>
+
+      {resolving && (
+        <ResolvePaymentDialog
+          payment={resolving}
+          onClose={() => setResolving(null)}
+          onResolved={() => {
+            setResolving(null);
+            queryClient.invalidateQueries({ queryKey: ["staff"] });
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+/** The three outcomes, written as statements of fact rather than status names:
+ *  staff are reporting what the merchant panel showed, not picking an enum.
+ *  Crediting asks for confirmation first — it is the one that moves money. */
+function ResolvePaymentDialog({
+  payment,
+  onClose,
+  onResolved,
+}: {
+  payment: StaffPayment;
+  onClose: () => void;
+  onResolved: () => void;
+}) {
+  const [note, setNote] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: (status: "success" | "failed" | "cancelled") =>
+      resolveStaffPayment(payment.id, status, note),
+    onSuccess: () => {
+      toast.success("Payment resolved.");
+      onResolved();
+    },
+    onError: (err) => toast.error(errorText(err)),
+  });
+
+  const OUTCOMES: {
+    status: "success" | "failed" | "cancelled";
+    label: string;
+    detail: string;
+    confirm?: string;
+  }[] = [
+    {
+      status: "success",
+      label: "The money arrived",
+      detail: "Credit the customer and mark the booking paid.",
+      confirm: `Credit ${formatBDT(payment.amount)} to ${payment.booking_code}? This changes what the customer owes.`,
+    },
+    {
+      status: "failed",
+      label: "No money moved",
+      detail: "Close the payment and release the cabin back to inventory.",
+    },
+    {
+      status: "cancelled",
+      label: "The customer cancelled",
+      detail: "Close the payment and release the cabin back to inventory.",
+    },
+  ];
+
+  return (
+    <DialogShell title={`Resolve — ${payment.booking_code}`} onClose={onClose}>
+      <div className="space-y-4">
+        <div className="rounded-xl border border-border bg-secondary/50 px-4 py-3 text-sm">
+          <div className="font-semibold">{formatBDT(payment.amount)}</div>
+          <div className="text-xs text-muted-foreground mt-0.5 break-all">
+            {payment.transaction_id}
+          </div>
+        </div>
+
+        <StaffField label="What the merchant panel showed">
+          <textarea
+            rows={2}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="e.g. Settled 20.00 BDT, bank_tran_id BGT…"
+            className={`${staffInputClass} resize-none`}
+          />
+        </StaffField>
+
+        <div className="space-y-2">
+          {OUTCOMES.map((outcome) => (
+            <button
+              key={outcome.status}
+              type="button"
+              disabled={mutation.isPending}
+              onClick={() => {
+                if (outcome.confirm && !window.confirm(outcome.confirm)) return;
+                mutation.mutate(outcome.status);
+              }}
+              className="w-full text-left px-4 py-3 rounded-xl border border-border hover:border-gold transition-colors disabled:opacity-50"
+            >
+              <div className="text-sm font-semibold">{outcome.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{outcome.detail}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </DialogShell>
   );
 }

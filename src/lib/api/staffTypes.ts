@@ -28,6 +28,14 @@ export interface StaffShip {
   contact_notify_email: string;
   /** Guide report PDF text size / rows-per-page. */
   guide_report_density: GuideReportDensity;
+  /** Pre-fills a new sailing's adult fare. Null when every sailing on this
+   *  ship is priced on its own — an empty box, not a wrong number staff have
+   *  to notice and clear. */
+  default_adult_price: Money | null;
+  /** Pax count at which the dashboard suggests marking a booking as a group. */
+  group_min_pax: number;
+  /** Working days quoted to the customer for a refund payout, end to end. */
+  refund_sla_days: number;
 }
 
 export type ContactMessageStatus = "new" | "read" | "archived";
@@ -66,12 +74,18 @@ export interface StaffPackage {
   hero_image: string | null;
   highlights: string[];
   rating: string | null;
+  offer_label: string;
+  discount_type: OfferType | "";
+  discount_value: Money | null;
+  offer_ends_at: string | null;
   bookings_count: number | null;
   paid_total: Money | null;
   due_total: Money | null;
   rooms_total: number | null;
   is_bookable: boolean;
 }
+
+export type OfferType = "percent" | "flat";
 
 export interface StaffPackageWrite {
   ship: number;
@@ -86,6 +100,12 @@ export interface StaffPackageWrite {
   highlights?: string[];
   /** Blank/omitted hides the rating on the public card. */
   rating?: string | null;
+  /** An empty discount_type is what clears the offer — the label and value
+   *  are then ignored rather than needing to be blanked too. */
+  offer_label?: string;
+  discount_type?: OfferType | "";
+  discount_value?: string | null;
+  offer_ends_at?: string | null;
 }
 
 export interface StaffPayment {
@@ -425,4 +445,40 @@ export interface StaffOverview {
   recent_payments: StaffOverviewRecentPayment[];
   by_ship: StaffOverviewShip[];
   packages: StaffOverviewPackage[];
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────
+/** One section of the bell: how many are outstanding, and enough of the first
+ *  few to link straight at them. */
+export interface NotificationSection<T> {
+  count: number;
+  items: T[];
+}
+
+export interface StaffNotifications {
+  pending_cancellations: NotificationSection<{
+    id: number;
+    booking_code: string;
+    customer_name: string;
+    refund_amount: Money;
+    created_at: string;
+  }>;
+  /** Payouts past the window published to the customer — a broken promise,
+   *  not merely a task. */
+  overdue_payouts: NotificationSection<{
+    id: number;
+    booking_code: string;
+    amount: Money;
+    days_waiting: number;
+    sla_days: number;
+  }>;
+  /** Payments the gateway called risky, or whose IPN could not be processed.
+   *  Money may be captured and uncredited, so these are held for a human. */
+  payments_needing_review: NotificationSection<{
+    id: number;
+    booking_code: string;
+    amount: Money;
+    reason: string;
+    created_at: string;
+  }>;
 }

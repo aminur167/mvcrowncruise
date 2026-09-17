@@ -42,10 +42,16 @@ import {
   togglePackageBooking,
   updateStaffPackage,
   uploadStaffPackageHero,
+  type PackageGroup,
 } from "@/lib/api/staff";
 import { parseLocalDate } from "@/lib/dates";
 import { formatBDT, parseMoney } from "@/lib/money";
-import type { PackageStatus, StaffPackage, StaffPackageWrite } from "@/lib/api/staffTypes";
+import type {
+  OfferType,
+  PackageStatus,
+  StaffPackage,
+  StaffPackageWrite,
+} from "@/lib/api/staffTypes";
 
 export const Route = createFileRoute("/staff/packages")({
   component: PackagesPage,
@@ -86,9 +92,11 @@ function PackagesPage() {
   const [creating, setCreating] = useState(false);
   const [cancellingDeparture, setCancellingDeparture] = useState<StaffPackage | null>(null);
 
+  const [group, setGroup] = useState<PackageGroup>("active");
+
   const { data, isLoading } = useQuery({
-    queryKey: ["staff", "packages", page],
-    queryFn: () => getStaffPackages(page),
+    queryKey: ["staff", "packages", page, group],
+    queryFn: () => getStaffPackages(page, group),
   });
 
   function invalidate() {
@@ -191,6 +199,35 @@ function PackagesPage() {
           highlight
           hint="Across shown packages"
         />
+      </div>
+
+      {/* Group tabs. Filtered server-side — see getStaffPackages. Changing
+          group resets to page 1, or switching from page 3 of Active lands on
+          page 3 of a Cancelled list that has one page. */}
+      <div className="flex items-center gap-2 border-b border-border">
+        {(
+          [
+            ["active", "Active"],
+            ["past", "Past"],
+            ["cancelled", "Cancelled"],
+          ] as [PackageGroup, string][]
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => {
+              setGroup(value);
+              setPage(1);
+            }}
+            className={`px-4 py-2.5 text-sm font-medium -mb-px border-b-2 transition-colors ${
+              group === value
+                ? "border-gold text-gold-text"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Filters */}
@@ -561,6 +598,10 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
     marketing_description: pkg?.marketing_description ?? "",
     highlights: pkg?.highlights ?? [],
     rating: pkg?.rating ?? null,
+    offer_label: pkg?.offer_label ?? "",
+    discount_type: pkg?.discount_type ?? "",
+    discount_value: pkg?.discount_value ?? null,
+    offer_ends_at: pkg?.offer_ends_at ?? null,
   });
 
   const set = (patch: Partial<StaffPackageWrite>) => setForm((f) => ({ ...f, ...patch }));
@@ -716,6 +757,79 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
             placeholder={"Mangrove safari\nSunset dinner"}
             className={`${staffInputClass} resize-none`}
           />
+        </StaffField>
+
+        {/* ── Offer ──
+            Clearing the type is what removes the offer, so there is one
+            control to think about rather than three fields to remember to
+            blank. The rest of the row only appears once a type is chosen. */}
+        <StaffField label="Offer (optional)">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <select
+              value={form.discount_type ?? ""}
+              onChange={(e) => {
+                const discount_type = e.target.value as OfferType | "";
+                set(
+                  discount_type
+                    ? { discount_type }
+                    : // Blank the figures too, or an offer switched off and
+                      // saved would keep a stale value waiting to reappear the
+                      // next time someone picked a type.
+                      {
+                        discount_type: "",
+                        discount_value: null,
+                        offer_label: "",
+                        offer_ends_at: null,
+                      },
+                );
+              }}
+              className={staffInputClass}
+            >
+              <option value="">No offer</option>
+              <option value="percent">Percentage off</option>
+              <option value="flat">Flat amount off (BDT)</option>
+            </select>
+            {form.discount_type && (
+              <input
+                type="number"
+                min={0}
+                max={form.discount_type === "percent" ? 100 : undefined}
+                step="0.01"
+                value={form.discount_value ?? ""}
+                onChange={(e) => set({ discount_value: e.target.value || null })}
+                onWheel={(e) => e.currentTarget.blur()}
+                placeholder={form.discount_type === "percent" ? "10" : "2000"}
+                className={staffInputClass}
+              />
+            )}
+          </div>
+          {form.discount_type && (
+            <div className="grid gap-3 sm:grid-cols-2 mt-3">
+              <input
+                value={form.offer_label ?? ""}
+                onChange={(e) => set({ offer_label: e.target.value })}
+                placeholder="Label, e.g. Eid Special"
+                maxLength={60}
+                className={staffInputClass}
+              />
+              <input
+                type="datetime-local"
+                value={form.offer_ends_at ? form.offer_ends_at.slice(0, 16) : ""}
+                onChange={(e) =>
+                  set({
+                    offer_ends_at: e.target.value ? new Date(e.target.value).toISOString() : null,
+                  })
+                }
+                className={staffInputClass}
+              />
+            </div>
+          )}
+          {form.discount_type && (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Shown on the public card with the old price struck through, and charged at checkout.
+              Leave the end date blank for an offer that does not expire.
+            </p>
+          )}
         </StaffField>
 
         <StaffField label="Cover photo">
