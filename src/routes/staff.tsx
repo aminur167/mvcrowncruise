@@ -1,7 +1,6 @@
 ﻿import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import {
-  Anchor,
   BedDouble,
   CalendarRange,
   ChefHat,
@@ -19,6 +18,7 @@ import {
 
 import { useQuery } from "@tanstack/react-query";
 
+import logo from "@/assets/logo.png";
 import { NotificationBell } from "@/components/staff/NotificationBell";
 import { getStaffNotifications, staffLogout } from "@/lib/api/staff";
 import { clearStaffSession, getRefreshToken, isStaffLoggedIn } from "@/lib/staffAuth";
@@ -94,14 +94,25 @@ function StaffLayout() {
       <aside
         className={`fixed inset-y-0 left-0 z-40 ${width} bg-linear-to-b from-ocean to-midnight text-background flex flex-col transition-[width] duration-300 ease-in-out`}
       >
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-white/10 shrink-0">
-          <div className="size-8 rounded-lg gradient-gold grid place-items-center shrink-0">
-            <Anchor className="size-4 text-ocean" />
-          </div>
+        <div
+          className={`h-16 flex items-center gap-3 border-b border-white/10 shrink-0 ${
+            collapsed ? "px-2 justify-center" : "px-4"
+          }`}
+        >
+          <img
+            src={logo}
+            alt={collapsed ? "MV THE CROWN" : ""}
+            className={`w-auto object-contain shrink-0 ${collapsed ? "h-10" : "h-11"}`}
+            draggable={false}
+          />
           {!collapsed && (
             <div className="min-w-0">
               <div className="font-display text-lg leading-none truncate">MV THE CROWN</div>
-              <div className="eyebrow text-gold-soft text-[8px] mt-0.5">Staff Dashboard</div>
+              {/* 0.32em of tracking wrapped "STAFF DASHBOARD" once the mark
+                  took the width the anchor tile had not. */}
+              <div className="eyebrow text-gold-soft text-[8px] mt-0.5 tracking-[0.16em] whitespace-nowrap">
+                Staff Dashboard
+              </div>
             </div>
           )}
         </div>

@@ -238,6 +238,11 @@ function RoomTypesSection() {
     onSettled: () => setSavingId(null),
   });
 
+  // Same query key as the Fare basis card above, so the fare shown inside each
+  // cabin card is the very number that card is editing — one fetch, no drift.
+  const { data: ships } = useQuery({ queryKey: ["staff", "ships"], queryFn: getStaffShips });
+  const adultFare = ships?.[0]?.default_adult_price ?? null;
+
   return (
     <section className="space-y-4 pt-6">
       <p className="text-xs text-muted-foreground">
@@ -255,8 +260,9 @@ function RoomTypesSection() {
             <RoomTypeCard
               key={rt.id}
               roomType={rt}
+              adultFare={adultFare}
               saving={savingId === rt.id && mutation.isPending}
-              onSave={(payload) => mutation.mutate({ id: rt.id, payload })}
+              onSave={(payload) => mutation.mutateAsync({ id: rt.id, payload })}
             />
           ))}
         </div>
@@ -267,20 +273,60 @@ function RoomTypesSection() {
 
 function RoomTypeCard({
   roomType,
+  adultFare,
   onSave,
   saving,
 }: {
   roomType: RoomType;
-  onSave: (payload: Partial<RoomType>) => void;
+  /** The ship's default adult fare, or null while nobody has set one. */
+  adultFare: string | null;
+  onSave: (payload: Partial<RoomType>) => Promise<unknown>;
   saving: boolean;
 }) {
+  const { editing, startEditing, stopEditing } = useEditLock();
   const [basePrice, setBasePrice] = useState(roomType.base_price);
   const [maxAdults, setMaxAdults] = useState(roomType.max_adults);
   const [maxKids, setMaxKids] = useState(roomType.max_kids);
+
+  // The per-cabin base price is folded away because this ship does not use it
+  // — but a hidden field quietly adding money to every booking would be far
+  // worse than a visible one nobody needs, so a non-zero value opens itself.
+  const [showBase, setShowBase] = useState(Number(roomType.base_price) > 0);
+
   const dirty =
     basePrice !== roomType.base_price ||
     maxAdults !== roomType.max_adults ||
     maxKids !== roomType.max_kids;
+
+  function cancel() {
+    setBasePrice(roomType.base_price);
+    setMaxAdults(roomType.max_adults);
+    setMaxKids(roomType.max_kids);
+    stopEditing();
+  }
+
+  async function save() {
+    try {
+      await onSave({ base_price: basePrice, max_adults: maxAdults, max_kids: maxKids });
+      stopEditing();
+    } catch {
+      // The section's onError has already said what went wrong; the draft
+      // stays on screen so it can be corrected rather than retyped.
+    }
+  }
+
+  // What this cabin is actually charged, at the ship's default fare. Staff
+  // were multiplying berths by the fare in their heads — which is how Max
+  // adults gets edited by someone who does not realise it moves money.
+  const fare = adultFare === null ? null : Number(adultFare);
+  const base = Number(basePrice) || 0;
+  // Display only — the charge itself is Decimal arithmetic on the server, and
+  // nothing here is ever sent back as a price.
+  const cabinTotal = base + (fare ?? 0) * maxAdults;
+  const savedTotal = Number(roomType.base_price) + (fare ?? 0) * roomType.max_adults;
+  const capacityMoved = editing && fare !== null && maxAdults !== roomType.max_adults;
+
+  const lockedInput = `${staffInputClass} ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`;
 
   return (
     <div
@@ -298,32 +344,98 @@ function RoomTypeCard({
             Sleeps up to {maxAdults} adult(s) + {maxKids} kid(s)
           </div>
         </div>
-        {dirty && (
+        {dirty ? (
           <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gold/15 text-gold shrink-0">
             Unsaved
           </span>
+        ) : (
+          !editing && (
+            <button
+              type="button"
+              onClick={startEditing}
+              className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold shrink-0 hover:border-gold hover:text-gold transition-colors"
+            >
+              Edit
+            </button>
+          )
         )}
       </div>
 
       <div className="p-5 space-y-4">
-        <label className="block">
-          <span className="eyebrow text-muted-foreground text-[10px] block mb-1.5">
-            Base price per room
-          </span>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-              ৳
+        {/* What a full cabin comes to, recomputed as Max adults is typed. */}
+        <div className="rounded-xl bg-ocean/5 border border-ocean/10 px-4 py-3">
+          <div className="eyebrow text-[9px] text-muted-foreground">Full cabin, default fare</div>
+          {fare === null ? (
+            <div className="text-xs text-muted-foreground mt-1">
+              Set the default adult fare in Fare basis to see what this cabin costs.
+            </div>
+          ) : (
+            <>
+              <div className="font-display text-xl leading-none mt-1">
+                {formatBDT(cabinTotal.toFixed(2))}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-1.5">
+                {maxAdults} adult(s) × {formatBDT(fare.toFixed(2))}
+                {base > 0 ? ` + ${formatBDT(base.toFixed(2))} room` : ""}. Charged per head, so a
+                smaller party pays less — and a sailing priced on its own charges its own fare.
+              </div>
+            </>
+          )}
+          {capacityMoved && (
+            <div className="mt-2.5 flex gap-2 text-[11px] text-muted-foreground">
+              <Info className="size-3.5 shrink-0 mt-0.5 text-gold" />
+              <span>
+                Max adults is the cap, not a price — nothing already booked is re-charged. What
+                moves is the most this cabin can take: {formatBDT(savedTotal.toFixed(2))} →{" "}
+                {formatBDT(cabinTotal.toFixed(2))}.
+              </span>
+            </div>
+          )}
+        </div>
+
+        {showBase ? (
+          <label className="block">
+            <span className="eyebrow text-muted-foreground text-[10px] block mb-1.5">
+              Base price per room
             </span>
-            <input
-              type="number"
-              min={0}
-              value={basePrice}
-              onChange={(e) => setBasePrice(e.target.value)}
-              onWheel={noWheel}
-              className={`${staffInputClass} pl-8`}
-            />
-          </div>
-        </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                ৳
+              </span>
+              <input
+                type="number"
+                min={0}
+                readOnly={!editing}
+                value={basePrice}
+                onChange={(e) => setBasePrice(e.target.value)}
+                onWheel={noWheel}
+                className={`${lockedInput} pl-8`}
+              />
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-1 flex items-center gap-2">
+              Charged once per room, on top of the per-person fares.
+              {/* Hiding a field that is still adding money to every booking is
+                  the one thing this fold must never do. */}
+              {base === 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowBase(false)}
+                  className="text-muted-foreground hover:text-gold transition-colors underline"
+                >
+                  Hide
+                </button>
+              )}
+            </span>
+          </label>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowBase(true)}
+            className="text-[11px] text-muted-foreground hover:text-gold transition-colors"
+          >
+            Add a per-cabin base price
+          </button>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
@@ -333,10 +445,11 @@ function RoomTypeCard({
             <input
               type="number"
               min={1}
+              readOnly={!editing}
               value={maxAdults}
               onChange={(e) => setMaxAdults(Number(e.target.value))}
               onWheel={noWheel}
-              className={staffInputClass}
+              className={lockedInput}
             />
           </label>
           <label className="block">
@@ -346,32 +459,37 @@ function RoomTypeCard({
             <input
               type="number"
               min={0}
+              readOnly={!editing}
               value={maxKids}
               onChange={(e) => setMaxKids(Number(e.target.value))}
               onWheel={noWheel}
-              className={staffInputClass}
+              className={lockedInput}
             />
           </label>
         </div>
 
-        {/* Capacity summary */}
-        <div className="flex items-center justify-between rounded-xl bg-muted/40 px-4 py-2.5 text-xs">
-          <span className="text-muted-foreground">Base + capacity</span>
-          <span className="font-medium">
-            {formatBDT(basePrice || "0")} · up to {maxAdults + maxKids} pax
-          </span>
-        </div>
-
-        <button
-          disabled={!dirty || saving}
-          onClick={() =>
-            onSave({ base_price: basePrice, max_adults: maxAdults, max_kids: maxKids })
-          }
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none"
-        >
-          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          {dirty ? "Save changes" : "Saved"}
-        </button>
+        {editing && (
+          <div className="flex gap-2">
+            <button
+              disabled={!dirty || saving}
+              onClick={save}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none"
+            >
+              {saving ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Save className="size-3.5" />
+              )}
+              Save
+            </button>
+            <button
+              onClick={cancel}
+              className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -415,6 +533,7 @@ const CHARGE_META: Record<
  */
 function ForeignerSurchargeSection() {
   const queryClient = useQueryClient();
+  const { editing, startEditing, stopEditing } = useEditLock();
   const { data, isLoading } = useQuery({
     queryKey: ["staff", "foreigner-surcharge"],
     queryFn: getStaffForeignerSurcharge,
@@ -434,6 +553,7 @@ function ForeignerSurchargeSection() {
     onSuccess: (saved) => {
       toast.success("Foreigner surcharge updated.");
       setDraft(null);
+      stopEditing();
       queryClient.setQueryData(["staff", "foreigner-surcharge"], saved);
     },
     onError: (err) => toast.error(errorText(err)),
@@ -463,6 +583,21 @@ function ForeignerSurchargeSection() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-5 space-y-4 max-w-xl">
+        {/* This is a live rate on every future booking, and a number input
+            takes a mouse wheel as an edit. It opens locked. */}
+        <div className="flex items-center justify-between gap-4">
+          <span className="eyebrow text-[10px] text-muted-foreground">Surcharge rates</span>
+          {!editing && (
+            <button
+              type="button"
+              onClick={startEditing}
+              className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold hover:border-gold hover:text-gold transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-xs font-medium flex items-center gap-1.5">
@@ -472,10 +607,13 @@ function ForeignerSurchargeSection() {
               type="number"
               min={0}
               step="0.01"
+              readOnly={!editing}
               value={adult}
               onChange={(e) => setDraft({ adult: e.target.value, kid })}
               onWheel={noWheel}
-              className={`${staffInputClass} mt-1.5`}
+              className={`${staffInputClass} mt-1.5 ${
+                editing ? "" : "bg-secondary/50 text-muted-foreground"
+              }`}
             />
           </label>
           <label className="block">
@@ -486,10 +624,13 @@ function ForeignerSurchargeSection() {
               type="number"
               min={0}
               step="0.01"
+              readOnly={!editing}
               value={kid}
               onChange={(e) => setDraft({ adult, kid: e.target.value })}
               onWheel={noWheel}
-              className={`${staffInputClass} mt-1.5`}
+              className={`${staffInputClass} mt-1.5 ${
+                editing ? "" : "bg-secondary/50 text-muted-foreground"
+              }`}
             />
           </label>
         </div>
@@ -500,18 +641,31 @@ function ForeignerSurchargeSection() {
                 need to know an edit cannot reach money already collected. */}
             Applies to new bookings only — bookings already made keep the rate they were charged.
           </p>
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={!dirty || mutation.isPending}
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-gold text-ocean text-xs font-semibold shadow-luxe disabled:opacity-40 disabled:pointer-events-none"
-          >
-            {mutation.isPending ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Save className="size-3.5" />
-            )}
-            Save
-          </button>
+          {editing && (
+            <div className="shrink-0 flex items-center gap-2">
+              <button
+                onClick={() => mutation.mutate()}
+                disabled={!dirty || mutation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-gold text-ocean text-xs font-semibold shadow-luxe disabled:opacity-40 disabled:pointer-events-none"
+              >
+                {mutation.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Save className="size-3.5" />
+                )}
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setDraft(null);
+                  stopEditing();
+                }}
+                className="px-4 py-2 rounded-full border border-border text-xs font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -624,7 +778,7 @@ function KidPricingSection() {
                 rule={rule}
                 saving={savingId === rule.id && mutation.isPending}
                 deleting={deleteMutation.isPending && deleteMutation.variables === rule.id}
-                onSave={(payload) => mutation.mutate({ id: rule.id, payload })}
+                onSave={(payload) => mutation.mutateAsync({ id: rule.id, payload })}
                 onDelete={() => {
                   if (confirm("Delete this kid pricing rule?")) deleteMutation.mutate(rule.id);
                 }}
@@ -1206,11 +1360,12 @@ function KidRuleCard({
   deleting,
 }: {
   rule: StaffKidRule;
-  onSave: (payload: Partial<StaffKidRule>) => void;
+  onSave: (payload: Partial<StaffKidRule>) => Promise<unknown>;
   onDelete: () => void;
   saving: boolean;
   deleting: boolean;
 }) {
+  const { editing, startEditing, stopEditing } = useEditLock();
   const [minAge, setMinAge] = useState(rule.min_age);
   const [maxAge, setMaxAge] = useState(rule.max_age);
   const [amount, setAmount] = useState(rule.amount ?? "");
@@ -1219,6 +1374,29 @@ function KidRuleCard({
   const meta = CHARGE_META[rule.charge_type];
   const isFixed = rule.charge_type === "fixed";
   const MetaIcon = meta.icon;
+
+  async function save() {
+    try {
+      await onSave({
+        min_age: minAge,
+        max_age: maxAge,
+        ...(isFixed ? { amount: String(amount) } : {}),
+      });
+      stopEditing();
+    } catch {
+      // The section's onError has already said what went wrong; the draft
+      // stays on screen so it can be corrected rather than retyped.
+    }
+  }
+
+  function cancel() {
+    setMinAge(rule.min_age);
+    setMaxAge(rule.max_age);
+    setAmount(rule.amount ?? "");
+    stopEditing();
+  }
+
+  const lockedInput = `${staffInputClass} ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`;
 
   return (
     <div
@@ -1237,18 +1415,28 @@ function KidRuleCard({
         <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${meta.badge}`}>
           {minAge}–{maxAge} yrs
         </span>
-        <button
-          onClick={onDelete}
-          disabled={deleting}
-          title="Delete rule"
-          className="size-7 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-40"
-        >
-          {deleting ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <Trash2 className="size-3.5" />
-          )}
-        </button>
+        {editing ? (
+          <button
+            onClick={onDelete}
+            disabled={deleting}
+            title="Delete rule"
+            className="size-7 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-40"
+          >
+            {deleting ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="size-3.5" />
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={startEditing}
+            className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold shrink-0 hover:border-gold hover:text-gold transition-colors"
+          >
+            Edit
+          </button>
+        )}
       </div>
 
       <div className="p-5 space-y-4">
@@ -1260,10 +1448,11 @@ function KidRuleCard({
             <input
               type="number"
               min={0}
+              readOnly={!editing}
               value={minAge}
               onChange={(e) => setMinAge(Number(e.target.value))}
               onWheel={noWheel}
-              className={staffInputClass}
+              className={lockedInput}
             />
           </label>
           <label className="block">
@@ -1273,10 +1462,11 @@ function KidRuleCard({
             <input
               type="number"
               min={1}
+              readOnly={!editing}
               value={maxAge}
               onChange={(e) => setMaxAge(Number(e.target.value))}
               onWheel={noWheel}
-              className={staffInputClass}
+              className={lockedInput}
             />
           </label>
         </div>
@@ -1293,29 +1483,38 @@ function KidRuleCard({
               <input
                 type="number"
                 min={0}
+                readOnly={!editing}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 onWheel={noWheel}
-                className={`${staffInputClass} pl-8`}
+                className={`${lockedInput} pl-8`}
               />
             </div>
           </label>
         )}
 
-        <button
-          disabled={!dirty || saving}
-          onClick={() =>
-            onSave({
-              min_age: minAge,
-              max_age: maxAge,
-              ...(isFixed ? { amount: String(amount) } : {}),
-            })
-          }
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none"
-        >
-          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          {dirty ? "Save changes" : "Saved"}
-        </button>
+        {editing && (
+          <div className="flex gap-2">
+            <button
+              disabled={!dirty || saving}
+              onClick={save}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none"
+            >
+              {saving ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Save className="size-3.5" />
+              )}
+              Save
+            </button>
+            <button
+              onClick={cancel}
+              className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

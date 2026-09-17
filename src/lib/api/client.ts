@@ -19,6 +19,13 @@ export function toApiError(error: AxiosError): ApiError {
   if (typeof data.detail === "string") {
     return { status, detail: data.detail, code: data.code as string | undefined };
   }
+  // Django's own 500 page and the proxy's 502 arrive as an HTML *string*, and
+  // a nested serializer answers with an array. Object.entries() walks both —
+  // a string one character at a time — so the shape is checked before the
+  // field loop rather than after it produces "0: <".
+  if (typeof data !== "object" || Array.isArray(data)) {
+    return { status };
+  }
 
   const fieldErrors: Record<string, string[]> = {};
   for (const [key, value] of Object.entries(data)) {

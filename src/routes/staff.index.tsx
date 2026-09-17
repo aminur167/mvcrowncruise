@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlertTriangle,
   Banknote,
   CalendarRange,
   ClipboardList,
@@ -172,6 +173,30 @@ function OverviewPage() {
           {TODAY_LABEL}
         </div>
       </PageHeader>
+
+      {/* A held payment is not one problem but two: money the gateway may
+          already have taken and not credited, and a cabin the expiry job will
+          not release while its payment is still pending. It sits above the
+          figures because no figure on this page says it. */}
+      {data.payments_needing_review > 0 && (
+        <Link
+          to="/staff/refunds"
+          search={{ tab: "review" }}
+          className="flex items-start gap-3 rounded-2xl border border-gold/40 bg-gold/8 px-5 py-4 hover:border-gold transition-colors"
+        >
+          <AlertTriangle className="size-5 text-gold shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <div className="font-medium text-sm">
+              {data.payments_needing_review} payment
+              {data.payments_needing_review === 1 ? " is" : "s are"} held for review
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              The gateway flagged them, or their confirmation never arrived. Each one is holding a
+              cabin out of inventory until somebody resolves it.
+            </p>
+          </div>
+        </Link>
+      )}
 
       {/* Stat cards */}
       <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">

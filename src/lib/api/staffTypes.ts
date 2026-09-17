@@ -438,6 +438,10 @@ export interface StaffOverview {
   /** Cancellation requests waiting on a human decision. */
   pending_cancellation_count: number;
   pending_cancellation_refund_total: Money;
+  /** Payments the gateway flagged, or whose IPN could not be processed. On the
+   *  overview as well as the bell because the queue's own tab is hidden while
+   *  it is empty, and a tab nobody can see is no way to learn money is held. */
+  payments_needing_review: number;
   bookings_today: number;
   bookings_this_week: number;
   bookings_by_status: Record<BookingStatus, number>;

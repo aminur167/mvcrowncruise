@@ -298,4 +298,7 @@
   .scroll-subtle:hover::-webkit-scrollbar-thumb {
     background: color-mix(in oklab, currentColor 38%, transparent);
   }
+  /* The stepper arrows at each end are the ugliest part of the Windows bar and
+     have no use on a list this short. */
+  .scroll-subtle::-webkit-scrollbar-button { display: none; }
 }

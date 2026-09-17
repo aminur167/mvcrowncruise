@@ -3,13 +3,153 @@ import { X } from "lucide-react";
 
 import type { ApiError, BookingStatus } from "@/lib/api/types";
 
+/** Field names as staff know them, where the column name is not the answer.
+ *  Anything absent falls through to `labelFor()`, which un-snakes the key. */
+const FIELD_LABELS: Record<string, string> = {
+  base_price: "Cabin price",
+  adult_price: "Adult fare",
+  default_adult_price: "Default adult fare",
+  foreigner_adult_surcharge: "Foreign adult surcharge",
+  foreigner_kid_surcharge: "Foreign child surcharge",
+  min_deposit_percent: "Minimum deposit",
+  min_first_payment: "Minimum first payment",
+  booking_cutoff_datetime: "Booking cutoff",
+  max_adults: "Maximum adults",
+  max_kids: "Maximum children",
+  group_min_pax: "Group minimum guests",
+  refund_sla_days: "Refund window",
+  refund_account_name: "Account holder's name",
+  refund_account_number: "Account number",
+  refund_method: "Refund method",
+  tran_id: "Transaction id",
+  discount_type: "Offer type",
+  discount_value: "Discount amount",
+  offer_label: "Offer label",
+  offer_ends_at: "Offer end time",
+  sort_order: "Display order",
+  room_id: "Cabin",
+  package_id: "Package",
+  image: "Photo",
+  hero_image: "Cover photo",
+  main_image: "Main photo",
+  layout_image: "Deck plan",
+};
+
+/** Keys that are about the request as a whole, so naming a field would lie. */
+const WHOLE_FORM = new Set(["non_field_errors", "__all__", "detail"]);
+
+function labelFor(key: string) {
+  if (FIELD_LABELS[key]) return FIELD_LABELS[key];
+  const words = key.replace(/_/g, " ").trim();
+  return words ? words[0].toUpperCase() + words.slice(1) : key;
+}
+
+/** DRF's stock validation sentences. Every one of them says "this field" and
+ *  none of them says which, so two errors side by side read identically. */
+const STOCK: [RegExp, (label: string, match: RegExpMatchArray) => string][] = [
+  [/^this field is required\.?$/i, (l) => `${l} is required.`],
+  [/^this field may not be null\.?$/i, (l) => `${l} is required.`],
+  [/^no file was submitted\.?$/i, (l) => `${l} is required.`],
+  [/^this field may not be blank\.?$/i, (l) => `${l} cannot be empty.`],
+  [/^this field must be unique\.?$/i, (l) => `${l} is already taken.`],
+  [/^a valid (?:number|decimal) is required\.?$/i, (l) => `${l} must be a number.`],
+  [/^a valid integer is required\.?$/i, (l) => `${l} must be a whole number.`],
+  [/^enter a valid date.*$/i, (l) => `${l} is not a valid date.`],
+  [/^date has wrong format.*$/i, (l) => `${l} must be a real date, written as YYYY-MM-DD.`],
+  [/^datetime has wrong format.*$/i, (l) => `${l} must be a real date and time.`],
+  [/^enter a valid email address\.?$/i, (l) => `${l} is not a valid email address.`],
+  [/^"?(.+?)"? is not a valid choice\.?$/i, (l, m) => `${l}: "${m[1]}" is not one of the options.`],
+  [
+    /^ensure this value is greater than or equal to (.+?)\.?$/i,
+    (l, m) => `${l} must be ${m[1]} or more.`,
+  ],
+  [
+    /^ensure this value is less than or equal to (.+?)\.?$/i,
+    (l, m) => `${l} must be ${m[1]} or less.`,
+  ],
+  [
+    /^ensure this field has no more than (\d+) characters\.?$/i,
+    (l, m) => `${l} must be ${m[1]} characters or fewer.`,
+  ],
+  [
+    /^ensure this field has at least (\d+) characters\.?$/i,
+    (l, m) => `${l} must be at least ${m[1]} characters.`,
+  ],
+  [
+    /^ensure that there are no more than (\d+) digits in total\.?$/i,
+    (l, m) => `${l} has more than ${m[1]} digits.`,
+  ],
+];
+
+/** One field's complaint, in a sentence that names the field.
+ *
+ *  Only DRF's stock templates are rewritten. Everything the backend wrote
+ *  itself ("End date must be after start date.") is already English and is
+ *  passed through untouched — rephrasing it here would mean maintaining the
+ *  same sentence in two repositories.
+ */
+function humanise(key: string, message: string) {
+  const text = message.trim();
+  if (WHOLE_FORM.has(key)) return text;
+
+  const label = labelFor(key);
+  for (const [pattern, write] of STOCK) {
+    const match = text.match(pattern);
+    if (match) return write(label, match);
+  }
+  // "Must be at least 1 night." names no subject. Lend it the field's.
+  if (/^must /i.test(text)) return `${label} ${text[0].toLowerCase()}${text.slice(1)}`;
+  // Our own messages are written for a person already. Introduce one by field
+  // only when it does not name itself — "End date: End date must be after
+  // start date." helps nobody.
+  if (text.toLowerCase().startsWith(label.toLowerCase())) return text;
+  return `${label}: ${text}`;
+}
+
+/** For when the server sent no sentence of its own — or no body at all. */
+const BY_STATUS: Record<number, string> = {
+  0: "No connection to the server. Check your internet, then try again.",
+  400: "Some of the details were rejected. Check the form and try again.",
+  401: "Your session has expired. Sign in again.",
+  403: "You are not allowed to do that.",
+  404: "That record no longer exists — someone may have removed it.",
+  405: "That action is not allowed here.",
+  409: "Someone else changed this while you had it open. Reload and try again.",
+  413: "That file is too large to upload.",
+  429: "Too many attempts. Wait a moment, then try again.",
+  500: "The server failed on that request. Nothing was saved.",
+  // Render idles the service out; the first request back can arrive before it
+  // is listening again.
+  502: "The server is not answering — it may still be waking up. Try again in a moment.",
+  503: "The server is not answering — it may still be waking up. Try again in a moment.",
+  504: "The server took too long to answer. Try again.",
+};
+
+/** What the staff member actually reads in the toast.
+ *
+ *  Was `end_date: This field is required.` — a column name they have never
+ *  seen, glued to a sentence that names no field at all. Now: `End date is
+ *  required.`
+ */
 export function errorText(err: unknown) {
-  const apiError = err as ApiError;
-  return apiError.fieldErrors
-    ? Object.entries(apiError.fieldErrors)
-        .map(([k, v]) => `${k}: ${v.join(" ")}`)
-        .join(" · ")
-    : apiError.detail || "Something went wrong.";
+  const apiError = (err ?? {}) as ApiError;
+
+  if (apiError.fieldErrors) {
+    const lines = Object.entries(apiError.fieldErrors)
+      .map(([key, messages]) => humanise(key, messages.join(" ")))
+      .filter(Boolean);
+    if (lines.length > 3) {
+      const rest = lines.length - 3;
+      return `${lines.slice(0, 3).join(" · ")} (+${rest} more problem${rest === 1 ? "" : "s"})`;
+    }
+    if (lines.length) return lines.join(" · ");
+  }
+
+  // A dropped connection carries axios's own "Network Error", which tells the
+  // reader nothing they can act on.
+  if (!apiError.status) return BY_STATUS[0];
+
+  return apiError.detail || BY_STATUS[apiError.status] || "Something went wrong.";
 }
 
 export function DialogShell({
@@ -28,7 +168,7 @@ export function DialogShell({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ocean/50 backdrop-blur-sm" onClick={onClose} />
       <div
-        className={`relative bg-card rounded-2xl shadow-luxe w-full max-h-[85vh] overflow-y-auto ${
+        className={`relative bg-card rounded-2xl shadow-luxe w-full max-h-[85vh] overflow-y-auto scroll-subtle ${
           wide ? "max-w-3xl" : "max-w-xl"
         }`}
       >

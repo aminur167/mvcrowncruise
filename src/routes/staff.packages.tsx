@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Ban,
@@ -39,6 +39,7 @@ import {
   downloadGuideReport,
   generatePackageRooms,
   getStaffPackages,
+  getStaffShips,
   togglePackageBooking,
   updateStaffPackage,
   uploadStaffPackageHero,
@@ -606,6 +607,25 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
 
   const set = (patch: Partial<StaffPackageWrite>) => setForm((f) => ({ ...f, ...patch }));
 
+  // A new sailing opens on the ship's default adult fare instead of an empty
+  // box. The fare rarely moves between sailings, and an empty box is how one
+  // gets created at the wrong price. Pre-fill only: it happens once, it never
+  // touches an existing package, and anything typed afterwards wins.
+  const { data: ships } = useQuery({
+    queryKey: ["staff", "ships"],
+    queryFn: getStaffShips,
+    // Editing an existing package must never show a figure other than what it
+    // is actually priced at, so the question is not even asked.
+    enabled: !pkg,
+  });
+  const defaultFare = ships?.find((s) => s.id === (pkg?.ship ?? 1))?.default_adult_price ?? null;
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (pkg || prefilled.current || !defaultFare) return;
+    prefilled.current = true;
+    setForm((f) => (f.adult_price ? f : { ...f, adult_price: defaultFare }));
+  }, [pkg, defaultFare]);
+
   // The picked file, and what to show for it. `heroPreview` is a blob URL for a
   // new pick, the saved URL for an existing package, and null once removed —
   // which is why removal is its own state and not just `heroFile === null`.
@@ -673,8 +693,14 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
               min={0}
               value={form.adult_price}
               onChange={(e) => set({ adult_price: e.target.value })}
+              onWheel={(e) => e.currentTarget.blur()}
               className={staffInputClass}
             />
+            {!pkg && defaultFare && (
+              <span className="text-[10px] text-muted-foreground mt-1 block">
+                Ship default: {formatBDT(defaultFare)}
+              </span>
+            )}
           </StaffField>
           <StaffField label="Status">
             <select
