@@ -612,6 +612,11 @@ function RefundRegister() {
                     {refund.method_label} · {refund.reference_no}
                   </div>
                   <div>by {refund.processed_by_name}</div>
+                  {/* "Paid" here means staff did their part. For a gateway
+                      refund the money moves days later, and can be refused
+                      outright — so the gateway's own answer sits beside the
+                      register's rather than being folded into it. */}
+                  <GatewayRefundNote refund={refund} />
                 </>
               ) : (
                 <div>
@@ -1074,5 +1079,52 @@ function ResolvePaymentDialog({
         </div>
       </div>
     </DialogShell>
+  );
+}
+
+/** What the gateway says, beside what the register says.
+ *
+ *  Only ever rendered for a gateway payout. Silent for a hand-settled one:
+ *  bKash and bank transfers are finished the moment staff record them, and a
+ *  "waiting on the gateway" note against one would be a lie.
+ */
+function GatewayRefundNote({ refund }: { refund: StaffRefund }) {
+  if (!refund.gateway_refund_status) {
+    // Not asked yet, which is not the same as "processing" — saying
+    // "processing" here would be inventing an answer nobody gave.
+    return refund.awaiting_gateway ? (
+      <div className="text-muted-foreground/70">Gateway not checked yet</div>
+    ) : null;
+  }
+
+  if (refund.gateway_refund_status === "refunded") {
+    return (
+      <div className="text-mangrove font-medium flex items-center gap-1">
+        <CheckCircle2 className="size-3 shrink-0" />
+        Gateway confirmed
+        {refund.gateway_refunded_at
+          ? ` · ${new Date(refund.gateway_refunded_at).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+            })}`
+          : ""}
+      </div>
+    );
+  }
+
+  if (refund.gateway_refund_status === "cancelled") {
+    return (
+      <div className="text-destructive font-semibold flex items-start gap-1">
+        <AlertTriangle className="size-3 shrink-0 mt-0.5" />
+        Gateway CANCELLED it — not paid
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-gold-text flex items-center gap-1">
+      <Clock3 className="size-3 shrink-0" />
+      At the gateway, not yet with the customer
+    </div>
   );
 }

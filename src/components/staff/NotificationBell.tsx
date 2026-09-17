@@ -29,7 +29,8 @@ export function NotificationBell() {
   const total =
     (data?.pending_cancellations.count ?? 0) +
     (data?.overdue_payouts.count ?? 0) +
-    (data?.payments_needing_review.count ?? 0);
+    (data?.payments_needing_review.count ?? 0) +
+    (data?.gateway_refunds_failed.count ?? 0);
 
   // Click-outside and Escape both close it. Without the first, the popover
   // stays open behind whatever the reader clicked next.
@@ -80,6 +81,26 @@ export function NotificationBell() {
               Nothing waiting.
             </div>
           )}
+
+          {data?.gateway_refunds_failed.items.map((item) => (
+            <Link
+              key={`gwrefund-${item.id}`}
+              to="/staff/refunds"
+              search={{ tab: "register" }}
+              onClick={close}
+              className="flex gap-3 px-4 py-3 border-b border-border last:border-0 bg-destructive/5 hover:bg-destructive/10 transition-colors"
+            >
+              <AlertTriangle className="size-4 text-destructive shrink-0 mt-0.5" />
+              <div className="min-w-0 text-sm">
+                <div className="font-semibold truncate text-destructive">
+                  Refund cancelled by the gateway
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {item.booking_code} · {item.customer_name} · {formatBDT(item.amount)} not returned
+                </div>
+              </div>
+            </Link>
+          ))}
 
           {data?.pending_cancellations.items.map((item) => (
             <Link

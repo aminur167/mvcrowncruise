@@ -495,4 +495,15 @@ export interface StaffNotifications {
     reason: string;
     created_at: string;
   }>;
+  /** Refunds the gateway CANCELLED after staff had recorded them as paid. The
+   *  register says this customer got their money and they did not — nothing
+   *  else on the dashboard can show that, because staff did nothing wrong. */
+  gateway_refunds_failed: NotificationSection<{
+    id: number;
+    booking_code: string;
+    customer_name: string;
+    amount: Money;
+    reference_no: string;
+    checked_at: string | null;
+  }>;
 }

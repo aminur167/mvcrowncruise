@@ -81,6 +81,19 @@ export interface StaffRefund {
   bank_name: string;
   branch_name: string;
   reference_no: string;
+  /** What the GATEWAY says became of this refund, as opposed to what staff
+   *  recorded. Only ever set for a gateway payout, and blank until the gateway
+   *  has been asked — which is NOT the same as "processing".
+   *
+   *  "processing" → accepted, the customer does not have the money yet
+   *  "refunded"   → it landed
+   *  "cancelled"  → it is NOT happening, and the register still says paid */
+  gateway_refund_status: "" | "processing" | "refunded" | "cancelled";
+  gateway_refunded_at: string | null;
+  gateway_checked_at: string | null;
+  /** Promised back and not yet returned. False for every hand-settled payout,
+   *  which is finished the moment staff record it. */
+  awaiting_gateway: boolean;
   note: string;
   created_by_name: string;
   processed_by_name: string;
