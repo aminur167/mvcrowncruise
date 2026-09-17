@@ -228,7 +228,16 @@ export interface RoomPriceBreakdown {
   room_base: Money;
   adult_price: Money;
   adult_count: number;
+  /** Berths actually charged. Equal to `adult_count` on a ship sold per head;
+   *  on one sold whole it is the cabin's capacity, however many travel. */
+  charged_adults: number;
   adults_subtotal: Money;
+  /** Berths nobody is travelling in, and what came back for them — the food
+   *  an absent guest would have eaten over the trip, once per berth. Both 0
+   *  wherever cabins are sold per head. */
+  empty_berth_count: number;
+  meal_allowance: Money;
+  empty_berth_discount: Money;
   kids: PriceBreakdownKid[];
   kids_subtotal: Money;
   // Foreign-national surcharge for this cabin. Counts AND rates come from the

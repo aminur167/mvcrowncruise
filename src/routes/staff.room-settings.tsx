@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
+  AlertTriangle,
   Baby,
   BedDouble,
   ChevronLeft,
@@ -13,12 +14,14 @@ import {
   Images,
   Info,
   Loader2,
+  Pencil,
   Plus,
   Save,
   Ticket,
   Trash2,
   UserRound,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import { DialogShell, PageHeader, errorText, staffInputClass } from "@/components/staff/ui";
@@ -40,7 +43,7 @@ import {
   uploadStaffRoomImage,
 } from "@/lib/api/staff";
 import { formatBDT } from "@/lib/money";
-import type { StaffKidRule, StaffRoom, StaffRoomImage } from "@/lib/api/staffTypes";
+import type { StaffKidRule, StaffRoom, StaffRoomImage, StaffShip } from "@/lib/api/staffTypes";
 import type { KidChargeType, RoomType } from "@/lib/api/types";
 
 export const Route = createFileRoute("/staff/room-settings")({
@@ -113,12 +116,49 @@ function RoomSettingsPage() {
 /** Price fields open read-only behind an Edit button.
  *
  *  These are the numbers a booking is charged from. Leaving them live means a
- *  stray click or an autofill can move money with nobody meaning to, and the
- *  change looks exactly like a saved one afterwards.
+ *  stray click — or a mouse wheel over a focused box — can move money with
+ *  nobody meaning to, and the change looks exactly like a saved one afterwards.
+ *
+ *  `reset` is passed in by the caller because only the card knows what its
+ *  draft state was before someone started typing.
  */
-function useEditLock() {
+function useEditLock(reset?: () => void) {
   const [editing, setEditing] = useState(false);
-  return { editing, startEditing: () => setEditing(true), stopEditing: () => setEditing(false) };
+  return {
+    editing,
+    start: () => setEditing(true),
+    cancel: () => {
+      reset?.();
+      setEditing(false);
+    },
+    done: () => setEditing(false),
+  };
+}
+
+/** The "Edit" affordance in a locked card's header. */
+function EditButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-[10px] uppercase tracking-[0.12em] font-semibold text-muted-foreground hover:border-gold hover:text-gold-text transition-colors"
+    >
+      <Pencil className="size-3" /> Edit
+    </button>
+  );
+}
+
+/** Cancel beside Save, so backing out is as easy as committing. */
+function CancelButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-4 py-2.5 rounded-full border border-border text-xs uppercase tracking-[0.15em] font-semibold text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
+    >
+      Cancel
+    </button>
+  );
 }
 
 /** A scroll over a focused number input changes it, silently, by however far
@@ -126,91 +166,203 @@ function useEditLock() {
  *  nobody saw. Blur on wheel is the whole fix. */
 const noWheel = (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur();
 
-/** The fare the whole ship prices from: the default adult price a new sailing
- *  is pre-filled with. One Save for the card. */
+/** A taka amount with its label and its one line of explanation. Two of these
+ *  side by side stay the same height and keep their hints aligned, which hand
+ *  written pairs of the same markup did not. */
+function MoneyField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  hint,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  hint: string;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="eyebrow text-muted-foreground text-[10px] block mb-1.5">{label}</span>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+          ৳
+        </span>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          value={value}
+          placeholder={placeholder}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+          onWheel={noWheel}
+          className={`${staffInputClass} pl-8 disabled:bg-muted/50 disabled:text-muted-foreground`}
+        />
+      </div>
+      <span className="mt-1.5 block text-[10px] text-muted-foreground leading-snug">{hint}</span>
+    </label>
+  );
+}
+
+/** The two numbers every cabin on this ship is priced from: what a berth
+ *  costs, and what an empty one gives back. One Save for the pair — nobody
+ *  changes the fare basis by halves. */
 function FareBasisCard() {
   const queryClient = useQueryClient();
-  const { editing, startEditing, stopEditing } = useEditLock();
-  const [draft, setDraft] = useState<string>("");
 
   const { data: ships } = useQuery({ queryKey: ["staff", "ships"], queryFn: getStaffShips });
   const ship = ships?.[0];
 
+  return ship ? <FareBasisForm key={ship.id} ship={ship} queryClient={queryClient} /> : null;
+}
+
+function FareBasisForm({
+  ship,
+  queryClient,
+}: {
+  ship: StaffShip;
+  queryClient: ReturnType<typeof useQueryClient>;
+}) {
+  const [fare, setFare] = useState(ship.default_adult_price ?? "");
+  const [whole, setWhole] = useState(ship.meal_allowance !== null);
+  const [allowance, setAllowance] = useState(ship.meal_allowance ?? "");
+
+  const lock = useEditLock(() => {
+    setFare(ship.default_adult_price ?? "");
+    setWhole(ship.meal_allowance !== null);
+    setAllowance(ship.meal_allowance ?? "");
+  });
+
+  const nextFare = fare.trim() === "" ? null : fare;
+  // Null and "0" are different answers — "sell whole cabins, allow nothing
+  // back" has to be expressible — so the toggle and the amount stay separate.
+  const nextAllowance = whole ? (allowance.trim() === "" ? "0" : allowance) : null;
+
+  // "5000.00" and "5000" are the same money and different strings; compared as
+  // strings the card would be permanently dirty.
+  const sameNumber = (a: string | null, b: string | null) =>
+    a === null || b === null ? a === b : Number(a) === Number(b);
+  const dirty =
+    !sameNumber(nextFare, ship.default_adult_price) ||
+    !sameNumber(nextAllowance, ship.meal_allowance);
+
   const mutation = useMutation({
-    mutationFn: () => updateStaffShip(ship!.id, { default_adult_price: draft.trim() || null }),
+    mutationFn: () =>
+      updateStaffShip(ship.id, {
+        default_adult_price: nextFare,
+        meal_allowance: nextAllowance,
+      }),
     onSuccess: () => {
-      toast.success("Fare basis saved.");
+      toast.success("Fare basis saved — applies to new bookings only.");
       queryClient.invalidateQueries({ queryKey: ["staff", "ships"] });
-      stopEditing();
+      lock.done();
     },
     onError: (err) => toast.error(errorText(err)),
   });
 
-  if (!ship) return null;
-
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-luxe p-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="font-display text-lg leading-none">Fare basis</div>
-          <p className="text-xs text-muted-foreground mt-1.5 max-w-md">
-            Pre-fills the adult price when a new sailing is created. Each sailing can still be
-            priced on its own — this is the starting point, not a rule.
-          </p>
+    <div
+      className={`rounded-2xl border bg-card overflow-hidden transition-all ${
+        dirty ? "border-gold/50 shadow-luxe" : "border-border"
+      }`}
+    >
+      <div className="px-5 py-4 border-b border-border flex items-center gap-3">
+        <div className="size-9 rounded-xl bg-gold/15 grid place-items-center shrink-0">
+          <Wallet className="size-4.5 text-gold-text" />
         </div>
-        {!editing && (
-          <button
-            type="button"
-            onClick={() => {
-              setDraft(ship.default_adult_price ?? "");
-              startEditing();
-            }}
-            className="px-4 min-h-11 rounded-full border border-border text-xs font-semibold hover:border-gold hover:text-gold transition-colors"
-          >
-            Edit
-          </button>
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-base leading-tight truncate">
+            Fare basis · {ship.name}
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            What every cabin below is priced from
+          </div>
+        </div>
+        {lock.editing ? (
+          dirty && (
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gold/15 text-gold-text shrink-0">
+              Unsaved
+            </span>
+          )
+        ) : (
+          <EditButton onClick={lock.start} />
         )}
       </div>
 
-      <div className="mt-5 max-w-xs">
-        <label className="eyebrow text-[10px] text-muted-foreground">Default adult fare</label>
-        <div className="relative mt-1.5">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-            ৳
-          </span>
+      <div className="p-5 space-y-4">
+        {/* The switch sits above both boxes, not beside one of them: it decides
+            whether the second box exists at all, and reading it first is the
+            only order that makes sense. */}
+        <label
+          className={`flex items-start gap-2.5 ${lock.editing ? "cursor-pointer" : "cursor-default"}`}
+        >
           <input
-            type="number"
-            min={0}
-            step="0.01"
-            readOnly={!editing}
-            value={editing ? draft : (ship.default_adult_price ?? "")}
-            onChange={(e) => setDraft(e.target.value)}
-            onWheel={noWheel}
-            placeholder="Not set"
-            className={`${staffInputClass} pl-7 ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`}
+            type="checkbox"
+            checked={whole}
+            disabled={!lock.editing}
+            onChange={(e) => setWhole(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 accent-gold disabled:opacity-60"
           />
+          <span className="text-sm leading-snug">
+            Sell cabins whole
+            <span className="block text-[10px] text-muted-foreground mt-0.5">
+              A cabin costs its full berth count however many people take it.
+            </span>
+          </span>
+        </label>
+
+        {/* The two amounts on one row, so they line up and read as the pair
+            they are — what a berth costs, and what an empty one gives back. */}
+        <div className="grid md:grid-cols-2 gap-5 items-start">
+          <MoneyField
+            label="Default adult fare (BDT)"
+            value={fare}
+            onChange={setFare}
+            placeholder="e.g. 20000"
+            hint="Pre-fills a new package. Each sailing can still be priced differently."
+            disabled={!lock.editing}
+          />
+          {whole && (
+            <MoneyField
+              label="Allowance per empty berth (BDT)"
+              value={allowance}
+              onChange={setAllowance}
+              placeholder="e.g. 5000"
+              hint="The food an absent guest would have eaten over the trip."
+              disabled={!lock.editing}
+            />
+          )}
         </div>
       </div>
 
-      {editing && (
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
-            className="px-5 min-h-11 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.14em] font-semibold disabled:opacity-40"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={stopEditing}
-            className="px-5 min-h-11 rounded-full border border-border text-xs font-semibold"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
+      <div className="px-5 pb-5 flex items-center justify-between gap-4 flex-wrap">
+        {/* The reassurance that makes a ship-wide rate safe to touch: staff
+            need to know an edit cannot reach money already collected. */}
+        <span className="text-[10px] text-muted-foreground">
+          Applies to new bookings only — bookings already made keep the price they were given.
+        </span>
+        {lock.editing && (
+          <div className="flex items-center gap-2">
+            <CancelButton onClick={lock.cancel} />
+            <button
+              disabled={!dirty || mutation.isPending}
+              onClick={() => mutation.mutate()}
+              className="px-6 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] font-semibold gradient-gold text-ocean shadow-luxe disabled:opacity-30 disabled:shadow-none inline-flex items-center gap-2"
+            >
+              {mutation.isPending ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Save className="size-3.5" />
+              )}
+              Save fare basis
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -238,16 +390,18 @@ function RoomTypesSection() {
     onSettled: () => setSavingId(null),
   });
 
-  // Same query key as the Fare basis card above, so the fare shown inside each
-  // cabin card is the very number that card is editing — one fetch, no drift.
+  // Same query key as the Fare basis card above, so the figures inside each
+  // cabin card are the very numbers that card is editing — one fetch, no drift.
   const { data: ships } = useQuery({ queryKey: ["staff", "ships"], queryFn: getStaffShips });
   const adultFare = ships?.[0]?.default_adult_price ?? null;
+  // Null is not zero: null means this ship is sold per head.
+  const berthAllowance = ships?.[0]?.meal_allowance ?? null;
 
   return (
     <section className="space-y-4 pt-6">
       <p className="text-xs text-muted-foreground">
-        Base price is charged once per room, on top of per-person fares. Pax limits are enforced by
-        the booking API — the frontend cannot bypass them.
+        A cabin's fare comes from the berths it has and the adult fare above. Pax limits are
+        enforced by the booking API — the frontend cannot bypass them.
       </p>
 
       {isLoading ? (
@@ -261,6 +415,7 @@ function RoomTypesSection() {
               key={rt.id}
               roomType={rt}
               adultFare={adultFare}
+              berthAllowance={berthAllowance}
               saving={savingId === rt.id && mutation.isPending}
               onSave={(payload) => mutation.mutateAsync({ id: rt.id, payload })}
             />
@@ -274,59 +429,51 @@ function RoomTypesSection() {
 function RoomTypeCard({
   roomType,
   adultFare,
+  berthAllowance,
   onSave,
   saving,
 }: {
   roomType: RoomType;
   /** The ship's default adult fare, or null while nobody has set one. */
   adultFare: string | null;
+  /** Allowance per empty berth, or null when cabins are sold per head. */
+  berthAllowance: string | null;
   onSave: (payload: Partial<RoomType>) => Promise<unknown>;
   saving: boolean;
 }) {
-  const { editing, startEditing, stopEditing } = useEditLock();
   const [basePrice, setBasePrice] = useState(roomType.base_price);
   const [maxAdults, setMaxAdults] = useState(roomType.max_adults);
   const [maxKids, setMaxKids] = useState(roomType.max_kids);
 
-  // The per-cabin base price is folded away because this ship does not use it
-  // — but a hidden field quietly adding money to every booking would be far
-  // worse than a visible one nobody needs, so a non-zero value opens itself.
-  const [showBase, setShowBase] = useState(Number(roomType.base_price) > 0);
+  // The per-cabin base price is folded away because a cabin's fare comes from
+  // its berths — but a hidden field quietly adding money to every booking
+  // would be far worse than a visible one nobody needs, so a non-zero value
+  // opens itself, and cannot be folded back while it still holds one.
+  const [showBase, setShowBase] = useState(Number(roomType.base_price) !== 0);
+
+  const lock = useEditLock(() => {
+    setBasePrice(roomType.base_price);
+    setMaxAdults(roomType.max_adults);
+    setMaxKids(roomType.max_kids);
+    setShowBase(Number(roomType.base_price) !== 0);
+  });
 
   const dirty =
     basePrice !== roomType.base_price ||
     maxAdults !== roomType.max_adults ||
     maxKids !== roomType.max_kids;
 
-  function cancel() {
-    setBasePrice(roomType.base_price);
-    setMaxAdults(roomType.max_adults);
-    setMaxKids(roomType.max_kids);
-    stopEditing();
-  }
-
   async function save() {
     try {
       await onSave({ base_price: basePrice, max_adults: maxAdults, max_kids: maxKids });
-      stopEditing();
+      lock.done();
     } catch {
       // The section's onError has already said what went wrong; the draft
       // stays on screen so it can be corrected rather than retyped.
     }
   }
 
-  // What this cabin is actually charged, at the ship's default fare. Staff
-  // were multiplying berths by the fare in their heads — which is how Max
-  // adults gets edited by someone who does not realise it moves money.
-  const fare = adultFare === null ? null : Number(adultFare);
-  const base = Number(basePrice) || 0;
-  // Display only — the charge itself is Decimal arithmetic on the server, and
-  // nothing here is ever sent back as a price.
-  const cabinTotal = base + (fare ?? 0) * maxAdults;
-  const savedTotal = Number(roomType.base_price) + (fare ?? 0) * roomType.max_adults;
-  const capacityMoved = editing && fare !== null && maxAdults !== roomType.max_adults;
-
-  const lockedInput = `${staffInputClass} ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`;
+  const lockedInput = `${staffInputClass} disabled:bg-muted/50 disabled:text-muted-foreground`;
 
   return (
     <div
@@ -344,53 +491,55 @@ function RoomTypeCard({
             Sleeps up to {maxAdults} adult(s) + {maxKids} kid(s)
           </div>
         </div>
-        {dirty ? (
-          <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gold/15 text-gold shrink-0">
-            Unsaved
-          </span>
-        ) : (
-          !editing && (
-            <button
-              type="button"
-              onClick={startEditing}
-              className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold shrink-0 hover:border-gold hover:text-gold transition-colors"
-            >
-              Edit
-            </button>
+        {lock.editing ? (
+          dirty && (
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gold/15 text-gold-text shrink-0">
+              Unsaved
+            </span>
           )
+        ) : (
+          <EditButton onClick={lock.start} />
         )}
       </div>
 
       <div className="p-5 space-y-4">
-        {/* What a full cabin comes to, recomputed as Max adults is typed. */}
-        <div className="rounded-xl bg-ocean/5 border border-ocean/10 px-4 py-3">
-          <div className="eyebrow text-[9px] text-muted-foreground">Full cabin, default fare</div>
-          {fare === null ? (
-            <div className="text-xs text-muted-foreground mt-1">
-              Set the default adult fare in Fare basis to see what this cabin costs.
-            </div>
-          ) : (
-            <>
-              <div className="font-display text-xl leading-none mt-1">
-                {formatBDT(cabinTotal.toFixed(2))}
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-1.5">
-                {maxAdults} adult(s) × {formatBDT(fare.toFixed(2))}
-                {base > 0 ? ` + ${formatBDT(base.toFixed(2))} room` : ""}. Charged per head, so a
-                smaller party pays less — and a sailing priced on its own charges its own fare.
-              </div>
-            </>
-          )}
-          {capacityMoved && (
-            <div className="mt-2.5 flex gap-2 text-[11px] text-muted-foreground">
-              <Info className="size-3.5 shrink-0 mt-0.5 text-gold" />
-              <span>
-                Max adults is the cap, not a price — nothing already booked is re-charged. What
-                moves is the most this cabin can take: {formatBDT(savedTotal.toFixed(2))} →{" "}
-                {formatBDT(cabinTotal.toFixed(2))}.
+        <div className="grid grid-cols-2 gap-3 items-start">
+          <label className="block">
+            <span className="eyebrow text-muted-foreground text-[10px] mb-1.5 flex items-center gap-1">
+              <Users className="size-3" /> Max adults
+            </span>
+            <input
+              type="number"
+              min={1}
+              disabled={!lock.editing}
+              value={maxAdults}
+              onChange={(e) => setMaxAdults(Number(e.target.value))}
+              onWheel={noWheel}
+              className={lockedInput}
+            />
+            {/* Only where cabins are sold whole. On a ship sold per head this
+                number is purely a limit, and a price warning would be noise. */}
+            {berthAllowance !== null && (
+              <span className="mt-1.5 flex gap-1.5 text-[10px] text-gold-text leading-snug">
+                <AlertTriangle className="size-3 shrink-0 mt-0.5" />
+                Also how many berths are charged — changing it changes this cabin's fare.
               </span>
-            </div>
-          )}
+            )}
+          </label>
+          <label className="block">
+            <span className="eyebrow text-muted-foreground text-[10px] mb-1.5 flex items-center gap-1">
+              <Baby className="size-3" /> Max kids
+            </span>
+            <input
+              type="number"
+              min={0}
+              disabled={!lock.editing}
+              value={maxKids}
+              onChange={(e) => setMaxKids(Number(e.target.value))}
+              onWheel={noWheel}
+              className={lockedInput}
+            />
+          </label>
         </div>
 
         {showBase ? (
@@ -405,22 +554,22 @@ function RoomTypeCard({
               <input
                 type="number"
                 min={0}
-                readOnly={!editing}
+                disabled={!lock.editing}
                 value={basePrice}
                 onChange={(e) => setBasePrice(e.target.value)}
                 onWheel={noWheel}
                 className={`${lockedInput} pl-8`}
               />
             </div>
-            <span className="text-[10px] text-muted-foreground mt-1 flex items-center gap-2">
-              Charged once per room, on top of the per-person fares.
-              {/* Hiding a field that is still adding money to every booking is
-                  the one thing this fold must never do. */}
-              {base === 0 && (
+            <span className="mt-1.5 flex items-center gap-2 text-[10px] text-muted-foreground">
+              Charged once per room, on top of the per-berth fare.
+              {/* Folding away a field that is still adding money to every
+                  booking is the one thing this must never do. */}
+              {lock.editing && Number(basePrice) === 0 && (
                 <button
                   type="button"
                   onClick={() => setShowBase(false)}
-                  className="text-muted-foreground hover:text-gold transition-colors underline"
+                  className="text-muted-foreground hover:text-foreground underline underline-offset-2"
                 >
                   Hide
                 </button>
@@ -428,48 +577,28 @@ function RoomTypeCard({
             </span>
           </label>
         ) : (
-          <button
-            type="button"
-            onClick={() => setShowBase(true)}
-            className="text-[11px] text-muted-foreground hover:text-gold transition-colors"
-          >
-            Add a per-cabin base price
-          </button>
+          lock.editing && (
+            <button
+              type="button"
+              onClick={() => setShowBase(true)}
+              className="text-[10px] text-muted-foreground hover:text-foreground underline underline-offset-2"
+            >
+              Add a per-cabin base price
+            </button>
+          )
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="eyebrow text-muted-foreground text-[10px] mb-1.5 flex items-center gap-1">
-              <Users className="size-3" /> Max adults
-            </span>
-            <input
-              type="number"
-              min={1}
-              readOnly={!editing}
-              value={maxAdults}
-              onChange={(e) => setMaxAdults(Number(e.target.value))}
-              onWheel={noWheel}
-              className={lockedInput}
-            />
-          </label>
-          <label className="block">
-            <span className="eyebrow text-muted-foreground text-[10px] mb-1.5 flex items-center gap-1">
-              <Baby className="size-3" /> Max kids
-            </span>
-            <input
-              type="number"
-              min={0}
-              readOnly={!editing}
-              value={maxKids}
-              onChange={(e) => setMaxKids(Number(e.target.value))}
-              onWheel={noWheel}
-              className={lockedInput}
-            />
-          </label>
-        </div>
+        <CabinFarePreview
+          basePrice={basePrice}
+          maxAdults={maxAdults}
+          maxKids={maxKids}
+          adultFare={adultFare}
+          berthAllowance={berthAllowance}
+        />
 
-        {editing && (
-          <div className="flex gap-2">
+        {lock.editing && (
+          <div className="flex items-center gap-2">
+            <CancelButton onClick={lock.cancel} />
             <button
               disabled={!dirty || saving}
               onClick={save}
@@ -480,17 +609,86 @@ function RoomTypeCard({
               ) : (
                 <Save className="size-3.5" />
               )}
-              Save
-            </button>
-            <button
-              onClick={cancel}
-              className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold"
-            >
-              Cancel
+              Save changes
             </button>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** What this cabin actually costs, recomputed as the boxes above it change.
+ *
+ *  Staff were multiplying berths by the adult fare in their heads. That is how
+ *  "max adults" gets edited by someone who does not realise it moves money.
+ *
+ *  It says "at the default fare" out loud, because a real sailing can be priced
+ *  differently and this must not read as a promise about any one package. The
+ *  arithmetic mirrors `price_breakdown()` in the backend, which is the only
+ *  place a price is ever actually computed — nothing here is ever sent.
+ */
+function CabinFarePreview({
+  basePrice,
+  maxAdults,
+  maxKids,
+  adultFare,
+  berthAllowance,
+}: {
+  basePrice: string;
+  maxAdults: number;
+  maxKids: number;
+  adultFare: string | null;
+  berthAllowance: string | null;
+}) {
+  const pax = `up to ${maxAdults + maxKids} pax`;
+
+  if (adultFare === null) {
+    return (
+      <div className="rounded-xl bg-muted/40 px-4 py-2.5 text-[10px] text-muted-foreground">
+        Set a default adult fare above to see what this cabin costs · {pax}
+      </div>
+    );
+  }
+
+  const base = Number(basePrice || 0);
+  const perAdult = Number(adultFare);
+  const full = base + perAdult * maxAdults;
+
+  if (berthAllowance === null) {
+    return (
+      <div className="rounded-xl bg-muted/40 px-4 py-2.5 text-xs space-y-1">
+        <Row label={`${maxAdults} adults`} value={formatBDT(full.toFixed(2))} strong />
+        <div className="text-[10px] text-muted-foreground pt-0.5">
+          Charged per person, so fewer guests pay less · {pax}
+        </div>
+      </div>
+    );
+  }
+
+  // Floored, as the backend floors it: an allowance larger than the cabin
+  // gives a free cabin, never a negative one.
+  const oneEmpty = Math.max(0, full - Number(berthAllowance));
+
+  return (
+    <div className="rounded-xl bg-muted/40 px-4 py-2.5 text-xs space-y-1">
+      <Row label={`Full cabin (${maxAdults} berths)`} value={formatBDT(full.toFixed(2))} strong />
+      {maxAdults > 1 && <Row label="With one berth empty" value={formatBDT(oneEmpty.toFixed(2))} />}
+      <div className="text-[10px] text-muted-foreground pt-0.5">
+        At the default fare of {formatBDT(adultFare)} per adult · {pax}
+      </div>
+    </div>
+  );
+}
+
+/** Takes the amount already formatted: only the caller knows which fare it is
+ *  showing, and a row that formatted its own money would be a second place for
+ *  the currency to be decided. */
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={strong ? "font-semibold" : "font-medium"}>{value}</span>
     </div>
   );
 }
@@ -533,7 +731,6 @@ const CHARGE_META: Record<
  */
 function ForeignerSurchargeSection() {
   const queryClient = useQueryClient();
-  const { editing, startEditing, stopEditing } = useEditLock();
   const { data, isLoading } = useQuery({
     queryKey: ["staff", "foreigner-surcharge"],
     queryFn: getStaffForeignerSurcharge,
@@ -542,6 +739,8 @@ function ForeignerSurchargeSection() {
   // Draft state so the inputs stay editable while a save is in flight, seeded
   // once the row arrives.
   const [draft, setDraft] = useState<{ adult: string; kid: string } | null>(null);
+  const lock = useEditLock(() => setDraft(null));
+
   const adult = draft?.adult ?? data?.adult_amount ?? "0.00";
   const kid = draft?.kid ?? data?.kid_amount ?? "0.00";
   const dirty =
@@ -553,7 +752,7 @@ function ForeignerSurchargeSection() {
     onSuccess: (saved) => {
       toast.success("Foreigner surcharge updated.");
       setDraft(null);
-      stopEditing();
+      lock.done();
       queryClient.setQueryData(["staff", "foreigner-surcharge"], saved);
     },
     onError: (err) => toast.error(errorText(err)),
@@ -569,112 +768,103 @@ function ForeignerSurchargeSection() {
     );
   }
 
-  return (
-    <section className="space-y-4 pt-6">
-      <div className="flex items-start gap-2.5 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-xs text-muted-foreground">
-        <Info className="size-4 text-gold shrink-0 mt-0.5" />
-        <p>
-          Charged <strong className="text-foreground">once per foreign guest</strong>, on top of
-          their normal adult or child fare. A foreign child is surcharged even on a free age tier.
-          Set both to <strong className="text-foreground">0</strong> to charge foreign nationals
-          exactly what local guests pay — their passport is still collected for the boarding
-          manifest.
-        </p>
-      </div>
+  const bothZero = Number(adult) === 0 && Number(kid) === 0;
 
-      <div className="rounded-xl border border-border bg-card p-5 space-y-4 max-w-xl">
-        {/* This is a live rate on every future booking, and a number input
-            takes a mouse wheel as an edit. It opens locked. */}
-        <div className="flex items-center justify-between gap-4">
-          <span className="eyebrow text-[10px] text-muted-foreground">Surcharge rates</span>
-          {!editing && (
-            <button
-              type="button"
-              onClick={startEditing}
-              className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold hover:border-gold hover:text-gold transition-colors"
-            >
-              Edit
-            </button>
+  return (
+    <section className="pt-6">
+      <div
+        className={`rounded-2xl border bg-card overflow-hidden transition-all max-w-3xl ${
+          dirty ? "border-gold/50 shadow-luxe" : "border-border"
+        }`}
+      >
+        <div className="px-5 py-4 border-b border-border flex items-center gap-3">
+          <div className="size-9 rounded-xl bg-gold/15 grid place-items-center shrink-0">
+            <Globe className="size-4.5 text-gold-text" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-base leading-tight truncate">Foreigner surcharge</div>
+            <div className="text-[10px] text-muted-foreground">
+              One rate for every sailing, charged once per foreign guest
+            </div>
+          </div>
+          {lock.editing ? (
+            dirty && (
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gold/15 text-gold-text shrink-0">
+                Unsaved
+              </span>
+            )
+          ) : (
+            <EditButton onClick={lock.start} />
           )}
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <label className="block">
-            <span className="text-xs font-medium flex items-center gap-1.5">
-              <UserRound className="size-3.5 text-ocean/60" /> Per foreign adult (BDT)
-            </span>
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              readOnly={!editing}
+        <div className="p-5 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-5 items-start">
+            <MoneyField
+              label="Per foreign adult (BDT)"
               value={adult}
-              onChange={(e) => setDraft({ adult: e.target.value, kid })}
-              onWheel={noWheel}
-              className={`${staffInputClass} mt-1.5 ${
-                editing ? "" : "bg-secondary/50 text-muted-foreground"
-              }`}
+              onChange={(value) => setDraft({ adult: value, kid })}
+              placeholder="0.00"
+              hint="Added once, on top of the adult fare they already pay."
+              disabled={!lock.editing}
             />
-          </label>
-          <label className="block">
-            <span className="text-xs font-medium flex items-center gap-1.5">
-              <Baby className="size-3.5 text-ocean/60" /> Per foreign child (BDT)
-            </span>
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              readOnly={!editing}
+            <MoneyField
+              label="Per foreign child (BDT)"
               value={kid}
-              onChange={(e) => setDraft({ adult, kid: e.target.value })}
-              onWheel={noWheel}
-              className={`${staffInputClass} mt-1.5 ${
-                editing ? "" : "bg-secondary/50 text-muted-foreground"
-              }`}
+              onChange={(value) => setDraft({ adult, kid: value })}
+              placeholder="0.00"
+              hint="Charged even when the child's age tier is free."
+              disabled={!lock.editing}
             />
-          </label>
+          </div>
+
+          {/* What the numbers above actually mean, in words, updating as they
+              change. It replaces a paragraph of standing instructions that
+              described every case at once — including the ones not in force. */}
+          <div className="rounded-xl bg-muted/40 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+            {bothZero ? (
+              <>
+                <strong className="text-foreground">No surcharge right now.</strong> Foreign guests
+                pay exactly what everyone else pays — their passport is still collected for the
+                boarding manifest.
+              </>
+            ) : (
+              <>
+                A foreign adult pays{" "}
+                <strong className="text-foreground">{formatBDT(adult || "0")}</strong> more than a
+                local guest, and a foreign child{" "}
+                <strong className="text-foreground">{formatBDT(kid || "0")}</strong> more — once
+                each, whatever cabin they take.
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 pt-1">
-          <p className="text-[11px] text-muted-foreground">
-            {/* The reassurance that makes a global rate safe to touch: staff
-                need to know an edit cannot reach money already collected. */}
+        <div className="px-5 pb-5 flex items-center justify-between gap-4 flex-wrap">
+          {/* The reassurance that makes a global rate safe to touch: staff need
+              to know an edit cannot reach money already collected. */}
+          <span className="text-[10px] text-muted-foreground">
             Applies to new bookings only — bookings already made keep the rate they were charged.
-          </p>
-          {editing && (
-            <div className="shrink-0 flex items-center gap-2">
+          </span>
+          {lock.editing && (
+            <div className="flex items-center gap-2">
+              <CancelButton onClick={lock.cancel} />
               <button
                 onClick={() => mutation.mutate()}
                 disabled={!dirty || mutation.isPending}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-gold text-ocean text-xs font-semibold shadow-luxe disabled:opacity-40 disabled:pointer-events-none"
+                className="shrink-0 inline-flex items-center gap-2 px-6 py-2.5 rounded-full gradient-gold text-ocean text-xs uppercase tracking-[0.15em] font-semibold shadow-luxe disabled:opacity-30 disabled:shadow-none"
               >
                 {mutation.isPending ? (
                   <Loader2 className="size-3.5 animate-spin" />
                 ) : (
                   <Save className="size-3.5" />
                 )}
-                Save
-              </button>
-              <button
-                onClick={() => {
-                  setDraft(null);
-                  stopEditing();
-                }}
-                className="px-4 py-2 rounded-full border border-border text-xs font-semibold"
-              >
-                Cancel
+                Save changes
               </button>
             </div>
           )}
         </div>
       </div>
-
-      {data && Number(data.adult_amount) === 0 && Number(data.kid_amount) === 0 && (
-        <p className="text-xs text-muted-foreground">
-          No surcharge is being charged right now. Foreign guests are asked for a passport but pay
-          the same fare as everyone else.
-        </p>
-      )}
     </section>
   );
 }
@@ -1365,7 +1555,6 @@ function KidRuleCard({
   saving: boolean;
   deleting: boolean;
 }) {
-  const { editing, startEditing, stopEditing } = useEditLock();
   const [minAge, setMinAge] = useState(rule.min_age);
   const [maxAge, setMaxAge] = useState(rule.max_age);
   const [amount, setAmount] = useState(rule.amount ?? "");
@@ -1382,21 +1571,20 @@ function KidRuleCard({
         max_age: maxAge,
         ...(isFixed ? { amount: String(amount) } : {}),
       });
-      stopEditing();
+      lock.done();
     } catch {
       // The section's onError has already said what went wrong; the draft
       // stays on screen so it can be corrected rather than retyped.
     }
   }
 
-  function cancel() {
+  const lock = useEditLock(() => {
     setMinAge(rule.min_age);
     setMaxAge(rule.max_age);
     setAmount(rule.amount ?? "");
-    stopEditing();
-  }
+  });
 
-  const lockedInput = `${staffInputClass} ${editing ? "" : "bg-secondary/50 text-muted-foreground"}`;
+  const lockedInput = `${staffInputClass} disabled:bg-muted/50 disabled:text-muted-foreground`;
 
   return (
     <div
@@ -1415,7 +1603,7 @@ function KidRuleCard({
         <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${meta.badge}`}>
           {minAge}–{maxAge} yrs
         </span>
-        {editing ? (
+        {lock.editing ? (
           <button
             onClick={onDelete}
             disabled={deleting}
@@ -1429,13 +1617,7 @@ function KidRuleCard({
             )}
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={startEditing}
-            className="px-3 py-1.5 rounded-full border border-border text-[10px] font-semibold shrink-0 hover:border-gold hover:text-gold transition-colors"
-          >
-            Edit
-          </button>
+          <EditButton onClick={lock.start} />
         )}
       </div>
 
@@ -1448,7 +1630,7 @@ function KidRuleCard({
             <input
               type="number"
               min={0}
-              readOnly={!editing}
+              disabled={!lock.editing}
               value={minAge}
               onChange={(e) => setMinAge(Number(e.target.value))}
               onWheel={noWheel}
@@ -1462,7 +1644,7 @@ function KidRuleCard({
             <input
               type="number"
               min={1}
-              readOnly={!editing}
+              disabled={!lock.editing}
               value={maxAge}
               onChange={(e) => setMaxAge(Number(e.target.value))}
               onWheel={noWheel}
@@ -1483,7 +1665,7 @@ function KidRuleCard({
               <input
                 type="number"
                 min={0}
-                readOnly={!editing}
+                disabled={!lock.editing}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 onWheel={noWheel}
@@ -1493,8 +1675,9 @@ function KidRuleCard({
           </label>
         )}
 
-        {editing && (
-          <div className="flex gap-2">
+        {lock.editing && (
+          <div className="flex items-center gap-2">
+            <CancelButton onClick={lock.cancel} />
             <button
               disabled={!dirty || saving}
               onClick={save}
@@ -1505,13 +1688,7 @@ function KidRuleCard({
               ) : (
                 <Save className="size-3.5" />
               )}
-              Save
-            </button>
-            <button
-              onClick={cancel}
-              className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold"
-            >
-              Cancel
+              Save changes
             </button>
           </div>
         )}

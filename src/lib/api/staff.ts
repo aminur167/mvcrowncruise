@@ -269,6 +269,7 @@ export async function updateStaffShip(
       | "contact_notify_email"
       | "guide_report_density"
       | "default_adult_price"
+      | "meal_allowance"
       | "group_min_pax"
       | "refund_sla_days"
     >

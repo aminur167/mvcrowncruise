@@ -32,6 +32,14 @@ export interface StaffShip {
    *  ship is priced on its own — an empty box, not a wrong number staff have
    *  to notice and clear. */
   default_adult_price: Money | null;
+  /** Taken off a cabin for each berth nobody travels in — and the switch for
+   *  the whole pricing model, because null is not zero here.
+   *
+   *  null   → cabins are sold PER HEAD. One adult in a four-berth cabin pays
+   *           for one adult. The original behaviour, and the default.
+   *  "0"    → sold whole, nothing back for an empty berth.
+   *  "5000" → sold whole, ৳5,000 back per berth nobody takes. */
+  meal_allowance: Money | null;
   /** Pax count at which the dashboard suggests marking a booking as a group. */
   group_min_pax: number;
   /** Working days quoted to the customer for a refund payout, end to end. */

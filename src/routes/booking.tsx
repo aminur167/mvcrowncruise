@@ -51,7 +51,7 @@ import { bookingContactSchema, type BookingContactValues } from "@/lib/validatio
 import { ForeignGuestsSection, type ForeignGuestDraft } from "@/components/booking/ForeignGuests";
 import { foreignGuestIssues, serialiseForeignGuests } from "@/lib/validation/foreignGuests";
 import { countryName } from "@/lib/countries";
-import type { ApiError, BookingPublic, PackageRoom } from "@/lib/api/types";
+import type { ApiError, BookingPublic, PackageRoom, RoomPriceBreakdown } from "@/lib/api/types";
 
 // One selected cabin and its own party. A booking may hold several of these —
 // a family taking 2–3 rooms is ONE booking (one payment, one invoice), each
@@ -1354,6 +1354,44 @@ function GuestsCards({
  *  rate — so every existing booking's summary is unchanged. Counts and rates
  *  both come from the server's breakdown, so the "2 × ৳3,000" label always
  *  matches the amount beside it. */
+/** What the cabin itself came to.
+ *
+ *  On a ship sold per head this is one line, the way it always was. On one
+ *  sold whole the cabin is charged at its full berth count — the room leaves
+ *  inventory whether one guest takes it or four — and the allowance for the
+ *  berths nobody is travelling in gets its own line immediately under it.
+ *
+ *  Two lines rather than one adjusted rate on purpose: a customer paying for
+ *  four berths when two of them are travelling should be able to see both
+ *  halves of that bargain, not a number they cannot check.
+ */
+function CabinFareLines({ room }: { room: RoomPriceBreakdown }) {
+  const soldWhole = room.empty_berth_count > 0;
+  return (
+    <>
+      <div className="flex justify-between text-muted-foreground">
+        <span>
+          {soldWhole
+            ? `Cabin (${room.charged_adults} berths × ${formatBDT(room.adult_price)})`
+            : `Adults (${room.adult_count} × ${formatBDT(room.adult_price)})`}
+        </span>
+        <span className="text-foreground font-medium">{formatBDT(room.adults_subtotal)}</span>
+      </div>
+      {soldWhole && (
+        <div className="flex justify-between text-muted-foreground">
+          <span>
+            {room.empty_berth_count} unoccupied berth
+            {room.empty_berth_count === 1 ? "" : "s"} ({formatBDT(room.meal_allowance)} each)
+          </span>
+          <span className="text-mangrove font-medium">
+            − {formatBDT(room.empty_berth_discount)}
+          </span>
+        </div>
+      )}
+    </>
+  );
+}
+
 function ForeignSurchargeLines({ room }: { room: import("@/lib/api/types").RoomPriceBreakdown }) {
   const lines: { label: string; amount: string }[] = [];
   if (room.foreign_adult_count > 0 && Number(room.foreigner_adult_surcharge) > 0) {
@@ -1689,14 +1727,7 @@ function StepPayment({
                           {formatBDT(room.room_base)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-muted-foreground">
-                        <span>
-                          Adults ({room.adult_count} × {formatBDT(room.adult_price)})
-                        </span>
-                        <span className="text-foreground font-medium">
-                          {formatBDT(room.adults_subtotal)}
-                        </span>
-                      </div>
+                      <CabinFareLines room={room} />
                       {room.kids.map((kid, k) => (
                         <div key={k} className="flex justify-between text-muted-foreground">
                           <span>Kid (age {kid.age})</span>
@@ -2117,9 +2148,19 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
                       rows([
                         ["Room base price", formatBDT(room.room_base)],
                         [
-                          `Adults (${room.adult_count} × ${formatBDT(room.adult_price)})`,
+                          room.empty_berth_count > 0
+                            ? `Cabin (${room.charged_adults} berths × ${formatBDT(room.adult_price)})`
+                            : `Adults (${room.adult_count} × ${formatBDT(room.adult_price)})`,
                           formatBDT(room.adults_subtotal),
                         ],
+                        ...(room.empty_berth_count > 0
+                          ? ([
+                              [
+                                `Unoccupied berth allowance (${room.empty_berth_count} × ${formatBDT(room.meal_allowance)})`,
+                                `− ${formatBDT(room.empty_berth_discount)}`,
+                              ],
+                            ] as [string, string][])
+                          : []),
                         ...room.kids.map(
                           (kid) =>
                             [`Kid (age ${kid.age})`, formatBDT(kid.charge)] as [string, string],

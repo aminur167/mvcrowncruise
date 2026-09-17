@@ -1,4 +1,5 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,7 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import { errorText, staffInputClass } from "@/components/staff/ui";
+import { PageHeader, errorText, staffInputClass } from "@/components/staff/ui";
 import { getStaffShips, updateStaffShip } from "@/lib/api/staff";
 import { getStaffUser } from "@/lib/staffAuth";
 import type { GuideReportDensity, StaffShip } from "@/lib/api/staffTypes";
@@ -22,50 +23,113 @@ export const Route = createFileRoute("/staff/settings")({
   component: SettingsPage,
 });
 
+/** The page is four unrelated settings groups. A flat scroll gives no sense of
+ *  how many there are or where you are among them, so they get an index. */
+const SECTIONS = [
+  { id: "account", label: "Account", icon: UserRound },
+  { id: "inbox", label: "Contact inbox", icon: Mail },
+  { id: "helpline", label: "Helpline numbers", icon: Phone },
+  { id: "report", label: "Guide report", icon: FileText },
+] as const;
+
 function SettingsPage() {
   const user = getStaffUser();
   const initial = (user?.first_name || user?.username || "S").charAt(0).toUpperCase();
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-2xl">
-      <div>
-        <h1 className="font-display text-3xl">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Your account and document settings on the MV THE CROWN staff dashboard.
-        </p>
-      </div>
+    <div className="p-6 lg:p-8">
+      <PageHeader
+        title="Settings"
+        subtitle="Your account, and the details printed on documents customers receive."
+      />
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="px-6 py-5 border-b border-border flex items-center gap-4">
-          <div className="size-14 rounded-full gradient-gold grid place-items-center shrink-0">
-            <span className="font-display text-xl text-ocean">{initial}</span>
-          </div>
-          <div className="min-w-0">
-            <div className="font-display text-xl leading-tight truncate">
-              {user?.first_name || user?.username || "Staff"}
-            </div>
-            <div className="text-xs text-muted-foreground truncate">@{user?.username ?? "—"}</div>
-          </div>
-        </div>
+      <nav
+        aria-label="Settings sections"
+        className="mt-5 flex items-center gap-1 flex-wrap border-b border-border"
+      >
+        {SECTIONS.map(({ id, label, icon: Icon }) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-gold transition-colors -mb-px"
+          >
+            <Icon className="size-4 shrink-0 text-gold" />
+            {label}
+          </a>
+        ))}
+      </nav>
 
-        <div className="divide-y divide-border">
-          <ProfileRow icon={UserRound} label="Username" value={user?.username ?? "—"} />
-          <ProfileRow
-            icon={ShieldCheck}
-            label="Role"
-            value={user?.is_staff ? "Staff (dashboard access)" : "—"}
+      <div className="mt-8 max-w-2xl space-y-10">
+        {/* scroll-mt: an anchored jump must not tuck the heading under the
+            dashboard chrome above it. */}
+        <section id="account" className="scroll-mt-8 space-y-4">
+          <SectionHeading
+            icon={UserRound}
+            title="Account"
+            hint="Who you are signed in as. Changing it is an administrator job."
           />
-        </div>
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-6 py-5 border-b border-border flex items-center gap-4">
+              <div className="size-14 rounded-full gradient-gold grid place-items-center shrink-0">
+                <span className="font-display text-xl text-ocean">{initial}</span>
+              </div>
+              <div className="min-w-0">
+                <div className="font-display text-xl leading-tight truncate">
+                  {user?.first_name || user?.username || "Staff"}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  @{user?.username ?? "—"}
+                </div>
+              </div>
+            </div>
+
+            <div className="divide-y divide-border">
+              <ProfileRow icon={UserRound} label="Username" value={user?.username ?? "—"} />
+              <ProfileRow
+                icon={ShieldCheck}
+                label="Role"
+                value={user?.is_staff ? "Staff (dashboard access)" : "—"}
+              />
+            </div>
+
+            <div className="px-6 py-3 bg-muted/40 border-t border-border text-[11px] text-muted-foreground">
+              To change your name, username or password, ask an administrator to do it in the Django
+              admin panel.
+            </div>
+          </div>
+        </section>
+
+        <section id="inbox" className="scroll-mt-8">
+          <NotificationInboxSection />
+        </section>
+        <section id="helpline" className="scroll-mt-8">
+          <HelplineSection />
+        </section>
+        <section id="report" className="scroll-mt-8">
+          <GuideReportSection />
+        </section>
       </div>
+    </div>
+  );
+}
 
-      <p className="text-xs text-muted-foreground">
-        To change your name, username, or password, contact an administrator in the Django admin
-        panel.
-      </p>
-
-      <NotificationInboxSection />
-      <HelplineSection />
-      <GuideReportSection />
+/** One heading style for every group on the page, so four unrelated settings
+ *  do not each announce themselves differently. */
+function SectionHeading({
+  icon: Icon,
+  title,
+  hint,
+}: {
+  icon: LucideIcon;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <div>
+      <h2 className="font-display text-xl flex items-center gap-2">
+        <Icon className="size-5 text-gold" /> {title}
+      </h2>
+      <p className="text-sm text-muted-foreground mt-1">{hint}</p>
     </div>
   );
 }
