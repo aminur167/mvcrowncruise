@@ -52,6 +52,7 @@ import type {
   PackageStatus,
   StaffPackage,
   StaffPackageWrite,
+  StaffShip,
 } from "@/lib/api/staffTypes";
 
 export const Route = createFileRoute("/staff/packages")({
@@ -585,6 +586,18 @@ function fromDhakaInput(value: string): string {
   return new Date(`${value}${seconds}+06:00`).toISOString();
 }
 
+/** Which ship a NEW sailing is created on, and so whose default fare pre-fills
+ *  it. Never consulted for an existing package — that one keeps its own.
+ *
+ *  This looked up row 1 before, which is right on this database and silently
+ *  wrong on any other. A pre-fill that quietly does nothing is indisputable
+ *  with one that is broken, so with a single ship it simply takes that one.
+ */
+function shipForNewPackage(ships: StaffShip[] | undefined) {
+  if (!ships?.length) return undefined;
+  return ships.length === 1 ? ships[0] : ships.find((s) => s.id === 1);
+}
+
 function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<StaffPackageWrite>({
@@ -607,24 +620,36 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
 
   const set = (patch: Partial<StaffPackageWrite>) => setForm((f) => ({ ...f, ...patch }));
 
-  // A new sailing opens on the ship's default adult fare instead of an empty
+  // A new sailing opens on its ship's default adult fare instead of an empty
   // box. The fare rarely moves between sailings, and an empty box is how one
-  // gets created at the wrong price. Pre-fill only: it happens once, it never
-  // touches an existing package, and anything typed afterwards wins.
+  // gets created at the wrong price.
   const { data: ships } = useQuery({
     queryKey: ["staff", "ships"],
     queryFn: getStaffShips,
     // Editing an existing package must never show a figure other than what it
-    // is actually priced at, so the question is not even asked.
+    // is actually priced at, so the question is not even asked. (The guard in
+    // the effect below is the one that matters — this key is shared with Room
+    // Settings, so the answer can already be in the cache.)
     enabled: !pkg,
   });
-  const defaultFare = ships?.find((s) => s.id === (pkg?.ship ?? 1))?.default_adult_price ?? null;
+  const newShip = pkg ? undefined : shipForNewPackage(ships);
+  const defaultFare = newShip?.default_adult_price ?? null;
+
+  // The ships resolve after the form has mounted, so this is an effect rather
+  // than initial state. It runs once, never for an existing package, and only
+  // ever into an EMPTY box: a figure already on screen is either what the
+  // sailing costs or what the staffer typed, and overwriting either would be
+  // worse than asking.
   const prefilled = useRef(false);
   useEffect(() => {
-    if (pkg || prefilled.current || !defaultFare) return;
+    if (pkg || prefilled.current || !newShip) return;
     prefilled.current = true;
-    setForm((f) => (f.adult_price ? f : { ...f, adult_price: defaultFare }));
-  }, [pkg, defaultFare]);
+    setForm((f) => ({
+      ...f,
+      ship: newShip.id,
+      adult_price: f.adult_price || (newShip.default_adult_price ?? ""),
+    }));
+  }, [pkg, newShip]);
 
   // The picked file, and what to show for it. `heroPreview` is a blob URL for a
   // new pick, the saved URL for an existing package, and null once removed —
