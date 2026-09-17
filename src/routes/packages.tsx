@@ -496,6 +496,8 @@ function PackagesPage() {
                       Booking Closed
                     </div>
                   )}
+                  {/* Top line, opposite the status pill. */}
+                  <OfferBadge offer={pkg.offer} className="absolute top-4 left-4" />
                 </div>
                 <div className="md:col-span-3 p-7 lg:p-10 flex flex-col">
                   <h2 className="font-display text-3xl lg:text-4xl font-normal">{title}</h2>
@@ -515,7 +517,6 @@ function PackagesPage() {
                       </li>
                     ))}
                   </ul>
-                  {pkg.offer && <OfferBadge offer={pkg.offer} className="mt-4 self-start" />}
                   <div className="mt-auto pt-6 flex items-end justify-between border-t border-border">
                     <div>
                       <div className="eyebrow text-muted-foreground text-[10px]">From / adult</div>

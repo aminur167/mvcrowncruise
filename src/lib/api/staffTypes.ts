@@ -83,8 +83,8 @@ export interface StaffPackage {
   highlights: string[];
   rating: string | null;
   offer_label: string;
-  discount_type: OfferType | "";
-  discount_value: Money | null;
+  discount_type: OfferType;
+  discount_value: Money;
   offer_ends_at: string | null;
   bookings_count: number | null;
   paid_total: Money | null;
@@ -93,7 +93,9 @@ export interface StaffPackage {
   is_bookable: boolean;
 }
 
-export type OfferType = "percent" | "flat";
+/** "none" is a real value, not a blank: it is what the column stores when a
+ *  sailing is sold at its ordinary price. */
+export type OfferType = "none" | "percent" | "fixed";
 
 export interface StaffPackageWrite {
   ship: number;
@@ -108,11 +110,11 @@ export interface StaffPackageWrite {
   highlights?: string[];
   /** Blank/omitted hides the rating on the public card. */
   rating?: string | null;
-  /** An empty discount_type is what clears the offer — the label and value
+  /** Setting discount_type back to "none" is what clears the offer — the label
    *  are then ignored rather than needing to be blanked too. */
   offer_label?: string;
-  discount_type?: OfferType | "";
-  discount_value?: string | null;
+  discount_type?: OfferType;
+  discount_value?: string;
   offer_ends_at?: string | null;
 }
 

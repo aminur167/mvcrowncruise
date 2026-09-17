@@ -49,13 +49,18 @@ export interface Package {
 export type PackageOffer = {
   /** Shown on the badge, e.g. "Eid Special". */
   label: string;
-  discount_type: "percent" | "flat";
-  discount_value: Money;
+  type: "percent" | "fixed";
+  value: Money;
   /** ISO datetime, or null for an offer with no end date. */
   ends_at: string | null;
-  /** Per-adult figures for the card: strike through `was`, show `now`. */
-  was_price: Money;
-  now_price: Money;
+  /** The per-adult headline to strike through. */
+  adult_price_before: Money;
+  /** The per-adult price after the offer — or NULL for a fixed-amount offer,
+   *  which comes off the CABIN and has no honest per-adult equivalent: a
+   *  family of four would be shown a quarter of the saving they actually get
+   *  and a solo traveller four times it. Null means show no struck price and
+   *  let the badge state the offer in its own terms. */
+  adult_price_after: Money | null;
 };
 
 export type KidChargeType = "free" | "fixed" | "full_adult";

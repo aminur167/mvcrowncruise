@@ -9,6 +9,12 @@ import type { PackageOffer } from "@/lib/api/types";
  *  The saving is read off the server's own figures rather than recomputed
  *  here: a badge that did its own arithmetic could advertise a discount the
  *  checkout then refuses.
+ *
+ *  ⚠ This badge sits on a PHOTOGRAPH on all three cards, which is why it is
+ *  a solid fill and not a tint. A translucent gold over a mid-tone photo
+ *  measured 1.65:1 against a 4.5:1 floor — legible on the dark sample image
+ *  and effectively invisible on a bright one. text-ocean on the gradient's
+ *  dark end was 4.25:1, still short; midnight is 5.58:1 at its worst.
  */
 export function OfferBadge({
   offer,
@@ -19,18 +25,21 @@ export function OfferBadge({
 }) {
   if (!offer) return null;
 
-  const saving =
-    offer.discount_type === "percent"
-      ? `${Number.parseFloat(offer.discount_value)}% off`
-      : `৳${Number.parseFloat(offer.discount_value).toLocaleString("en-BD")} off`;
+  const amount = Number.parseFloat(offer.value).toLocaleString("en-BD");
+  // A fixed amount says "per cabin" out loud. It comes off the cabin, not the
+  // person, and a reader who assumes otherwise is reading it as worse value
+  // than it is — four travellers share one discount, not a quarter each.
+  const saving = offer.type === "percent" ? `${amount}% off` : `৳${amount} off per cabin`;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full bg-gold/15 text-gold-text px-3 py-1 text-[11px] font-semibold ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full gradient-gold text-midnight px-3 py-1 text-[11px] font-bold shadow-luxe ${className}`}
     >
       <Tag aria-hidden="true" className="size-3" />
       {offer.label || saving}
-      {offer.label && <span className="font-normal opacity-80">· {saving}</span>}
+      {/* The label steps back by WEIGHT, never opacity: faded, this measured
+          2.77:1 on the same photographs. */}
+      {offer.label && <span className="font-medium">· {saving}</span>}
     </span>
   );
 }

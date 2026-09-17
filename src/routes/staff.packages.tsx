@@ -613,8 +613,8 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
     highlights: pkg?.highlights ?? [],
     rating: pkg?.rating ?? null,
     offer_label: pkg?.offer_label ?? "",
-    discount_type: pkg?.discount_type ?? "",
-    discount_value: pkg?.discount_value ?? null,
+    discount_type: pkg?.discount_type ?? "none",
+    discount_value: pkg?.discount_value ?? "0.00",
     offer_ends_at: pkg?.offer_ends_at ?? null,
   });
 
@@ -817,69 +817,85 @@ function PackageFormDialog({ pkg, onClose }: { pkg: StaffPackage | null; onClose
         <StaffField label="Offer (optional)">
           <div className="grid gap-3 sm:grid-cols-2">
             <select
-              value={form.discount_type ?? ""}
+              value={form.discount_type}
               onChange={(e) => {
-                const discount_type = e.target.value as OfferType | "";
+                const discount_type = e.target.value as OfferType;
                 set(
-                  discount_type
-                    ? { discount_type }
-                    : // Blank the figures too, or an offer switched off and
-                      // saved would keep a stale value waiting to reappear the
-                      // next time someone picked a type.
+                  discount_type === "none"
+                    ? // Blank the figures with it, in the same change. The
+                      // model refuses to save an amount with no type — not
+                      // because it would price anything, but because it would
+                      // reappear as a discount nobody chose the next time
+                      // somebody picked a type. Done here rather than in an
+                      // effect so the form state is never briefly invalid.
                       {
-                        discount_type: "",
-                        discount_value: null,
+                        discount_type,
+                        discount_value: "0.00",
                         offer_label: "",
                         offer_ends_at: null,
-                      },
+                      }
+                    : { discount_type },
                 );
               }}
               className={staffInputClass}
             >
-              <option value="">No offer</option>
+              <option value="none">No offer</option>
               <option value="percent">Percentage off</option>
-              <option value="flat">Flat amount off (BDT)</option>
+              <option value="fixed">Fixed amount off, per cabin</option>
             </select>
-            {form.discount_type && (
-              <input
-                type="number"
-                min={0}
-                max={form.discount_type === "percent" ? 100 : undefined}
-                step="0.01"
-                value={form.discount_value ?? ""}
-                onChange={(e) => set({ discount_value: e.target.value || null })}
-                onWheel={(e) => e.currentTarget.blur()}
-                placeholder={form.discount_type === "percent" ? "10" : "2000"}
-                className={staffInputClass}
-              />
-            )}
+            {/* Disabled rather than hidden: the row keeps its shape, and the
+                amount stays visible as the thing the type is waiting for. */}
+            <input
+              type="number"
+              min={0}
+              max={form.discount_type === "percent" ? 100 : undefined}
+              step="0.01"
+              disabled={form.discount_type === "none"}
+              value={form.discount_value}
+              onChange={(e) => set({ discount_value: e.target.value })}
+              onWheel={(e) => e.currentTarget.blur()}
+              placeholder={form.discount_type === "percent" ? "e.g. 20" : "e.g. 1500"}
+              className={`${staffInputClass} disabled:bg-muted/50 disabled:text-muted-foreground`}
+            />
           </div>
-          {form.discount_type && (
-            <div className="grid gap-3 sm:grid-cols-2 mt-3">
-              <input
-                value={form.offer_label ?? ""}
-                onChange={(e) => set({ offer_label: e.target.value })}
-                placeholder="Label, e.g. Eid Special"
-                maxLength={60}
-                className={staffInputClass}
-              />
-              <input
-                type="datetime-local"
-                value={form.offer_ends_at ? form.offer_ends_at.slice(0, 16) : ""}
-                onChange={(e) =>
-                  set({
-                    offer_ends_at: e.target.value ? new Date(e.target.value).toISOString() : null,
-                  })
-                }
-                className={staffInputClass}
-              />
-            </div>
-          )}
-          {form.discount_type && (
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Shown on the public card with the old price struck through, and charged at checkout.
-              Leave the end date blank for an offer that does not expire.
-            </p>
+
+          {form.discount_type !== "none" && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 mt-3">
+                <input
+                  value={form.offer_label ?? ""}
+                  onChange={(e) => set({ offer_label: e.target.value })}
+                  placeholder="Label, e.g. Eid Special"
+                  maxLength={60}
+                  className={staffInputClass}
+                />
+                <input
+                  type="datetime-local"
+                  value={form.offer_ends_at ? form.offer_ends_at.slice(0, 16) : ""}
+                  onChange={(e) =>
+                    set({
+                      offer_ends_at: e.target.value ? new Date(e.target.value).toISOString() : null,
+                    })
+                  }
+                  className={staffInputClass}
+                />
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground leading-snug">
+                Shown on the public card and charged at checkout.{" "}
+                {form.discount_type === "fixed" ? (
+                  <>
+                    A fixed amount comes off <strong className="text-foreground">each cabin</strong>
+                    , so a 3-cabin booking gets it three times — and the card shows the badge
+                    without a struck-through price, because there is no honest per-adult figure for
+                    it.
+                  </>
+                ) : (
+                  <>The card strikes through the old per-adult price and shows the new one.</>
+                )}{" "}
+                Leave the end date blank for an offer that does not expire. Bookings already priced
+                keep the discount they were given, and ending an offer never re-prices them.
+              </p>
+            </>
           )}
         </StaffField>
 

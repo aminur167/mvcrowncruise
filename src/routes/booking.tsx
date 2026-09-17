@@ -1750,9 +1750,11 @@ function StepPayment({
                           {formatBDT(quote.subtotal)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-gold-text">
+                      <div className="flex justify-between text-muted-foreground">
                         <span>{quote.offer_label || "Discount"}</span>
-                        <span className="font-medium">−{formatBDT(quote.discount)}</span>
+                        <span className="text-mangrove font-medium">
+                          − {formatBDT(quote.discount)}
+                        </span>
                       </div>
                     </div>
                   )}

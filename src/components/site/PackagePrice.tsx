@@ -7,6 +7,10 @@ import { formatBDT } from "@/lib/money";
  *  works out the discount for itself, or a card could show one number while
  *  the checkout charges another.
  *
+ *  A FIXED offer publishes no after-price, and this renders none: the discount
+ *  comes off the cabin, so there is no honest per-adult figure to strike
+ *  through. The badge carries that offer on its own ("৳1,500 off per cabin").
+ *
  *  The old price is marked up with `<s>` rather than a line-through class:
  *  the strike is what makes the number mean "not this any more", and a screen
  *  reader announcing two prices with no relation between them is worse than
@@ -22,17 +26,19 @@ export function PackagePrice({
   /** "lg" for the package page's own header, "md" for cards. */
   size?: "md" | "lg";
 }) {
-  const now = offer ? offer.now_price : adultPrice;
+  const after = offer?.adult_price_after ?? null;
   const nowClass = size === "lg" ? "text-3xl" : "text-xl";
 
   return (
     <span className="inline-flex items-baseline gap-2 flex-wrap">
-      {offer && (
+      {after !== null && offer && (
         <s className="text-sm text-muted-foreground decoration-muted-foreground/60">
-          {formatBDT(offer.was_price)}
+          {formatBDT(offer.adult_price_before)}
         </s>
       )}
-      <span className={`font-display ${nowClass} text-gold-text`}>{formatBDT(now)}</span>
+      <span className={`font-display ${nowClass} text-gold-text`}>
+        {formatBDT(after ?? adultPrice)}
+      </span>
       <span className="text-xs text-muted-foreground">per adult</span>
     </span>
   );

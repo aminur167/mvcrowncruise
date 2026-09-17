@@ -2,6 +2,8 @@ import { ArrowRight, CalendarDays, Check, Clock, MapPin, Moon } from "lucide-rea
 
 import { usePackages } from "@/hooks/queries/usePackages";
 import { parseLocalDate } from "@/lib/dates";
+import { OfferBadge } from "@/components/site/OfferBadge";
+import { PackagePrice } from "@/components/site/PackagePrice";
 import { formatBDT } from "@/lib/money";
 import type { Package } from "@/lib/api/types";
 import fallbackImg from "@/assets/110.jpeg";
@@ -130,12 +132,18 @@ export function PackagePicker({ selectedPackageId, onSelectPackage }: Props) {
                   )}
                 </div>
 
-                {/* Selected check */}
-                {selected && (
-                  <div className="absolute top-3 right-3 size-7 rounded-full gradient-gold grid place-items-center shadow-luxe">
-                    <Check className="size-4 text-ocean" strokeWidth={3} />
-                  </div>
-                )}
+                {/* Offer badge and the selected check share the right-hand
+                    end of the top line. The status pill holds the left end;
+                    the title is absolutely positioned along the bottom, so
+                    nothing else may go there. */}
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  <OfferBadge offer={pkg.offer} />
+                  {selected && (
+                    <div className="size-7 rounded-full gradient-gold grid place-items-center shadow-luxe">
+                      <Check className="size-4 text-ocean" strokeWidth={3} />
+                    </div>
+                  )}
+                </div>
 
                 {/* Title over image */}
                 <div className="absolute bottom-3 left-4 right-4">
@@ -184,8 +192,10 @@ export function PackagePicker({ selectedPackageId, onSelectPackage }: Props) {
                 <div className="mt-auto flex items-end justify-between border-t border-dashed border-border pt-3.5">
                   <div>
                     <div className="eyebrow text-[9px] text-muted-foreground">From / adult</div>
-                    <div className="font-display text-xl text-gold-text leading-none mt-1">
-                      {formatBDT(pkg.adult_price)}
+                    <div className="leading-none mt-1">
+                      {/* Was showing the undiscounted fare: the card next to it
+                          on the packages page struck the same figure through. */}
+                      <PackagePrice adultPrice={pkg.adult_price} offer={pkg.offer} />
                     </div>
                   </div>
                   <span

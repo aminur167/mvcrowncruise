@@ -56,6 +56,10 @@ export function PackageCard({ pkg, index = 0, itineraryHref, fallbackImage }: Pr
           />
           {pkg.is_bookable ? "Booking open" : "Closed"}
         </span>
+        {/* Opposite end of the same line as the status pill. Not stacked with
+            it, and not along the bottom, where the title is absolutely
+            positioned on the other two cards and would sit underneath. */}
+        <OfferBadge offer={pkg.offer} className="absolute top-3 left-3" />
       </div>
 
       <div className="p-5">
@@ -108,8 +112,6 @@ export function PackageCard({ pkg, index = 0, itineraryHref, fallbackImage }: Pr
             )}
           </div>
         </div>
-
-        {pkg.offer && <OfferBadge offer={pkg.offer} className="mt-4" />}
 
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
