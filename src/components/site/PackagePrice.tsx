@@ -1,4 +1,5 @@
 import type { PackageOffer } from "@/lib/api/types";
+import { readOffer } from "@/lib/offer";
 import { formatBDT } from "@/lib/money";
 
 /** A sailing's per-adult price, struck through when an offer applies.
@@ -26,14 +27,15 @@ export function PackagePrice({
   /** "lg" for the package page's own header, "md" for cards. */
   size?: "md" | "lg";
 }) {
-  const after = offer?.adult_price_after ?? null;
+  const live = readOffer(offer);
+  const after = live?.after ?? null;
   const nowClass = size === "lg" ? "text-3xl" : "text-xl";
 
   return (
     <span className="inline-flex items-baseline gap-2 flex-wrap">
-      {after !== null && offer && (
+      {after !== null && live && (
         <s className="text-sm text-muted-foreground decoration-muted-foreground/60">
-          {formatBDT(offer.adult_price_before)}
+          {formatBDT(live.before)}
         </s>
       )}
       <span className={`font-display ${nowClass} text-gold-text`}>

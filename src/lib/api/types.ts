@@ -48,19 +48,29 @@ export interface Package {
 
 export type PackageOffer = {
   /** Shown on the badge, e.g. "Eid Special". */
-  label: string;
-  type: "percent" | "fixed";
-  value: Money;
+  label?: string;
+  type?: "percent" | "fixed";
+  value?: Money;
   /** ISO datetime, or null for an offer with no end date. */
   ends_at: string | null;
   /** The per-adult headline to strike through. */
-  adult_price_before: Money;
+  adult_price_before?: Money;
   /** The per-adult price after the offer — or NULL for a fixed-amount offer,
    *  which comes off the CABIN and has no honest per-adult equivalent: a
    *  family of four would be shown a quarter of the saving they actually get
    *  and a solo traveller four times it. Null means show no struck price and
    *  let the badge state the offer in its own terms. */
-  adult_price_after: Money | null;
+  adult_price_after?: Money | null;
+
+  /** ---- the spelling this API used before ---------------------------------
+   *  Still on the wire for one release while both halves of the site deploy.
+   *  Never read these directly — `readOffer()` in lib/offer.ts resolves them
+   *  together with the names above, so no component has to know which build
+   *  of the API answered it. Delete when the API stops sending them. */
+  discount_type?: "percent" | "fixed" | "flat";
+  discount_value?: Money;
+  was_price?: Money;
+  now_price?: Money | null;
 };
 
 export type KidChargeType = "free" | "fixed" | "full_adult";
