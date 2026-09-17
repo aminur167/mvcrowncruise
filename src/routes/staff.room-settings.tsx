@@ -446,16 +446,23 @@ function RoomTypeCard({
   const [maxKids, setMaxKids] = useState(roomType.max_kids);
 
   // The per-cabin base price is folded away because a cabin's fare comes from
-  // its berths — but a hidden field quietly adding money to every booking
-  // would be far worse than a visible one nobody needs, so a non-zero value
-  // opens itself, and cannot be folded back while it still holds one.
-  const [showBase, setShowBase] = useState(Number(roomType.base_price) !== 0);
+  // its berths and this client does not use it.
+  //
+  // `charging` is DERIVED rather than seeded into state. Seeded, the card
+  // decided once at mount whether to show the box — so a value set from the
+  // Django admin, or by another tab, would arrive in a card that had already
+  // made up its mind and stay hidden while adding money to every booking.
+  // That is the one thing this fold must never do, so it is not left to a
+  // decision taken at the wrong moment.
+  const charging = Number(basePrice) !== 0 || Number(roomType.base_price) !== 0;
+  const [baseOpened, setBaseOpened] = useState(false);
+  const showBase = charging || baseOpened;
 
   const lock = useEditLock(() => {
     setBasePrice(roomType.base_price);
     setMaxAdults(roomType.max_adults);
     setMaxKids(roomType.max_kids);
-    setShowBase(Number(roomType.base_price) !== 0);
+    setBaseOpened(false);
   });
 
   const dirty =
@@ -561,15 +568,20 @@ function RoomTypeCard({
                 className={`${lockedInput} pl-8`}
               />
             </div>
-            <span className="mt-1.5 flex items-center gap-2 text-[10px] text-muted-foreground">
-              Charged once per room, on top of the per-berth fare.
-              {/* Folding away a field that is still adding money to every
-                  booking is the one thing this must never do. */}
-              {lock.editing && Number(basePrice) === 0 && (
+            <span className="mt-1.5 block text-[10px] text-muted-foreground leading-snug">
+              Added once per cabin, on top of the per-berth fare — it does not scale with how many
+              people travel.{" "}
+              {/* Room types have no ship: the name is unique on its own, so
+                  this is not "this cabin", it is every cabin of this type in
+                  the database. One expensive cabin needs its own room type. */}
+              <strong className="text-foreground">Applies to every {roomType.name}</strong>, on
+              every ship.
+              {/* The fold can never take away a box that is still charging. */}
+              {lock.editing && !charging && (
                 <button
                   type="button"
-                  onClick={() => setShowBase(false)}
-                  className="text-muted-foreground hover:text-foreground underline underline-offset-2"
+                  onClick={() => setBaseOpened(false)}
+                  className="ml-2 text-muted-foreground hover:text-foreground underline underline-offset-2"
                 >
                   Hide
                 </button>
@@ -580,7 +592,7 @@ function RoomTypeCard({
           lock.editing && (
             <button
               type="button"
-              onClick={() => setShowBase(true)}
+              onClick={() => setBaseOpened(true)}
               className="text-[10px] text-muted-foreground hover:text-foreground underline underline-offset-2"
             >
               Add a per-cabin base price
