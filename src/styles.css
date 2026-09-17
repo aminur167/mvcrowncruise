@@ -135,6 +135,19 @@
 
   h1, h2, h3, h4, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
   ::selection { background: var(--gold); color: var(--ocean); }
+
+  /* Tailwind v4's Preflight gives buttons `cursor: default`; v3 gave them
+     `cursor: pointer`. Nothing in this app wants the v4 behaviour, and there
+     are ~170 buttons — restoring it here rather than with a class on each is
+     what stops it being forgotten on the 171st.
+
+     Disabled buttons are excluded: a pointer on something inert is a small
+     lie about what will happen when it is clicked. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {
@@ -265,4 +278,24 @@
 
   .container-luxe { max-width: 1400px; margin-inline: auto; padding-inline: 1.5rem; }
   @media (min-width: 768px) { .container-luxe { padding-inline: 2.5rem; } }
+
+  /* A thin scrollbar for panels inside the app's own chrome — Windows'
+     default is wide, grey and carries arrow buttons, which reads as an OS
+     window bolted into the page.
+
+     Built from currentColor so one class serves both the dark staff sidebar
+     and light popovers without a second variant. */
+  .scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, currentColor 25%, transparent) transparent;
+  }
+  .scroll-subtle::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll-subtle::-webkit-scrollbar-track { background: transparent; }
+  .scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, currentColor 22%, transparent);
+    border-radius: 999px;
+  }
+  .scroll-subtle:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, currentColor 38%, transparent);
+  }
 }

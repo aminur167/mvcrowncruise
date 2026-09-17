@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BedDouble, CalendarDays, Clock, MapPin, Star } from "lucide-react";
+import { OfferBadge } from "@/components/site/OfferBadge";
+import { PackagePrice } from "@/components/site/PackagePrice";
 import { parseLocalDate } from "@/lib/dates";
-import { formatBDT } from "@/lib/money";
 import type { Package } from "@/lib/api/types";
 
 type Props = {
@@ -98,17 +99,23 @@ export function PackageCard({ pkg, index = 0, itineraryHref, fallbackImage }: Pr
               <>
                 <BedDouble className="size-3.5 text-gold" />
                 <span className="eyebrow text-[8px] text-muted-foreground">Cabins</span>
-                <span className="text-xs font-semibold">{pkg.available_rooms} free</span>
+                {/* Free count against the total, so "3" reads as scarcity
+                    rather than as a number with nothing to measure it by. */}
+                <span className="text-xs font-semibold">
+                  {pkg.available_rooms} of {pkg.cabins_total} free
+                </span>
               </>
             )}
           </div>
         </div>
 
+        {pkg.offer && <OfferBadge offer={pkg.offer} className="mt-4" />}
+
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
             <div className="eyebrow text-muted-foreground text-[9px]">From / adult</div>
-            <div className="font-display text-xl text-gold-text leading-none mt-1">
-              {formatBDT(pkg.adult_price)}
+            <div className="leading-none mt-1">
+              <PackagePrice adultPrice={pkg.adult_price} offer={pkg.offer} />
             </div>
           </div>
         </div>

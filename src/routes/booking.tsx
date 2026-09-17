@@ -1454,9 +1454,37 @@ function StepPayment({
 
   const dueAmount = quote ? Number.parseFloat(quote.grand_total) : 0;
   const partialAmountNumber = Number.parseFloat(data.partialAmount || "0");
+
+  // The smallest first payment the server will take, from the package's own
+  // policy rather than a number assumed here. Rounded UP to the paisa:
+  // rounding down can land a hair under the server's figure and be refused,
+  // while being a paisa over is harmless.
+  const depositPercent = selectedPackage
+    ? Number.parseFloat(selectedPackage.min_deposit_percent)
+    : 0;
+  const depositFloor = Math.ceil(dueAmount * depositPercent) / 100;
+
   const partialInvalid =
     data.paymentType === "partial" &&
-    (!data.partialAmount || partialAmountNumber <= 0 || partialAmountNumber > dueAmount);
+    (!data.partialAmount ||
+      partialAmountNumber <= 0 ||
+      partialAmountNumber > dueAmount ||
+      partialAmountNumber < depositFloor);
+
+  // Quick-pay buttons the server will actually accept. A 25% button under a
+  // 50% policy is a button that always fails: it looks valid, passes the form
+  // and is refused at the pay step. The floor itself always leads, so there is
+  // one button that is certain to work.
+  const depositPresets = [
+    { pct: Math.ceil(depositPercent), amount: depositFloor.toFixed(2) },
+    ...[50, 75].map((pct) => ({ pct, amount: ((dueAmount * pct) / 100).toFixed(2) })),
+  ].filter(
+    (preset, i, all) =>
+      preset.pct <= 100 &&
+      Number.parseFloat(preset.amount) >= depositFloor &&
+      Number.parseFloat(preset.amount) < dueAmount &&
+      all.findIndex((other) => other.pct === preset.pct) === i,
+  );
 
   const payNow =
     data.paymentType === "partial" && partialAmountNumber > 0 ? partialAmountNumber : dueAmount;
@@ -1680,6 +1708,23 @@ function StepPayment({
                       <ForeignSurchargeLines room={room} />
                     </div>
                   ))}
+                  {/* The offer gets its own line rather than being folded into
+                      the total: the customer should see the bargain they were
+                      given, and the invoice shows the same two halves. */}
+                  {Number.parseFloat(quote.discount) > 0 && (
+                    <div className="pt-2.5 mt-1 border-t border-dashed border-border space-y-1.5">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Subtotal</span>
+                        <span className="text-foreground font-medium">
+                          {formatBDT(quote.subtotal)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-gold-text">
+                        <span>{quote.offer_label || "Discount"}</span>
+                        <span className="font-medium">−{formatBDT(quote.discount)}</span>
+                      </div>
+                    </div>
+                  )}
                   <div className="pt-2.5 mt-1 border-t border-dashed border-border flex justify-between items-baseline">
                     <div className="font-medium text-foreground text-sm">
                       Total{quote.rooms.length > 1 ? ` · ${quote.rooms.length} rooms` : ""}
@@ -1766,15 +1811,13 @@ function StepPayment({
                       className="w-full bg-background border border-border rounded-lg py-2.5 pl-7 pr-3 text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all"
                     />
                   </div>
-                  {dueAmount > 0 && (
+                  {dueAmount > 0 && depositPresets.length > 0 && (
                     <div className="flex gap-2">
-                      {[25, 50, 75].map((pct) => (
+                      {depositPresets.map(({ pct, amount }) => (
                         <button
                           key={pct}
                           type="button"
-                          onClick={() =>
-                            update({ partialAmount: String(Math.round((dueAmount * pct) / 100)) })
-                          }
+                          onClick={() => update({ partialAmount: amount })}
                           className="flex-1 min-h-11 rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-gold hover:text-gold-text transition-colors"
                         >
                           {pct}%
@@ -1784,7 +1827,8 @@ function StepPayment({
                   )}
                   {partialInvalid && (
                     <div id={partialErrorId} role="alert" className="text-xs text-destructive">
-                      Enter an amount between 1 and the total.
+                      Enter at least {formatBDT(depositFloor.toFixed(2))} (
+                      {Math.ceil(depositPercent)}% deposit) and no more than the total.
                     </div>
                   )}
                 </div>

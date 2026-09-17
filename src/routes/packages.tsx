@@ -7,7 +7,8 @@ import { CTA } from "@/components/site/CTA";
 import { ItineraryMap, type Stop } from "@/components/site/ItineraryMap";
 import { usePackages } from "@/hooks/queries/usePackages";
 import { parseLocalDate } from "@/lib/dates";
-import { formatBDT } from "@/lib/money";
+import { OfferBadge } from "@/components/site/OfferBadge";
+import { PackagePrice } from "@/components/site/PackagePrice";
 import type { Package } from "@/lib/api/types";
 import deck from "@/assets/deck-sunset.jpg";
 import cabin from "@/assets/cabin-luxury.jpg";
@@ -514,10 +515,11 @@ function PackagesPage() {
                       </li>
                     ))}
                   </ul>
+                  {pkg.offer && <OfferBadge offer={pkg.offer} className="mt-4 self-start" />}
                   <div className="mt-auto pt-6 flex items-end justify-between border-t border-border">
                     <div>
                       <div className="eyebrow text-muted-foreground text-[10px]">From / adult</div>
-                      <div className="font-display text-3xl">{formatBDT(pkg.adult_price)}</div>
+                      <PackagePrice adultPrice={pkg.adult_price} offer={pkg.offer} size="lg" />
                     </div>
                     {pkg.is_bookable ? (
                       <Link

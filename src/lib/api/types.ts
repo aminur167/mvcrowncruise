@@ -34,7 +34,29 @@ export interface Package {
   rating: string | null;
   /** Live count of sellable cabins not booked or admin-blocked. */
   available_rooms: number;
+  /** Cabins on the sailing altogether, so "3 left" can be read against
+   *  something. SSLCommerz's review expects stock visible before purchase. */
+  cabins_total: number;
+  /** The deposit the server will actually accept as a first payment. The
+   *  booking form builds its quick-pay buttons from this — a 25% button under
+   *  a 50% policy is a button that always fails. */
+  min_deposit_percent: Money;
+  /** The sailing's live offer, or null when there is none. Both prices come
+   *  computed; the browser never works out money for itself. */
+  offer: PackageOffer | null;
 }
+
+export type PackageOffer = {
+  /** Shown on the badge, e.g. "Eid Special". */
+  label: string;
+  discount_type: "percent" | "flat";
+  discount_value: Money;
+  /** ISO datetime, or null for an offer with no end date. */
+  ends_at: string | null;
+  /** Per-adult figures for the card: strike through `was`, show `now`. */
+  was_price: Money;
+  now_price: Money;
+};
 
 export type KidChargeType = "free" | "fixed" | "full_adult";
 
@@ -217,6 +239,14 @@ export interface RoomPriceBreakdown {
   foreigner_adult_surcharge: Money;
   foreigner_kid_surcharge: Money;
   foreigner_subtotal: Money;
+  /** What the cabin came to before the sailing's offer. Equal to `total` when
+   *  nothing was discounted, which is also what older bookings report. */
+  subtotal: Money;
+  /** The offer's name at the moment of booking, frozen so the invoice can
+   *  still name it after the offer has been edited off the package. "" when
+   *  none applied. */
+  offer_label: string;
+  discount: Money;
   total: Money;
   room_number?: string;
 }
@@ -225,6 +255,11 @@ export interface RoomPriceBreakdown {
 // total the customer is charged — one payment, one invoice.
 export interface PriceBreakdown {
   rooms: RoomPriceBreakdown[];
+  /** Booking-level offer figures: the sum of the rooms', never a second
+   *  calculation that could disagree with the rooms it summarises. */
+  subtotal: Money;
+  offer_label: string;
+  discount: Money;
   grand_total: Money;
 }
 
