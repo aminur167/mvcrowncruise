@@ -120,7 +120,16 @@ function isStepComplete(step: number, data: BookingData) {
 /** Add/remove/update helpers for the selected-rooms list, keyed by room id. */
 function addRoom(rooms: RoomSelection[], room: PackageRoom): RoomSelection[] {
   if (rooms.some((r) => r.room.id === room.id)) return rooms; // already selected
-  return [...rooms, { room, adultCount: 1, kidAges: [], foreignGuests: [] }];
+  // Filled to capacity, not to one. A cabin leaves inventory whether one guest
+  // takes it or four, so on this ship that is what is paid for either way —
+  // and opening at a single adult showed a price that did not move when the
+  // second person was added, which reads as a bug rather than as a policy.
+  // The counter still goes down: a party of one lowers it and the fare summary
+  // shows them the allowance coming back for the berth they are not using.
+  return [
+    ...rooms,
+    { room, adultCount: room.room_type.max_adults, kidAges: [], foreignGuests: [] },
+  ];
 }
 function removeRoom(rooms: RoomSelection[], roomId: number): RoomSelection[] {
   return rooms.filter((r) => r.room.id !== roomId);
@@ -2444,12 +2453,7 @@ function ConfirmScreen({ booking, contactName }: { booking: BookingPublic; conta
                       <span>Room base price</span>
                       <span>{formatBDT(room.room_base)}</span>
                     </div>
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>
-                        Adults ({room.adult_count} × {formatBDT(room.adult_price)})
-                      </span>
-                      <span>{formatBDT(room.adults_subtotal)}</span>
-                    </div>
+                    <CabinFareLines room={room} />
                     {room.kids.map((kid, k) => (
                       <div key={k} className="flex justify-between text-muted-foreground">
                         <span>Kid (age {kid.age})</span>
