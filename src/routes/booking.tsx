@@ -192,7 +192,12 @@ function Booking() {
           })),
         }
       : undefined;
-  const { data: quote, isFetching: quoting, error: quoteError } = useBookingQuote(quoteRequest);
+  const {
+    data: quote,
+    isFetching: quoting,
+    isStale: quoteStale,
+    error: quoteError,
+  } = useBookingQuote(quoteRequest);
 
   // Blocking problems in the passport fields (missing, malformed, or the same
   // passport in two cabins). The server enforces all of these; catching them
@@ -357,6 +362,7 @@ function Booking() {
                     update={update}
                     selectedPackage={selectedPackage}
                     quote={quote}
+                    quoteStale={quoteStale}
                     quoting={quoting}
                     quoteError={quoteError as ApiError | null}
                     onConfirm={handleConfirm}
@@ -411,6 +417,7 @@ function Booking() {
                       data={data}
                       selectedPackage={selectedPackage}
                       quote={quote}
+                      quoteStale={quoteStale}
                       quoting={quoting}
                     />
                     <HelpCard />
@@ -578,11 +585,14 @@ function SummaryCard({
   data,
   selectedPackage,
   quote,
+  quoteStale,
   quoting,
 }: {
   data: BookingData;
   selectedPackage: import("@/lib/api/types").PackageDetail;
   quote: import("@/lib/api/types").PriceBreakdown | undefined;
+  /** The figures belong to an older selection; dim them, do not remove them. */
+  quoteStale?: boolean;
   quoting: boolean;
 }) {
   const dates = `${parseLocalDate(selectedPackage.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} – ${parseLocalDate(selectedPackage.end_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
@@ -670,7 +680,11 @@ function SummaryCard({
                 <Loader2 className="size-3.5 animate-spin text-gold" /> Calculating your fare…
               </div>
             ) : quote ? (
-              <div className="space-y-2 text-xs">
+              <div
+                className={`space-y-2 text-xs transition-opacity duration-150 ${
+                  quoteStale ? "opacity-50" : ""
+                }`}
+              >
                 {/* One line per cabin — its number and that cabin's subtotal. */}
                 {quote.rooms.map((room, i) => (
                   <div key={i} className="flex justify-between text-muted-foreground">
@@ -1438,6 +1452,8 @@ function ForeignSurchargeLines({ room }: { room: import("@/lib/api/types").RoomP
 type StepPaymentProps = StepProps & {
   selectedPackage: import("@/lib/api/types").PackageDetail | undefined;
   quote: import("@/lib/api/types").PriceBreakdown | undefined;
+  /** The figures belong to an older selection; dim them, do not remove them. */
+  quoteStale?: boolean;
   quoting: boolean;
   quoteError: ApiError | null;
   onConfirm: (contact: BookingContactValues) => void | Promise<void>;
@@ -1453,6 +1469,7 @@ function StepPayment({
   update,
   selectedPackage,
   quote,
+  quoteStale,
   quoting,
   quoteError,
   onConfirm,
@@ -1702,8 +1719,16 @@ function StepPayment({
                 than updating silently. The quote failure is an alert: it blocks
                 checkout, so it must interrupt. */}
             <div className="px-5 pt-3.5 pb-1" aria-live="polite" aria-atomic="false">
-              <div className="eyebrow text-gold-text text-[10px] mb-2.5">Fare summary</div>
-              {quoting && (
+              <div className="eyebrow text-gold-text text-[10px] mb-2.5 flex items-center gap-2">
+                Fare summary
+                {quoting && quote && (
+                  <Loader2
+                    aria-hidden="true"
+                    className="size-3 animate-spin text-gold/70 shrink-0"
+                  />
+                )}
+              </div>
+              {quoting && !quote && (
                 <div className="flex items-center gap-2 text-muted-foreground py-1 text-sm">
                   <Loader2 aria-hidden="true" className="size-4 animate-spin text-gold" />{" "}
                   Calculating price…
@@ -1717,7 +1742,11 @@ function StepPayment({
                 </div>
               )}
               {quote && (
-                <div className="space-y-3 text-xs">
+                <div
+                  className={`space-y-3 text-xs transition-opacity duration-150 ${
+                    quoteStale ? "opacity-50" : ""
+                  }`}
+                >
                   {/* One itemised group per cabin. Multi-room bookings get a
                       room heading; a single room reads as one flat group. */}
                   {quote.rooms.map((room, i) => (
